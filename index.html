@@ -22,9 +22,9 @@
 
   <meta name="description" content="昨夜，说是梅花谢了。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="北海旧梦">
+<meta property="og:title" content="困在池塘里的鲸">
 <meta property="og:url" content="http://example.com/index.html">
-<meta property="og:site_name" content="北海旧梦">
+<meta property="og:site_name" content="困在池塘里的鲸">
 <meta property="og:description" content="昨夜，说是梅花谢了。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="yu1e">
@@ -43,7 +43,7 @@
   };
 </script>
 
-  <title>北海旧梦</title>
+  <title>困在池塘里的鲸</title>
   
 
 
@@ -94,7 +94,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">北海旧梦</h1>
+      <h1 class="site-title">困在池塘里的鲸</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
       <p class="site-subtitle" itemprop="description">Hacking and Coding</p>
@@ -158,7 +158,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/08/win32%E4%B8%8B%E7%9A%84%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/09/Netgear-psv-2020-0211/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -167,12 +167,12 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="北海旧梦">
+      <meta itemprop="name" content="困在池塘里的鲸">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/06/08/win32%E4%B8%8B%E7%9A%84%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E/" class="post-title-link" itemprop="url">win32下的栈溢出漏洞</a>
+            <a href="/2022/06/09/Netgear-psv-2020-0211/" class="post-title-link" itemprop="url">Netgear-psv-2020-0211漏洞调试</a>
         </h2>
 
         <div class="post-meta">
@@ -183,7 +183,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-06-08 22:23:34 / 修改时间：22:24:40" itemprop="dateCreated datePublished" datetime="2022-06-08T22:23:34+08:00">2022-06-08</time>
+              <time title="创建时间：2022-06-09 19:48:22 / 修改时间：19:56:42" itemprop="dateCreated datePublished" datetime="2022-06-09T19:48:22+08:00">2022-06-09</time>
             </span>
 
           
@@ -197,66 +197,153 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="Windows下的栈"><a href="#Windows下的栈" class="headerlink" title="Windows下的栈"></a>Windows下的栈</h4><h5 id="关于-stdcall-调用约定"><a href="#关于-stdcall-调用约定" class="headerlink" title="关于*__stdcall*调用约定"></a>关于*__stdcall*调用约定</h5><p>参数从右到左入栈，子函数执行栈平衡（<em>C++<em>中的</em>this</em>指针会作为参数传递给<em>ECX</em>寄存器，这个要注意）</p>
-<p>函数调用过程：</p>
-<p>1）子函数参数入栈</p>
-<p>2）返回地址入栈</p>
-<p>3）代码区跳转</p>
-<p>4）栈帧调整</p>
-<p>对于*__stdcall*来说，就是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">push 参数3</span><br><span class="line"></span><br><span class="line">push 参数2</span><br><span class="line"></span><br><span class="line">push 参数1</span><br><span class="line"></span><br><span class="line">call 子函数地址；call指令完成两个事情：将返回地址压栈，跳转到子函数的入口处)</span><br><span class="line"></span><br><span class="line">push ebp</span><br><span class="line"></span><br><span class="line">mov ebp,esp</span><br><span class="line"></span><br><span class="line">sub esp,xxx；上面三步操作是在子函数中执行的，因为是子函数来维持栈平衡</span><br></pre></td></tr></table></figure>
+          <p>针对Netgear的一种栈溢出漏洞</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/09/Netgear-psv-2020-0211/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
 
-<p>当函数返回的时候</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">add esp,xxx</span><br><span class="line"></span><br><span class="line">pop ebp</span><br><span class="line"></span><br><span class="line">retn；retn有两个作用，将栈顶元素作为返回地址弹出给EIP，让处理器跳转到弹出的地址</span><br></pre></td></tr></table></figure>
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
 
-<h4 id="修改邻接变量实验"><a href="#修改邻接变量实验" class="headerlink" title="修改邻接变量实验"></a>修改邻接变量实验</h4><p>源码</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PASSWORD <span class="string">&quot;1234567&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">verify_password</span> <span class="params">(<span class="type">char</span> *password)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> authenticated;</span><br><span class="line">	<span class="type">char</span> buffer[<span class="number">8</span>];<span class="comment">// add local buff</span></span><br><span class="line">	authenticated=<span class="built_in">strcmp</span>(password,PASSWORD);</span><br><span class="line">	<span class="built_in">strcpy</span>(buffer,password);<span class="comment">//over flowed here!	</span></span><br><span class="line">	<span class="keyword">return</span> authenticated;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> valid_flag=<span class="number">0</span>;</span><br><span class="line">	<span class="type">char</span> password[<span class="number">1024</span>];</span><br><span class="line">	<span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;please input password:       &quot;</span>);</span><br><span class="line">		<span class="built_in">scanf</span>(<span class="string">&quot;%s&quot;</span>,password);</span><br><span class="line">		valid_flag = verify_password(password);</span><br><span class="line">		<span class="keyword">if</span>(valid_flag)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;incorrect password!\n\n&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">&quot;Congratulation! You have passed the verification!\n&quot;</span>);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/09/ciscoRV110w-CVE-2020-3331/">
 
-<p>明显栈溢出，当输入的字符数大于7个的时候就会覆盖到其他变量（<em>C</em>会在输入的字符串后面自动添加*&#x2F;0*）</p>
-<p>通过IDA中得到子函数<em>strcpy</em>的内存地址为<em>0x00401054</em></p>
-<p>所以把断点下在<em>0x00401059</em>处，输入<em>qqqqqqq</em></p>
-<p>观察此时的栈结构，可以发现<em>EAX</em>中存储的<em>0x0012FB18</em>就是输入的<em>qqqqqq</em>&#x2F;<em>00</em>，因为<em>strcpy</em>的返回值（也就是<em>dest</em>）地址需要存储到<em>EAX</em>寄存器中</p>
-<p><img src="https://s2.loli.net/2022/06/06/9CHsv4NSydnDR2j.png" alt="image.png"></p>
-<p>下面<em>0x0012FB20</em>存储的就是<em>authenticated</em>的值（<em>int</em>型是双字，<em>4</em>字节）</p>
-<p>如果输入大于8个字符长度的字符串看一下</p>
-<p>可以发现此时多输入的<em>abc</em>已经覆盖了<em>authenticated</em>的地址</p>
-<p><img src="https://s2.loli.net/2022/06/06/tLIug5lpwxMS19U.png" alt="image.png"></p>
-<p>那么，如果输入的是刚好8个字符，后面自动添加的&#x2F;x00就会往后多覆盖一位，刚好将authenticated的值赋值为0</p>
-<p><img src="https://s2.loli.net/2022/06/06/oThkfGBjnWzmXxV.png" alt="image.png"></p>
-<h4 id="通过控制程序执行流进行代码植入"><a href="#通过控制程序执行流进行代码植入" class="headerlink" title="通过控制程序执行流进行代码植入"></a>通过控制程序执行流进行代码植入</h4><p>源码如下：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> PASSWORD <span class="string">&quot;1234567&quot;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">verify_password</span> <span class="params">(<span class="type">char</span> *password)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> authenticated;</span><br><span class="line">	<span class="type">char</span> buffer[<span class="number">44</span>];</span><br><span class="line">	authenticated=<span class="built_in">strcmp</span>(password,PASSWORD);</span><br><span class="line">	<span class="built_in">strcpy</span>(buffer,password);<span class="comment">//over flowed here!	</span></span><br><span class="line">	<span class="keyword">return</span> authenticated;</span><br><span class="line">&#125;</span><br><span class="line">main()</span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">int</span> valid_flag=<span class="number">0</span>;</span><br><span class="line">	<span class="type">char</span> password[<span class="number">1024</span>];</span><br><span class="line">	FILE * fp;</span><br><span class="line">	LoadLibrary(<span class="string">&quot;user32.dll&quot;</span>);<span class="comment">//prepare for messagebox</span></span><br><span class="line">	<span class="keyword">if</span>(!(fp=fopen(<span class="string">&quot;password.txt&quot;</span>,<span class="string">&quot;rw+&quot;</span>)))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">fscanf</span>(fp,<span class="string">&quot;%s&quot;</span>,password);</span><br><span class="line">	valid_flag = verify_password(password);</span><br><span class="line">	<span class="keyword">if</span>(valid_flag)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;incorrect password!\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;Congratulation! You have passed the verification!\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	fclose(fp);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yu1e">
+      <meta itemprop="description" content="昨夜，说是梅花谢了。">
+    </span>
 
-<p>根据上面的原理，不难理解这里完全可以通过覆盖返回地址，将程序跳转到去执行输入的数据，也就是执行<em>buffer</em>上的<em>shellcode</em></p>
-<p>这里的目的是向<em>password</em>.<em>txt</em>中写入可执行代码，然后调用API来弹出一个消息框</p>
-<p>程序中的<em>buffer</em>长度修改为<em>44</em>个字节，根据前面的分析，如果刚好输入44<em>个</em>字节的数据，那么<em>authenticated</em>将会变为<em>0</em>，出于字节对齐、容易辨认的原因，将“<em>4321</em>”作为一个输入单元</p>
-<p><em>buffer[44]<em>需要</em>11</em>个这样的输入单元进行覆盖，<em>authenticated</em>需要<em>1</em>个输入单元，前栈帧的<em>EBP</em>的位置需要<em>1</em>个输入单元，也就是第<em>14</em>个输入单元会覆盖返回地址</p>
-<p>现在将<em>password.txt</em>中输入<em>11</em>个”<em>4321</em>“，观察栈中的情况，断点依旧打在<em>0x00401059</em></p>
-<p><img src="https://s2.loli.net/2022/06/08/IGPRYkoWUKTyOES.png" alt="image.png"></p>
-<p>很容易得到<em>buffer</em>数组的起始地址为<em>0x0012FAF0</em></p>
-<p>也就是说，将<em>buffer</em>的起始地址<em>0x0012FAF0</em>写入<em>password</em>.<em>txt</em>的第<em>53</em>~<em>56</em>个字节的位置，那么程序的执行流就会被劫持到文件中写入的<em>shellcode</em></p>
-<p>现在就是需要给<em>password</em>.<em>txt</em>中植入机器代码</p>
-<p>让程序弹框就是需要调用<em>MessageBox</em>，这个<em>API</em>的参数如下：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">MessageBox</span><span class="params">( </span></span></span><br><span class="line"><span class="params"><span class="function"></span></span></span><br><span class="line"><span class="params"><span class="function">	HWND hWnd,</span></span></span><br><span class="line"><span class="params"><span class="function"></span></span></span><br><span class="line"><span class="params"><span class="function">	LPCTSTR lpText, </span></span></span><br><span class="line"><span class="params"><span class="function"></span></span></span><br><span class="line"><span class="params"><span class="function">	LPCTSTR lpCaption = <span class="literal">NULL</span>, </span></span></span><br><span class="line"><span class="params"><span class="function"></span></span></span><br><span class="line"><span class="params"><span class="function">	UINT nType = MB_OK </span></span></span><br><span class="line"><span class="params"><span class="function"></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span>;</span><br></pre></td></tr></table></figure>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="困在池塘里的鲸">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/09/ciscoRV110w-CVE-2020-3331/" class="post-title-link" itemprop="url">CVE-2020-3331漏洞调试</a>
+        </h2>
 
-<p><em>hwnd</em>传入<em>null</em>，<em>lpText</em>和<em>lpCaption</em>传入字符串“<em>yu1e</em>”，<em>nType</em>传入<em>null</em>，具体参数含义见百度</p>
-<p>现在要做的事情就是</p>
-<p>1）装载动态链接库<em>user32.dll</em>（这个程序中已经有了）</p>
-<p>2）在汇编语言中调用这个函数需要获取这个函数的入口地址</p>
-<p>3）在调用前需要向栈中按逆序压入<em>4</em>个参数</p>
-<p>获取函数入口地址的方法可以通过获取<em>user32.dll</em>在系统中加载的基址加上<em>MessageBox</em>在库中的偏移得到</p>
-<p>可以使用<em>VC6.0</em>自带的”<em>Dependency Walker</em>“来获取这些信息，任意拖一个带窗口的<em>PE</em>文件进去就可以看到<em>user32.dll</em>加载的基址和函数的偏移</p>
-<p><img src="https://s2.loli.net/2022/06/08/ENlutYO6BZcbKFo.png" alt="image.png"></p>
-<p>动态链接库的加载基址为<em>0x77D10000</em>，函数偏移为<em>0x000407EA</em>，最终函数的地址就是<em>0x77d507ea</em></p>
-<p>有了这个入口地址，就可以编写汇编代码了</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">XOR EBX,EBX</span><br><span class="line"></span><br><span class="line">PUSH EBX</span><br><span class="line"></span><br><span class="line">PUSH 65317579 #79-&gt;‘y’,75-&gt;‘u’</span><br><span class="line"></span><br><span class="line">MOV EAX,ESP #EAX这里是字符串指针</span><br><span class="line"></span><br><span class="line">PUSH EBX</span><br><span class="line"></span><br><span class="line">PUSH EAX</span><br><span class="line"></span><br><span class="line">PUSH EAX</span><br><span class="line"></span><br><span class="line">PUSH EBX</span><br><span class="line"></span><br><span class="line">MOV EAX,0x77d507ea</span><br><span class="line"></span><br><span class="line">CALL EAX</span><br></pre></td></tr></table></figure>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
 
-<p>然后在在线转机器码的网站上转一下</p>
-<p><a target="_blank" rel="noopener" href="https://shell-storm.org/online/Online-Assembler-and-Disassembler/">https://shell-storm.org/online/Online-Assembler-and-Disassembler/</a></p>
-<p>然后填入到txt中，不够的位置填0x90(nop指令)</p>
-<p><img src="https://s2.loli.net/2022/06/08/SH8sQ9rpTZencYf.png" alt="image.png"></p>
-<p>然后运行程序，成功弹窗</p>
-<p>这里有个疑问，为什么要用<em>XOR EBX,EBX</em>来将<em>EBX</em>置为<em>0</em>，是为了防止<em>PUSH 0</em>中的<em>NULL</em>，导致<em>strcpy</em>截断，也就是防止机器码中有<em>\x00</em></p>
+              <time title="创建时间：2022-06-09 19:47:56 / 修改时间：19:56:26" itemprop="dateCreated datePublished" datetime="2022-06-09T19:47:56+08:00">2022-06-09</time>
+            </span>
 
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>针对Cisco RV110w的栈溢出漏洞</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/09/ciscoRV110w-CVE-2020-3331/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/08/win32%E4%B8%8B%E7%9A%84%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yu1e">
+      <meta itemprop="description" content="昨夜，说是梅花谢了。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="困在池塘里的鲸">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/08/win32%E4%B8%8B%E7%9A%84%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E/" class="post-title-link" itemprop="url">win32下的栈溢出漏洞</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-08 22:23:34" itemprop="dateCreated datePublished" datetime="2022-06-08T22:23:34+08:00">2022-06-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-06-09 19:30:01" itemprop="dateModified" datetime="2022-06-09T19:30:01+08:00">2022-06-09</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>《0day安全：软件漏洞分析技术第二版》学习笔记</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/08/win32%E4%B8%8B%E7%9A%84%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E/">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -337,14 +424,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">2</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
