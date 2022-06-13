@@ -20,23 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="《0day安全：软件漏洞分析技术第二版》学习笔记">
+  <meta name="description" content="一点杂记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="window堆的工作原理">
-<meta property="og:url" content="http://example.com/2022/06/12/windows-HeapPrinciple/index.html">
+<meta property="og:title" content="山高路遥，莫问归期">
+<meta property="og:url" content="http://example.com/2022/06/13/%E5%B1%B1%E9%AB%98%E8%B7%AF%E9%81%A5%EF%BC%8C%E8%8E%AB%E9%97%AE%E5%BD%92%E6%9C%9F/index.html">
 <meta property="og:site_name" content="困在池塘里的鲸">
-<meta property="og:description" content="《0day安全：软件漏洞分析技术第二版》学习笔记">
+<meta property="og:description" content="一点杂记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://s2.loli.net/2022/06/11/fqIhKCBrWUQd1ML.png">
-<meta property="og:image" content="https://s2.loli.net/2022/06/11/tBgUcaNyrvRYTsZ.png">
-<meta property="article:published_time" content="2022-06-12T11:27:29.000Z">
-<meta property="article:modified_time" content="2022-06-12T11:28:36.098Z">
+<meta property="article:published_time" content="2022-06-13T12:44:09.000Z">
+<meta property="article:modified_time" content="2022-06-13T13:45:40.975Z">
 <meta property="article:author" content="yu1e">
-<meta property="article:tag" content="学习笔记">
+<meta property="article:tag" content="生活着">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://s2.loli.net/2022/06/11/fqIhKCBrWUQd1ML.png">
 
-<link rel="canonical" href="http://example.com/2022/06/12/windows-HeapPrinciple/">
+<link rel="canonical" href="http://example.com/2022/06/13/%E5%B1%B1%E9%AB%98%E8%B7%AF%E9%81%A5%EF%BC%8C%E8%8E%AB%E9%97%AE%E5%BD%92%E6%9C%9F/">
 
 
 <script id="page-configurations">
@@ -49,7 +46,7 @@
   };
 </script>
 
-  <title>window堆的工作原理 | 困在池塘里的鲸</title>
+  <title>山高路遥，莫问归期 | 困在池塘里的鲸</title>
   
 
 
@@ -165,7 +162,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/12/windows-HeapPrinciple/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/13/%E5%B1%B1%E9%AB%98%E8%B7%AF%E9%81%A5%EF%BC%8C%E8%8E%AB%E9%97%AE%E5%BD%92%E6%9C%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -178,7 +175,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          window堆的工作原理
+          山高路遥，莫问归期
         </h1>
 
         <div class="post-meta">
@@ -189,11 +186,11 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-06-12 19:27:29 / 修改时间：19:28:36" itemprop="dateCreated datePublished" datetime="2022-06-12T19:27:29+08:00">2022-06-12</time>
+              <time title="创建时间：2022-06-13 20:44:09 / 修改时间：21:45:40" itemprop="dateCreated datePublished" datetime="2022-06-13T20:44:09+08:00">2022-06-13</time>
             </span>
 
           
-            <div class="post-description">《0day安全：软件漏洞分析技术第二版》学习笔记</div>
+            <div class="post-description">一点杂记</div>
 
         </div>
       </header>
@@ -204,57 +201,32 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="Windows堆的历史"><a href="#Windows堆的历史" class="headerlink" title="Windows堆的历史"></a><u>Windows堆的历史</u></h4><p>微软没有完全公开<em>Windows</em>的堆管理细节，目前<em>Windows</em> <em>NT4</em>&#x2F;<em>2000</em> <em>sp4</em>基本上清楚了</p>
-<p><em>Windows 2000~Windows XP sp1</em>：堆管理只考虑了完成分配任务和性能，没有考虑安全因素</p>
-<h4 id="堆与栈的区别"><a href="#堆与栈的区别" class="headerlink" title="堆与栈的区别"></a><u>堆与栈的区别</u></h4><p>栈的分配和回收由系统来完成</p>
-<p>堆的特性如下：</p>
-<p>1）在程序运行时动态分配的内存，在程序设计时不能预先决定</p>
-<p>2）使用时需要程序员用专用函数进行申请，如<em>C</em>中的<em>malloc</em>，<em>C++<em>的</em>new</em>函数，有可能申请失败</p>
-<p>3）一般使用一个堆指针来使用申请到的内存</p>
-<p>4）使用完毕之后需要把堆指针传给堆释放函数回收这片内存，否则会造成内存泄漏，典型的释放函数包括<em>free</em>，<em>delete</em>等</p>
-<h4 id="堆的数据结构与管理策略"><a href="#堆的数据结构与管理策略" class="headerlink" title="堆的数据结构与管理策略"></a><u>堆的数据结构与管理策略</u></h4><h5 id="1-这几点问题需要知道"><a href="#1-这几点问题需要知道" class="headerlink" title="1.这几点问题需要知道"></a>1.这几点问题需要知道</h5><p>1）堆区经过反复的申请、释放操作之后，原本大片连续的空闲内存区可能呈现出大小不等且空闲的块。</p>
-<p>2）堆管理程序必须能够正确地识别哪些内存区域是正在被程序使用的占用块，哪些是空闲块</p>
-<p>3）堆管理程序必须能够尽可能的最优化分配空闲内存块</p>
-<h5 id="2-现代操作系统的数据结构"><a href="#2-现代操作系统的数据结构" class="headerlink" title="2.现代操作系统的数据结构"></a>2.现代操作系统的数据结构</h5><p>一般包括堆块和堆表两类</p>
-<p>堆块：堆区的内存按不同大小组织成块，以堆块为单位进行标识。一个堆块包括两个部分：块首和块身。块首是一个堆块头部的几个字节，标识堆块自身的信息，如大小、是否占用等；块身是数据区。</p>
-<p>堆表：堆表一般位于堆区的起始位置，用于索引堆区所有堆块的重要信息，包括堆块的位置、大小、空闲与否等。<u>在Windows中，占用态的堆块被使用它的程序索引，而堆表只索引所有空闲态的堆块</u>。最重要的堆表有两种：空闲双向链表<em>Freelist</em>（空表）和快速单向链表<em>Lookaside</em>（快表）</p>
-<ul>
-<li>空表</li>
-</ul>
-<p>空闲堆块的块首中包含一对指针，这堆指针用于将空闲堆块组织成双向链表，按照堆块大小不同，空表总共被分为<em>128</em>条。</p>
-<p>堆区一开始的堆表区中有一个<em>128</em>项的指针数组，叫空表索引（<em>Freelist array</em>），数组的每一项包括两个指针，用于标识一条空表。</p>
-<p><u>空表的第二项<em>Free[1]<em>标识了堆中所有大小为</em>8</em>字节的空闲堆块，之后每个索引项指示的空闲堆块递增<em>8</em>字节，需要注意的是，<em>Free[0]<em>所标识的空表比较特殊，这条双向链表链接的是所有大于等于</em>1024</em>字节的堆块，这些堆块按照大小在<em>0</em>号空表中升序地依次排列</u>。</p>
-<p><img src="https://s2.loli.net/2022/06/11/fqIhKCBrWUQd1ML.png" alt="image.png"></p>
-<ul>
-<li>快表</li>
-</ul>
-<p>快表是<u>单向链表</u>，且<u>不会发生堆块合并</u></p>
-<p>也有<u>128条</u>，组织结构与空表类似，<u>总是被初始化为空，每条快表最多只有4个节点</u>，很快就会填满</p>
-<h5 id="3-堆中的操作"><a href="#3-堆中的操作" class="headerlink" title="3.堆中的操作"></a>3.堆中的操作</h5><p>堆块分配、堆块释放和堆块合并，分配和释放由程序申请和执行，堆块合并由操作系统完成</p>
-<ul>
-<li>堆块分配</li>
-</ul>
-<p>分为快表分配、普通空表分配和零号空表（*free[0]*）分配</p>
-<p>快表分配就是找符合条件的最小块。</p>
-<p>空表分配要先从*Free[0]*中反向查找最后一个块，看能否满足要求，如果可以，再正向搜索最小能够满足要求的空闲堆块进行分配。</p>
-<p>“找零钱”现象：当分配一个比请求的大小稍大些的堆块的时候，会从这个分配的堆块中割除一部分给程序，剩下的部分重新标注块首，链入空表。</p>
-<p>快表只有在精确分配时才会分配，故不存在“找钱”现象。</p>
-<ul>
-<li>堆块释放</li>
-</ul>
-<p>改块首，链入相应的空表，所有的释放快都链入堆表的末尾，分配的时候也从末尾拿。</p>
-<ul>
-<li>堆块合并</li>
-</ul>
-<p>取下两个相邻的空闲块，合并，调整块首信息，重新链入。</p>
-<p>小块：<em>size&lt;1KB</em></p>
-<p>大块：<em>1KB≤size＜512KB</em></p>
-<p>巨块：<em>size≥512KB</em></p>
-<p><img src="https://s2.loli.net/2022/06/11/tBgUcaNyrvRYTsZ.png" alt="image.png"></p>
-<h4 id="几个要点"><a href="#几个要点" class="headerlink" title="几个要点"></a><u>几个要点</u></h4><p>1.快表不发生合并</p>
-<p>2.快表只有精确匹配时才会分配，不存在搜索次优解和找零钱现象</p>
-<p>3.分配和释放时优先时使用快表，失败时采用空表</p>
-<p>4.快表只有<em>4</em>项</p>
+        <p>​		前段时间在知乎上刷到了一部日本电影《生之欲》，主人公渡边是一个小科长，常年累月伏案工作，寒暑不曾间断，透过黑白的胶片，只消一眼，便能看出他一辈子的规规矩矩和小心谨慎。</p>
+<p>​		恰如影片中的旁白所说的那样，</p>
+<p>​		“他只是为消磨时间而活着，他不算是活着”</p>
+<p>​		直到有一天，医生告诉他，他已经是癌症晚期，就是这样的渡边，也急切地想要活下去，“不能做手术吗？”眼睛里满是求生的欲望，如果这个时候问他“你为了什么而活下去呢？”，我相信他也答不出，是墙上一张又一张政府颁发的荣誉？还是虚假的自我欺骗式的身份满足？这些在死亡面前，算什么呢？</p>
+<p>​		人往往会因为生存而忘了生活，当真的想起来的时候，却忘了如何生活。</p>
+<p>​		电影名叫《生之欲》，欲是什么，是每个人活在这个世界上都在压抑的东西，渡边一生都在压抑欲望，我想，把这种压抑欲望的人生不能简单的归于日本的民族性和社会性，否则，电影也不会引起这么多的共鸣。</p>
+<p>​		渡边所做的最后的挣扎，去花掉自己的五万块钱，去酒吧找舞女宿醉，去决心做些什么，如果说生命的意义容易追寻，那么又何苦挣扎，人都是懒惰的，当满足了温饱之后，就开始逃避“我为什么活着”这个问题，直到某一天晚上从梦中醒来，找到了自己，发现自己一天天，一年年，什么也没做，这个人生，什么也没做。</p>
+<p>​		当然，如果用虚无主义的思想来看待人生，其实“什么也没做”的大概念已经涵盖了所有人生的小概念。</p>
+<p>​		可是人生并不是这样，虽然我们大多数人都和渡边一样，学习、工作、恋爱、结婚、生子，我们的工作也如渡边的工作，忙忙碌碌却也一事无成，婚姻也许不如意，但为了不让父母操心、为了孩子成长，便凑合着过下去。生存已经带给了我们太多的压力，以至于我们从没想过去做些什么，即使有那么一瞬间的冲动，便随即退缩。就这样，生命便在无数个日子里失去了重量。</p>
+<p>​		我也曾问自己，人生的意义是什么？从童颜到鹤发，最终归于尘土，就像金庸小说里写的那样，“到头这一身，难逃那一日，急急流年，涛涛逝水，百岁光阴，七十者稀”，人生的过程和结果，旅途的风景和终点，每个人都有每个人的看法。</p>
+<p>​		我自认为我是个唯心主义的人，我始终觉得人的内心应该是凌驾于物质之上的，这也是人生的意义不可能有准确答案的原因。我一直不敢在入睡前思考人生的意义，因为我发现每每念及，思维总会陷入死胡同，终而辗转难眠，有时候会想，不如就这样过吧，大多数人都在这样活着，我为什么不呢？可在第二天醒来，面对一成不变的生活，那种抵触情绪和不甘又会驱使着我继续学习。</p>
+<p>​		上大学之后，好像再也没有用心的看过晚霞，我记得，在读中学那会，我还是很喜欢坐在窗边看天的，什么也不做，什么也不想，就那样看着，特别是夏季的晚霞，从浸染天际到消失无踪，可能只有半小时，天色暗下来之后，只有聒噪的蝉鸣仿佛在宣示着一天的逝去。</p>
+<p>​		其实人这一生，就是那一刻的晚霞，不管多么绚丽，总是会归于沉寂，甚至无边的黑夜里没有任何东西能证明它的存在，但是这又怎么样呢？“朝菌不知晦朔，蟪蛄不知春秋”，相比于宇宙，我也许是连朝菌都算不上，人生来就是渺小的，人生也确实没有意义，但是这并不妨碍人为了生活而去改变现状的决心。</p>
+<p>​		最后以白桦的《船》结尾吧，这也是我的偶像《漏洞战争：软件漏洞分析精要》的作者泉哥对所有在安全研究道路上前进的人的寄语，泉哥比我大8岁，毕业于福建中医药大学，学的是医学，最后却能凭自己的努力入职腾讯应急响应中心，拿到微软的offer，我觉得这是值得每一个从事这个行业的人应该打起信心的一点，只要坚持和热爱，最坏的结果，也不过是大器晚成：</p>
+<p>​		我有过多次这样的奇遇，<br>​		从天堂到地狱只在瞬息之间：<br>​		每一朵可爱、温柔的浪花<br>​		都成了突然崛起、随即倾倒的高山。</p>
+<p>​		每一滴海水都变脸色，<br>​		刚刚还是那样的美丽、蔚蓝；<br>​		旋涡纠缠着旋涡，<br>​		我被抛向高空又投进深渊……</p>
+<p>​		当时我甚至想到过轻生，<br>​		眼前一片苦海无边；<br>​		放弃了希望就像放弃了舵柄，<br>​		在暴力之下只能沉默和哀叹。</p>
+<p>​		今天我才有资格嘲笑昨天的自己，<br>​		为昨天落叶似的惶恐感到羞惭；<br>​		虚度了多少年华，<br>​		船身多次被礁石撞穿……</p>
+<p>​		千万次在大洋里撒网，<br>​		才捕获到一点点生活的经验，<br>​		才恍然大悟，<br>​		啊！道理原是如此浅显；</p>
+<p>​		你要航行吗?<br>​		必然会有千妖百怪出来阻拦；<br>​		暴虐的欺凌是它们的游戏，<br>​		制造灭亡是它们唯一的才干。</p>
+<p>​		命中注定我要常常和它们相逢，<br>​		因为我的名字叫做船；<br>​		面对强大于自身千万倍的对手，<br>​		能援救自己的只有清醒和勇敢。</p>
+<p>​		恐惧只能使自己盲目，<br>​		盲目只能夸大魔鬼的狰狞嘴脸；<br>​		也许我的样子比它们更可怕，<br>​		当我以命相拼，一往无前！</p>
+<p>​		只要我还有一根完整的龙骨，<br>​		绝不驶进避风的港湾；<br>​		把生命放在征途上，<br>​		让勇敢来决定道路的宽窄、长短。</p>
+<p>​		我完完全全的自由了，<br>​		船头成为埋葬它们的铁铲；<br>​		我在波浪中有节奏地跳跃，<br>​		就像荡着一个巨大的秋千。</p>
+<p>​		即使它们终于把我撕碎，<br>​		变成一些残破的木片，<br>​		我不会沉沦，决不！<br>​		我还会在浪尖上飞旋。</p>
+<p>​		后来者还会在残片上认出我，<br>​		未来的诗人会唱然长叹：<br>​		“这里有一个幸福的灵魂，<br>​		它曾经是一艘前进着的航船……”</p>
 
     </div>
 
@@ -264,7 +236,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag"># 学习笔记</a>
+              <a href="/tags/%E7%94%9F%E6%B4%BB%E7%9D%80/" rel="tag"># 生活着</a>
           </div>
 
         
@@ -273,13 +245,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/06/10/shellcode-developShellCode/" rel="prev" title="shellcode-动态定位API函数">
-      <i class="fa fa-chevron-left"></i> shellcode-动态定位API函数
+    <a href="/2022/06/13/Windows%E5%A0%86%E6%BA%A2%E5%87%BA%E5%8E%9F%E7%90%86%E5%92%8C%E8%B0%83%E8%AF%95/" rel="prev" title="Windows堆溢出原理和调试">
+      <i class="fa fa-chevron-left"></i> Windows堆溢出原理和调试
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/06/12/windows-HeapDebugging/" rel="next" title="windows堆调试">
-      windows堆调试 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -338,7 +307,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Windows%E5%A0%86%E7%9A%84%E5%8E%86%E5%8F%B2"><span class="nav-number">1.</span> <span class="nav-text">Windows堆的历史</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A0%86%E4%B8%8E%E6%A0%88%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">2.</span> <span class="nav-text">堆与栈的区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A0%86%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%A1%E7%90%86%E7%AD%96%E7%95%A5"><span class="nav-number">3.</span> <span class="nav-text">堆的数据结构与管理策略</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E8%BF%99%E5%87%A0%E7%82%B9%E9%97%AE%E9%A2%98%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93"><span class="nav-number">3.1.</span> <span class="nav-text">1.这几点问题需要知道</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E7%8E%B0%E4%BB%A3%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.</span> <span class="nav-text">2.现代操作系统的数据结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E5%A0%86%E4%B8%AD%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">3.3.</span> <span class="nav-text">3.堆中的操作</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%A0%E4%B8%AA%E8%A6%81%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">几个要点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

