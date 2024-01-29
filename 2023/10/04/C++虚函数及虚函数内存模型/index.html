@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="静态联编简单来说，就是一个父类Person的指针指向子类Student的对象，父类和子类有同名的函数，这个时候调用该函数，默认调用的是父类的函数 123456789101112131415161718192021222324252627class CPerson&#123;public:	void say()    &#123;		std::cout&lt;&lt;&quot;CPerson&amp;qu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++虚函数及虚函数内存模型">
+<meta property="og:url" content="http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="静态联编简单来说，就是一个父类Person的指针指向子类Student的对象，父类和子类有同名的函数，这个时候调用该函数，默认调用的是父类的函数 123456789101112131415161718192021222324252627class CPerson&#123;public:	void say()    &#123;		std::cout&lt;&lt;&quot;CPerson&amp;qu">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:33:26.309Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++虚函数及虚函数内存模型</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/C++%E7%B1%BB%E5%AF%B9%E8%B1%A1%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&text=C++虚函数及虚函数内存模型"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&is_video=false&description=C++虚函数及虚函数内存模型"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++虚函数及虚函数内存模型&body=Check out this article: http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&name=C++虚函数及虚函数内存模型&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&t=C++虚函数及虚函数内存模型"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E8%81%94%E7%BC%96"><span class="toc-number">1.</span> <span class="toc-text">静态联编</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">虚函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%AF%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">3.</span> <span class="toc-text">纯虚函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.</span> <span class="toc-text">虚函数内存模型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B2%A1%E6%9C%89%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.1.</span> <span class="toc-text">没有继承关系的虚函数模型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E5%8D%95%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.2.</span> <span class="toc-text">有单继承关系的虚函数内存模型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.3.</span> <span class="toc-text">有多继承关系的虚函数内存模型</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">虚函数内存模型总结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++虚函数及虚函数内存模型
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="静态联编"><a href="#静态联编" class="headerlink" title="静态联编"></a>静态联编</h4><p>简单来说，就是一个父类Person的指针指向子类Student的对象，父类和子类有同名的函数，这个时候调用该函数，默认调用的是父类的函数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CPerson</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">say</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">		std::cout&lt;&lt;<span class="string">&quot;CPerson&quot;</span>&lt;&lt;std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PStudent</span>:<span class="keyword">public</span> CPerson&#123;</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">say</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">		std::cout&lt;&lt;<span class="string">&quot;PStudent &quot;</span>&lt;&lt;std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">&#123;</span></span></span><br><span class="line"><span class="params"><span class="function">	CPerson person;</span></span></span><br><span class="line"><span class="params"><span class="function">    PStudent stu;</span></span></span><br><span class="line"><span class="params"><span class="function">	CPerson *Pperson=<span class="literal">NULL</span>;</span></span></span><br><span class="line"><span class="params"><span class="function">    Pperson=&amp;person;</span></span></span><br><span class="line"><span class="params"><span class="function">	Pperson-&gt;say();</span></span></span><br><span class="line"><span class="params"><span class="function">    Pperson=&amp;stu;</span></span></span><br><span class="line"><span class="params"><span class="function">    Pperson-&gt;say();</span></span></span><br><span class="line"><span class="params"><span class="function">    system(<span class="string">&quot;pause&quot;</span>);</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">return</span> <span class="number">0</span>;</span></span></span><br><span class="line"><span class="params"><span class="function">&#125;</span></span></span><br><span class="line"><span class="params"><span class="function">    </span></span></span><br><span class="line"><span class="params"><span class="function"><span class="comment">//输出CPerson，CPerson</span></span></span></span><br></pre></td></tr></table></figure>
+
+<p>虚函数就是为了解决这个问题</p>
+<h4 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h4><p>父类的方法前面加上virtual修饰，子类同名的方法不加virtual默认也是virtual</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CPerson</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">		std::cout&lt;&lt;<span class="string">&quot;CPerson&quot;</span>&lt;&lt;std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PStudent</span>:<span class="keyword">public</span> CPerson&#123;</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">		std::cout&lt;&lt;<span class="string">&quot;PStudent &quot;</span>&lt;&lt;std::endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">&#123;</span></span></span><br><span class="line"><span class="params"><span class="function">	CPerson person;</span></span></span><br><span class="line"><span class="params"><span class="function">    PStudent stu;</span></span></span><br><span class="line"><span class="params"><span class="function">	CPerson *Pperson=<span class="literal">NULL</span>;</span></span></span><br><span class="line"><span class="params"><span class="function">    Pperson=&amp;person;</span></span></span><br><span class="line"><span class="params"><span class="function">	Pperson-&gt;say();</span></span></span><br><span class="line"><span class="params"><span class="function">    Pperson=&amp;stu;</span></span></span><br><span class="line"><span class="params"><span class="function">    Pperson-&gt;say();</span></span></span><br><span class="line"><span class="params"><span class="function">    system(<span class="string">&quot;pause&quot;</span>);</span></span></span><br><span class="line"><span class="params"><span class="function">    <span class="keyword">return</span> <span class="number">0</span>;</span></span></span><br><span class="line"><span class="params"><span class="function">&#125;</span></span></span><br><span class="line"><span class="params"><span class="function">    </span></span></span><br><span class="line"><span class="params"><span class="function"><span class="comment">//输出CPerson，PStudent</span></span></span></span><br></pre></td></tr></table></figure>
+
+<p>这种又叫动态联编，也就是编译成exe之后，在动态运行的时候，程序才知道要调用的函数地址</p>
+<p>析构函数最好</p>
+<p>PS：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">只有类的成员函数才能能声明为虚函数，因为虚函数只适用于有继承关系的类对象。</span><br><span class="line"></span><br><span class="line">静态成员不能是虚函数，因为静态成员本质并不属于某个类。</span><br><span class="line"></span><br><span class="line">构造函数无法定义为虚函数。</span><br></pre></td></tr></table></figure>
+
+<h4 id="纯虚函数"><a href="#纯虚函数" class="headerlink" title="纯虚函数"></a>纯虚函数</h4><p>有些情况下，在基类中不对虚函数给出有意义的实现，仅当做统一的编程接口来使用，它的实现留给该基类的派生类去做，这种称为纯虚函数。</p>
+<p>纯虚函数相当于接口模板，一个类中如果定义了纯虚函数，则这个类被称为抽象类，C++规定抽象类不能被直接实例化为对象。</p>
+<p>派生类继承父类的纯虚函数后，若给出具体实现方可被实例化，否则也是抽象类。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CAnimal</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say</span><span class="params">()</span></span>=<span class="number">0</span>;<span class="comment">//要加=0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CDog</span>:<span class="keyword">public</span> CAnimal</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">say</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;旺旺\n&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	CDog c;</span><br><span class="line">	c.<span class="built_in">say</span>();</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="虚函数内存模型"><a href="#虚函数内存模型" class="headerlink" title="虚函数内存模型"></a>虚函数内存模型</h4><h5 id="没有继承关系的虚函数模型"><a href="#没有继承关系的虚函数模型" class="headerlink" title="没有继承关系的虚函数模型"></a>没有继承关系的虚函数模型</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CBase</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	CBase c;</span><br><span class="line">	<span class="comment">//CBase对象的大小为四个字节</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(c));</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>c对象的地址为<code>0x008FF930</code>,这里存的是<code>0x00AF7B34</code>，是一个指针，指向的内容是<code>0x00af1091</code>，在反汇编中查看<code>0x00af1091</code>的内容，发现是<code>jmp CBase::say (0AF18A0h)</code></p>
+<h5 id="有单继承关系的虚函数内存模型"><a href="#有单继承关系的虚函数内存模型" class="headerlink" title="有单继承关系的虚函数内存模型"></a>有单继承关系的虚函数内存模型</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CBase</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CChild</span> :<span class="keyword">public</span> CBase</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say2</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	CChild c;</span><br><span class="line">	<span class="comment">//CChild对象的大小为四个字节</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(c));</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>c对象的地址为<code>0x0045F950</code>，地址里的内容为<code>0x004f7bf4</code>，该指针指向的内容如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0x004F7BF4  91 10 4f 00  ?.O.</span><br><span class="line">0x004F7BF8  e8 13 4f 00  ?.O.</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>0x004f1091</code>存的是<code>jmp CBase::say (04F1900h)</code>，</p>
+<p><code>0x004f13e8</code>存的是<code>jmp CChild::say2 (04F21C0h)</code></p>
+<h5 id="有多继承关系的虚函数内存模型"><a href="#有多继承关系的虚函数内存模型" class="headerlink" title="有多继承关系的虚函数内存模型"></a>有多继承关系的虚函数内存模型</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CBase</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CBase2</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say3</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CChild</span> :<span class="keyword">public</span> CBase,<span class="keyword">public</span> CBase2</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">say2</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	CChild c;</span><br><span class="line">	<span class="comment">//CChild对象的大小为八个字节</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, <span class="built_in">sizeof</span>(c));</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>c对象的地址为<code>0x00CBF8C0</code>，往后八个字节，依次存放的是<code>0x00db7bfc</code>，<code>0x00db7b3c</code></p>
+<p><code>0x00db7bfc</code>指针指向了两个地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0x00DB7BFC  91 10 db 00</span><br><span class="line">0x00DB7C00  e8 13 db 00</span><br></pre></td></tr></table></figure>
+
+<p><code>0x00db1091</code>存放的是<code>jmp CBase::say (0DB19D0h)</code><br><code>0x00db13e8</code>存放的是<code>jmp CChild::say2 (0DB1900h)</code><br><code>0x00db7b3c</code>指向了一个地址，<code>0x00db13f7</code>，该地址存放的指令是<code>jmp CBase2::say3</code></p>
+<h4 id="虚函数内存模型总结"><a href="#虚函数内存模型总结" class="headerlink" title="虚函数内存模型总结"></a>虚函数内存模型总结</h4><p>在不存在继承关系或者单继承的情况下，只要一个类中存在有虚函数，对象内就会产生一个虚表指针，指向虚函数表。虚函数表里存的是当前类内所有虚函数。如果一个类中有多继承关系，那么有几个继承关系就有几个虚表指针，子类自己的虚函数是存在第一个虚表指针里面的。</p>
+<p>虚函数表只存在一个，保存在常量区。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E8%81%94%E7%BC%96"><span class="toc-number">1.</span> <span class="toc-text">静态联编</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">虚函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%AF%E8%99%9A%E5%87%BD%E6%95%B0"><span class="toc-number">3.</span> <span class="toc-text">纯虚函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.</span> <span class="toc-text">虚函数内存模型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B2%A1%E6%9C%89%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.1.</span> <span class="toc-text">没有继承关系的虚函数模型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E5%8D%95%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.2.</span> <span class="toc-text">有单继承关系的虚函数内存模型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E5%A4%9A%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.3.</span> <span class="toc-text">有多继承关系的虚函数内存模型</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">虚函数内存模型总结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&text=C++虚函数及虚函数内存模型"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&is_video=false&description=C++虚函数及虚函数内存模型"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++虚函数及虚函数内存模型&body=Check out this article: http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&title=C++虚函数及虚函数内存模型"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&name=C++虚函数及虚函数内存模型&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E5%8F%8A%E8%99%9A%E5%87%BD%E6%95%B0%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/&t=C++虚函数及虚函数内存模型"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

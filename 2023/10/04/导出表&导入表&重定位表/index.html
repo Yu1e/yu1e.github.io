@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="导出表DataDirectory数据目录表字段PE文件的可选PE头中有NumberOfRvaAndSizes数据目录表个数字段和DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]数据目录表字段，IMAGE_NUMBEROF_DIRECTORY_ENTRIES宏的值是16 DataDirectory的16项分别如下（第15项不重要） 12345678910">
+<meta property="og:type" content="article">
+<meta property="og:title" content="导出表&amp;导入表&amp;重定位表">
+<meta property="og:url" content="http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&%E5%AF%BC%E5%85%A5%E8%A1%A8&%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="导出表DataDirectory数据目录表字段PE文件的可选PE头中有NumberOfRvaAndSizes数据目录表个数字段和DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]数据目录表字段，IMAGE_NUMBEROF_DIRECTORY_ENTRIES宏的值是16 DataDirectory的16项分别如下（第15项不重要） 12345678910">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/HKnTvAOZ6SmGq9W.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/XB9EampU2KtMbRS.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/icFkalW9oEPO3gQ.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/cplfqdoIACHMbY3.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/fnBQJjoa7yqSEZh.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:41:17.126Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/HKnTvAOZ6SmGq9W.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>导出表&amp;导入表&amp;重定位表</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/%E5%A3%B3%E7%9A%84%E5%8E%9F%E7%90%86/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/%E5%B0%86shellcode%E5%86%99%E5%85%A5PE%E6%96%87%E4%BB%B6/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&text=导出表&amp;导入表&amp;重定位表"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&is_video=false&description=导出表&amp;导入表&amp;重定位表"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=导出表&amp;导入表&amp;重定位表&body=Check out this article: http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&name=导出表&amp;导入表&amp;重定位表&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&t=导出表&amp;导入表&amp;重定位表"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8"><span class="toc-number">1.</span> <span class="toc-text">导出表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#DataDirectory%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%AD%97%E6%AE%B5"><span class="toc-number">1.1.</span> <span class="toc-text">DataDirectory数据目录表字段</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.2.</span> <span class="toc-text">导出表结构体</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%A5dll%E4%B8%BA%E4%BE%8B%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.3.</span> <span class="toc-text">以dll为例介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E8%A1%A8%E3%80%81%E5%90%8D%E7%A7%B0%E8%A1%A8%E5%92%8C%E5%BA%8F%E5%8F%B7%E8%A1%A8"><span class="toc-number">1.4.</span> <span class="toc-text">地址表、名称表和序号表</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#RVA%E5%92%8CFOA%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.5.</span> <span class="toc-text">RVA和FOA之间的转换</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5%E8%A1%A8"><span class="toc-number">2.</span> <span class="toc-text">导入表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">2.1.</span> <span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5%E8%A1%A8%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">2.2.</span> <span class="toc-text">导入表结构体</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8"><span class="toc-number">3.</span> <span class="toc-text">重定位表</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        导出表&amp;导入表&amp;重定位表
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="导出表"><a href="#导出表" class="headerlink" title="导出表"></a>导出表</h4><h5 id="DataDirectory数据目录表字段"><a href="#DataDirectory数据目录表字段" class="headerlink" title="DataDirectory数据目录表字段"></a>DataDirectory数据目录表字段</h5><p>PE文件的可选PE头中有<code>NumberOfRvaAndSizes</code>数据目录表个数字段和<code>DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]</code>数据目录表字段，<code>IMAGE_NUMBEROF_DIRECTORY_ENTRIES</code>宏的值是16</p>
+<p><code>DataDirectory</code>的16项分别如下（第15项不重要）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_EXPORT				O   <span class="comment">//导出表</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_IMPORT				1   <span class="comment">//导入表</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_RESOURCE				2   <span class="comment">//资源</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_EXCEPTION				3   <span class="comment">//异常</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_SECURITY				4   <span class="comment">//安全</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_BASERELOC				5   <span class="comment">//重定位表</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_DEBUG					6   <span class="comment">//调试信息</span></span></span><br><span class="line"><span class="comment">//  IMAGE_DIRECTORY_ENTRY_COPYRIGHT 7 // (x86 usage)</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_ARCHITECTURE			7   <span class="comment">//版权信息</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_GLOBALPTR				8   <span class="comment">//RVA of GP</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_TLS					9   <span class="comment">//TLS Directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG 			10  <span class="comment">// Load Configuration directory</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT 			11  <span class="comment">// Bound Import Directory in headers</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_IAT					12  <span class="comment">//导入函数地址表</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_DELAY_ IMPORT			13  <span class="comment">//Delay Load Import Descriptors</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE DIRCTORY_ENTRY_COM_DESCRIPTOR 		14  <span class="comment">//COM Runtime descriptor</span></span></span><br></pre></td></tr></table></figure>
+
+<p><code>DataDirectory</code>的数据目录结构体如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_DATA_DIRECTORY</span>&#123;</span><br><span class="line">	DWORD VirtualAddress; <span class="comment">//数据的RVA</span></span><br><span class="line">	DWORD Size; <span class="comment">//数据的大小</span></span><br><span class="line">&#125;IMAGE_DATA_DIRECTORY,*PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+
+<p><code>DataDirectory</code>数组的第0项存储的就是导出表的<strong>地址</strong></p>
+<p>注意这里的VirtualAddress是在内存中的偏移，如果要通过代码拿到导出表在文件中的地址，还需要将RVA转换成FOA（文件偏移）再加上文件的起始地址</p>
+<p>现在拿到了导出表的地址，就可以找到导出表了</p>
+<h5 id="导出表结构体"><a href="#导出表结构体" class="headerlink" title="导出表结构体"></a>导出表结构体</h5><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">IMAGE_EXPORT_DIRECTORY</span> &#123;</span></span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">    不重要</span></span><br><span class="line"><span class="comment">    DWORD   Characteristics;</span></span><br><span class="line"><span class="comment">    DWORD   TimeDateStamp;  //时间戳</span></span><br><span class="line"><span class="comment">    WORD    MajorVersion;</span></span><br><span class="line"><span class="comment">    WORD    MinorVersion;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    DWORD   Name;   <span class="comment">//指向导出表文件名RVA</span></span><br><span class="line">    DWORD   Base;   <span class="comment">//导出函数起始序号</span></span><br><span class="line">    DWORD   NumberOfFunctions;  <span class="comment">//所有导出函数的个数</span></span><br><span class="line">    DWORD   NumberOfNames;  <span class="comment">//以函数名字导出的函数的个数</span></span><br><span class="line">    DWORD   AddressOfFunctions;     <span class="comment">// 导出函数地址表的RVA</span></span><br><span class="line">    DWORD   AddressOfNames;         <span class="comment">// 导出函数名称表的RVA</span></span><br><span class="line">    DWORD   AddressOfNameOrdinals;  <span class="comment">// 导出函数序号表的RVA</span></span><br><span class="line">&#125; IMAGE_EXPORT_DIRECTORY, *PIMAGE_EXPORT_DIRECTORY;</span><br></pre></td></tr></table></figure>
+
+<h5 id="以dll为例介绍"><a href="#以dll为例介绍" class="headerlink" title="以dll为例介绍"></a>以dll为例介绍</h5><p>比如下面这个dll</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">sum</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">div</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">func1</span><span class="params">(<span class="type">char</span> a, <span class="type">char</span> c)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>def文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">LIBRARY &quot;dllTest&quot;</span><br><span class="line">EXPORTS</span><br><span class="line">sum @ 2</span><br><span class="line">div @ 3 NONAME</span><br><span class="line">func1 @ 7</span><br></pre></td></tr></table></figure>
+
+<p>这里的NONAME表示的是该导出函数没有函数名，只有函数序号，那么在逆向人员拿到DLL的时候，是看不到这个函数的名称的，也就猜不到函数的作用</p>
+<ul>
+<li>导出函数个数NumberOfFunctions</li>
+</ul>
+<p>上面的dll有三个导出函数，但是在PE editor里看到的该字段值为6，也就是<code>导出函数序号最大值-导出函数序号最小值+1</code></p>
+<ul>
+<li>以函数名导出的函数的个数NumberOfNames</li>
+</ul>
+<p>该字段值为2</p>
+<h5 id="地址表、名称表和序号表"><a href="#地址表、名称表和序号表" class="headerlink" title="地址表、名称表和序号表"></a>地址表、名称表和序号表</h5><p><a href="https://smms.app/image/HKnTvAOZ6SmGq9W" target="_blank"><img src="https://s2.loli.net/2024/01/14/HKnTvAOZ6SmGq9W.png" ></a></p>
+<p>如果要通过函数名称找到目标函数，就是先找到函数名称表，比如找name5函数，name5函数在名称表的序号是5，然后在序号表的第6个索引中找到其值为6，最后在地址表的第7项找到函数的地址</p>
+<p>序号表里的序号值不是def文件里的序号，而是<code>def文件中的序号+Base（导出函数的起始序号）</code></p>
+<h5 id="RVA和FOA之间的转换"><a href="#RVA和FOA之间的转换" class="headerlink" title="RVA和FOA之间的转换"></a>RVA和FOA之间的转换</h5><p><a href="https://smms.app/image/XB9EampU2KtMbRS" target="_blank"><img src="https://s2.loli.net/2024/01/14/XB9EampU2KtMbRS.png" alt="PE文件解析3.png"></a></p>
+<p>如果要定位的数据是在区段头或者可选PE头或者PE头部分，那么</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RVA=FOA</span><br></pre></td></tr></table></figure>
+
+<p>如果要定位的数据在区段部分，那么</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">目标数据的FOA-所在区段的FOA=数据的RVA-区段的RVA</span><br></pre></td></tr></table></figure>
+
+<h4 id="导入表"><a href="#导入表" class="headerlink" title="导入表"></a>导入表</h4><h5 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h5><p>如果调用函数不是在dll中而是在源码中直接一起编译的话，函数的代码是直接存放在exe文件中的</p>
+<p>调用dll文件函数原理：程序在调用dll文件中的函数时，并不是把dll文件中的函数代码编译到当前exe中，而是把dll文件对应的函数地址保存在了exe中</p>
+<p>demo，mydll.dll中定义了两个函数sum，func1，在usedll.exe中使用这个dll中的sum函数</p>
+<p>在OD中找到<code>call mydll.sum</code>的位置，也就是<code>call dword ptr ds:[0x5361BC]</code>，发现<code>0x5361BC</code>里存放的是<code>0x1005853A</code>，此处的代码就是<code>jmp sum (1005C890h)</code></p>
+<p>也就是说，在运行exe的时候，call dll中的函数，会在call 后面填上dll函数的地址</p>
+<p>那么没有运行exe的时候，在文件中这个位置存放的是什么呢？</p>
+<p>在010editor上看一下<code>0x005361BC</code>里存放的是什么</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0x005361BC的RVA=0x005361BC-0x00400000(imageBase)=0x001361bc</span><br><span class="line"></span><br><span class="line">在010editor中发现该地址位于.idata区段中，该区段的起始RVA=0x00136000（DWORD VirtualAddress）</span><br><span class="line"></span><br><span class="line">那么0x005361BC在区段中的偏移就是0x001361bc-0x00136000=0x1bc</span><br><span class="line"></span><br><span class="line">FOA=0x1bc+0xDD800(DWORD PointerToRawData)=0xdd9bc</span><br><span class="line"></span><br><span class="line">0xdd9bc处存放的是0x00136414，该地址实际上也是一个RVA，用同样的方法计算出FOA是0xddc14</span><br><span class="line"></span><br><span class="line">查看文件中0xddc14处的内容，发现是一个字符串，也就是dll函数的名称</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://smms.app/image/icFkalW9oEPO3gQ" target="_blank"><img src="https://s2.loli.net/2024/01/14/icFkalW9oEPO3gQ.png" ></a></p>
+<p>也就是说，在硬盘中的时候，call dll函数是不知道函数的地址的，只有在运行的时候，这个位置才会填上dll函数的地址</p>
+<h5 id="导入表结构体"><a href="#导入表结构体" class="headerlink" title="导入表结构体"></a>导入表结构体</h5><p>可以通过<code>DataDirectory</code>的第二项找到_IMAGE_DATA_DIRECTORY的结构体</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> IMAGE_DIRECTORY_ENTRY_IMPORT				1</span></span><br></pre></td></tr></table></figure>
+
+<p><code>_IMAGE_DATA_DIRECTORY</code>结构体定义如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_DATA_DIRECTORY</span>&#123;</span><br><span class="line">	DWORD VirtualAddress; <span class="comment">//数据的RVA</span></span><br><span class="line">	DWORD Size; <span class="comment">//数据的大小</span></span><br><span class="line">&#125;IMAGE_DATA_DIRECTORY,*PIMAGE_DATA_DIRECTORY;</span><br></pre></td></tr></table></figure>
+
+<p>通过该结构体的第一个字段即<code>VirtualAddress</code>，即RVA，就能定位到导入表</p>
+<p><a href="https://smms.app/image/cplfqdoIACHMbY3" target="_blank"><img src="https://s2.loli.net/2024/01/14/cplfqdoIACHMbY3.png" ></a></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_IMPORT_DESCRIPTOR</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        DWORD   Characteristics;   </span><br><span class="line">        <span class="comment">//重点，自身是一个RVA，指向IMAGE_THUNK_DATA（导入名称表，INT）结构的数组</span></span><br><span class="line">        DWORD   OriginalFirstThunk;     </span><br><span class="line">    &#125; DUMMYUNIONNAME;</span><br><span class="line">    DWORD   TimeDateStamp;</span><br><span class="line">    DWORD   ForwarderChain;                 </span><br><span class="line">    <span class="comment">//指向被输入的DLL的ASCII字符串的RVA</span></span><br><span class="line">    DWORD   Name;</span><br><span class="line">    <span class="comment">//重点，自身也是RVA，指向输入地址表（IAT），IAT是IMAGE_THUNK_DATA结构的数组         </span></span><br><span class="line">    DWORD   FirstThunk;           </span><br><span class="line">&#125; IMAGE_IMPORT_DESCRIPTOR;</span><br></pre></td></tr></table></figure>
+
+<p>导出表整个文件只有一份，但是导入表可以有很多份，也就是说导入表这里是一个数组</p>
+<ul>
+<li>OriginalFirstThunk字段介绍</li>
+</ul>
+<p>该字段自身是一个RVA，指向<code>IMAGE_THUNK_DATA</code>（导入名称表，INT）结构的数组</p>
+<p><code>IMAGE_THUNK_DATA</code>的结构如下，是个联合体，在不同情况下的字段名称不一样，大小为4个字节，也就是说，<code>IMAGE_THUNK_DATA</code>虽然叫导入名称表，但是有时候存的是导入函数的序号，那怎么知道这里是按序号导入还是按名称导入的呢？根据<code>IMAGE_THUNK_DATA</code>的最高位来判断，如果为1，则是按序号导入，否则是按名称导入。</p>
+<p>如果最高位为1，剩下的31位就是序号。</p>
+<p>如果最高位不为1，那么<code>IMAGE_THUNK_DATA</code>存储的就是RVA，通过<code>RVA+ImageFileBuffer</code>就能找到<code>IMAGE_IMPORT_BY_NAME</code>结构体</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_THUNK_DATA32</span> &#123;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        DWORD ForwarderString;     </span><br><span class="line">        DWORD Function;             </span><br><span class="line">        DWORD Ordinal;</span><br><span class="line">        DWORD AddressOfData;      </span><br><span class="line">    &#125; u1;</span><br><span class="line">&#125; IMAGE_THUNK_DATA32;</span><br><span class="line"><span class="keyword">typedef</span> IMAGE_THUNK_DATA32 * PIMAGE_THUNK_DATA32;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_IMPORT_BY_NAME</span> &#123;</span><br><span class="line">	WORD Hint;<span class="comment">//导入函数索引(根据编译器的不同这个地方放的东西不一样)，不重要</span></span><br><span class="line">	CHAR Name[<span class="number">1</span>];</span><br><span class="line">&#125; _IMAGE_IMPORT_BY_NAME，*PIMAGE_IMPORT_BY_NAME;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>FirstThunk字段介绍</li>
+</ul>
+<p>前面讲了在call dll函数的时候，call 的地址只有在运行的时候才是dll函数的地址，在文件中存储的时候，这个位置是存放的函数名，这就是<code>FirstThunk</code>的作用，<code>FirstThunk</code>指向的IAT在文件中存储的时候指向的也是<code>_IMAGE_IMPORT_BY_NAME</code>，也就是函数名称，在加载的时候就会被替换为dll函数地址</p>
+<h4 id="重定位表"><a href="#重定位表" class="headerlink" title="重定位表"></a>重定位表</h4><p>首先看一段代码</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&quot;myd1l.h&quot;</span></span></span><br><span class="line"><span class="type">int</span> a = <span class="number">100</span>;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;the value=%d\n&quot;</span>,a);</span><br><span class="line">	<span class="type">int</span> b = <span class="built_in">sum</span>(<span class="number">1</span>，<span class="number">2</span>);</span><br><span class="line">	<span class="type">int</span> c = <span class="built_in">func2</span>();</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在OD中发现全局变量a的地址是一个写死的地址，如果开启了ASLR的程序在随机加载的时候，就需要通过修复来确保这种在文件中写死地址的变量加载到目的地址，这就是重定位表的作用</p>
+<p>PE文件创建了多张表，用来存放这种写死地址的数据的位置</p>
+<p>重定位表还是先通过<code>_IMAGE_DATA__DIRECTORY</code>来找到<code>_IMAGE_BASE_RELOCATION</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_BASE_RELOCATION</span>&#123;</span><br><span class="line">	DWORD VirtualAddress;</span><br><span class="line">	DWORD SizeOfBlock; <span class="comment">//整个数据块的大小</span></span><br><span class="line">	<span class="comment">//WORD TypeOffset[1];</span></span><br><span class="line">&#125; IMAGE_BASE_RELOCATION;</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://smms.app/image/fnBQJjoa7yqSEZh" target="_blank"><img src="https://s2.loli.net/2024/01/14/fnBQJjoa7yqSEZh.png" ></a></p>
+<p>比如有个RVA是0x4002，这个数据块是怎么存进来的</p>
+<p>首先<code>VirtualAddress</code>会存0x4000，然后会在后面的WORD类型的数据中存下0x2,此时如果又有一个RVA是0x4018，同样直接在这个数据块后面的WORD类型的数据中存下0x18</p>
+<p>一个数据块后面最多可以存下的偏移范围最大是0x1000，也就是说，如果一个数据块的VirtualAddress字段是0x4000，那么在RVA属于0x4000~0x5000的范围内，都会往这个块后面添加，同样，如果超过了这个范围，就会新增一个数据块</p>
+<p>一个数据块后面有很多WORD类型的数据，怎么判断哪些数据是需要修复的呢？一个WORD有16位，如果高4位&#x3D;3，那么就是需要修复的，此时取出<code>后12位+VirtualAddress</code>就得到要修复的地址RVA</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8"><span class="toc-number">1.</span> <span class="toc-text">导出表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#DataDirectory%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95%E8%A1%A8%E5%AD%97%E6%AE%B5"><span class="toc-number">1.1.</span> <span class="toc-text">DataDirectory数据目录表字段</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%BC%E5%87%BA%E8%A1%A8%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">1.2.</span> <span class="toc-text">导出表结构体</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%A5dll%E4%B8%BA%E4%BE%8B%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.3.</span> <span class="toc-text">以dll为例介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%9C%B0%E5%9D%80%E8%A1%A8%E3%80%81%E5%90%8D%E7%A7%B0%E8%A1%A8%E5%92%8C%E5%BA%8F%E5%8F%B7%E8%A1%A8"><span class="toc-number">1.4.</span> <span class="toc-text">地址表、名称表和序号表</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#RVA%E5%92%8CFOA%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2"><span class="toc-number">1.5.</span> <span class="toc-text">RVA和FOA之间的转换</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5%E8%A1%A8"><span class="toc-number">2.</span> <span class="toc-text">导入表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">2.1.</span> <span class="toc-text">前置知识</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AF%BC%E5%85%A5%E8%A1%A8%E7%BB%93%E6%9E%84%E4%BD%93"><span class="toc-number">2.2.</span> <span class="toc-text">导入表结构体</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8"><span class="toc-number">3.</span> <span class="toc-text">重定位表</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&text=导出表&amp;导入表&amp;重定位表"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&is_video=false&description=导出表&amp;导入表&amp;重定位表"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=导出表&amp;导入表&amp;重定位表&body=Check out this article: http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&title=导出表&amp;导入表&amp;重定位表"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&name=导出表&amp;导入表&amp;重定位表&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/%E5%AF%BC%E5%87%BA%E8%A1%A8&amp;%E5%AF%BC%E5%85%A5%E8%A1%A8&amp;%E9%87%8D%E5%AE%9A%E4%BD%8D%E8%A1%A8/&t=导出表&amp;导入表&amp;重定位表"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

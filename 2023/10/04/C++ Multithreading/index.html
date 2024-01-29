@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="创建线程函数1234567891011121314HANDLE CreateThread(    &#x2F;&#x2F;指向SECURITY_ATTRIBUTES的指针，用于定义新线程的安全属性，一般设置成NULL    LPSECURITY_ATTRIBUTES lpThreadAttributes,    &#x2F;&#x2F;分配以字节数表示的线程堆栈的大小，默认值是0，一般设置成NULL    DWORD dwStackSi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++多线程基础">
+<meta property="og:url" content="http://example.com/2023/10/04/C++%20Multithreading/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="创建线程函数1234567891011121314HANDLE CreateThread(    &#x2F;&#x2F;指向SECURITY_ATTRIBUTES的指针，用于定义新线程的安全属性，一般设置成NULL    LPSECURITY_ATTRIBUTES lpThreadAttributes,    &#x2F;&#x2F;分配以字节数表示的线程堆栈的大小，默认值是0，一般设置成NULL    DWORD dwStackSi">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:31:17.191Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>C++多线程基础</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/C++%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/C++%20Multithreading/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/C++%20Multithreading/&text=C++多线程基础"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/C++%20Multithreading/&is_video=false&description=C++多线程基础"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++多线程基础&body=Check out this article: http://example.com/2023/10/04/C++%20Multithreading/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/C++%20Multithreading/&name=C++多线程基础&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/C++%20Multithreading/&t=C++多线程基础"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E5%87%BD%E6%95%B0"><span class="toc-number">1.</span> <span class="toc-text">创建线程函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3API"><span class="toc-number">2.</span> <span class="toc-text">多线程相关API</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E8%AE%BF%E9%97%AE%E8%B5%84%E6%BA%90%E5%86%B2%E7%AA%81"><span class="toc-number">3.</span> <span class="toc-text">解决访问资源冲突</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E7%9B%B8%E5%90%8C%E8%B5%84%E6%BA%90%E4%BA%A7%E7%94%9F%E5%86%B2%E7%AA%81%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">多线程访问相同资源产生冲突的问题</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95A%EF%BC%9A%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0"><span class="toc-number">3.2.</span> <span class="toc-text">解决方法A：原子操作函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95B%EF%BC%9A%E4%B8%B4%E7%95%8C%E5%8C%BA"><span class="toc-number">3.3.</span> <span class="toc-text">解决方法B：临界区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88C%EF%BC%9A%E4%BA%92%E6%96%A5%E4%BD%93"><span class="toc-number">3.4.</span> <span class="toc-text">解决方案C：互斥体</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        C++多线程基础
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="创建线程函数"><a href="#创建线程函数" class="headerlink" title="创建线程函数"></a>创建线程函数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">HANDLE <span class="title function_">CreateThread</span><span class="params">(</span></span><br><span class="line"><span class="params">    <span class="comment">//指向SECURITY_ATTRIBUTES的指针，用于定义新线程的安全属性，一般设置成NULL</span></span></span><br><span class="line"><span class="params">    LPSECURITY_ATTRIBUTES lpThreadAttributes,</span></span><br><span class="line"><span class="params">    <span class="comment">//分配以字节数表示的线程堆栈的大小，默认值是0，一般设置成NULL</span></span></span><br><span class="line"><span class="params">    DWORD dwStackSize,</span></span><br><span class="line"><span class="params">    <span class="comment">//指向一个线程函数地址，每个线程都有自己的线程函数，线程函数是线程具体的执行代码</span></span></span><br><span class="line"><span class="params">    LPTHREAD_START_ROUTINE lpStartAddress,</span></span><br><span class="line"><span class="params">    <span class="comment">//传递给线程函数的参数</span></span></span><br><span class="line"><span class="params">    LPVOID lpParameter,</span></span><br><span class="line"><span class="params">    <span class="comment">//表示创建线程的运行状态，其中CREATE_SUSPEND表示挂起当前创建的线程，而0表示立即执行当前创建的进程</span></span></span><br><span class="line"><span class="params">    DWORD dwCreationFlags,</span></span><br><span class="line"><span class="params">    <span class="comment">//返回新创建的线程的ID编号，不需要返回线程ID则直接设置成NULL</span></span></span><br><span class="line"><span class="params">    LPDWORD lpThreadID</span></span><br><span class="line"><span class="params">)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果创建成功，则返回线程的句柄</p>
+<p>线程函数ThreadProc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DWORD WINAPI ThreadProc(</span><br><span class="line">	_In_ LPVOID lpParameter</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>主线程结束，其他子线程也会随之结束，需要使用WaitForSingleObject()</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//第一个参数是线程句柄，第二个参数-1表示等待线程执行结束</span><br><span class="line">WaitForSingleObject(hThread,-1);</span><br></pre></td></tr></table></figure>
+
+<h4 id="多线程相关API"><a href="#多线程相关API" class="headerlink" title="多线程相关API"></a>多线程相关API</h4><p>demo</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;tlhelp32.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// 创建所有线程快照</span></span><br><span class="line">	HANDLE hThreadList = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, <span class="number">0</span>);</span><br><span class="line">	THREADENTRY32 threadInfo&#123; <span class="keyword">sizeof</span>(THREADENTRY32) &#125;;</span><br><span class="line">	<span class="comment">// 遍历所有线程</span></span><br><span class="line">	BOOL isSuccess = Thread32First(hThreadList, &amp;threadInfo);</span><br><span class="line">	<span class="keyword">if</span> (isSuccess)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">do</span></span><br><span class="line">		&#123;</span><br><span class="line">			<span class="comment">// 指定一个线程所在的进程，如果是目标进程的线程，则进行进程操作</span></span><br><span class="line">			<span class="comment">// 为了方便测试，指定的是单线程的进程</span></span><br><span class="line">			<span class="keyword">if</span> (threadInfo.th32OwnerProcessID == <span class="number">1</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="built_in">printf</span>(<span class="string">&quot;Process ID:%d\n&quot;</span>, threadInfo.th32OwnerProcessID);</span><br><span class="line">				<span class="comment">// 获取目标线程句柄</span></span><br><span class="line">				HANDLE hThreadHandle = OpenThread(THREAD_ALL_ACCESS, <span class="literal">NULL</span>, threadInfo.th32ThreadID);</span><br><span class="line">				<span class="comment">// 挂起进程</span></span><br><span class="line">				SuspendThread(hThreadHandle);</span><br><span class="line">				<span class="comment">// ResumeThread(hThreadHandle);</span></span><br><span class="line">				CloseHandle(hThreadHandle);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">while</span> (Thread32Next(hThreadList, &amp;threadInfo));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="解决访问资源冲突"><a href="#解决访问资源冲突" class="headerlink" title="解决访问资源冲突"></a>解决访问资源冲突</h4><h5 id="多线程访问相同资源产生冲突的问题"><a href="#多线程访问相同资源产生冲突的问题" class="headerlink" title="多线程访问相同资源产生冲突的问题"></a>多线程访问相同资源产生冲突的问题</h5><p>正常当多个线程访问同一个变量的时候，结果是不可预知的</p>
+<p>demo</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">LONG g_count;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">myThreadProc1</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	_In_ LPVOID lpParameter</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		g_count++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">myThreadProc2</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	_In_ LPVOID lpParameter</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		g_count++;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, myThreadProc1, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	HANDLE hThread2 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, myThreadProc2, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(hThread1, <span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(hThread2, <span class="number">-2</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, g_count);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread1);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread2);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>g_count</code>的值不固定</p>
+<h5 id="解决方法A：原子操作函数"><a href="#解决方法A：原子操作函数" class="headerlink" title="解决方法A：原子操作函数"></a>解决方法A：原子操作函数</h5><p><code>InterLockedIncrement()</code>，可以让子线程的操作一次性执行完而不会中途被CPU挂起</p>
+<p>将<code>g_count++</code>改为<code>InterlockedIncrement(&amp;g_count);</code></p>
+<h5 id="解决方法B：临界区"><a href="#解决方法B：临界区" class="headerlink" title="解决方法B：临界区"></a>解决方法B：临界区</h5><p><code>InterLockedIncrement()</code>函数只能实现某个变量的操作，只能使得一个整数型数据做简单数据运算的时候是原子的，但是大部分时候我们想要的是一整段代码是原子的，就需要使用<strong>临界区</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">临界区概述：用于多线程的互斥访问。如果有多个线程试图同时访问临界区，那么在有一个线程进入临界区后，其他试图访问的线程将被挂起，直到进入临界区的线程离开。 临界区在被释放后，其他线程可以继续抢占，并以此达到对临界区的互斥访问。</span><br></pre></td></tr></table></figure>
+
+<p>进入临界区 <code>EnterCriticalSection</code></p>
+<p>离开临界区 <code>LeaveCriticalSection</code></p>
+<p>只要代码在<code>EnterCriticalSection</code>和<code>LeaveCriticalSection</code>之间，就不会被其他线程夺占资源</p>
+<p>在使用临界区前，需要使用<code>InitializeCriticalSection</code>初始化一个临界区，使用完后需要调用<code>DeleteCriticalSection</code>销毁临界区</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">LONG g_count;</span><br><span class="line">CRITICAL_SECTION criticalSection&#123; <span class="number">0</span> &#125;;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">myThreadProc1</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	_In_ LPVOID lpParameter</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 进入指定临界区</span></span><br><span class="line">		<span class="built_in">EnterCriticalSection</span>(&amp;criticalSection);</span><br><span class="line">		g_count++;</span><br><span class="line">		<span class="comment">// 离开指定临界区</span></span><br><span class="line">		<span class="built_in">LeaveCriticalSection</span>(&amp;criticalSection);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">myThreadProc2</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	_In_ LPVOID lpParameter</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 进入指定临界区</span></span><br><span class="line">		<span class="built_in">EnterCriticalSection</span>(&amp;criticalSection);</span><br><span class="line">		g_count++;</span><br><span class="line">		<span class="comment">// 离开指定临界区</span></span><br><span class="line">		<span class="built_in">LeaveCriticalSection</span>(&amp;criticalSection);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// 初始化临界区</span></span><br><span class="line">	<span class="built_in">InitializeCriticalSection</span>(&amp;criticalSection);</span><br><span class="line">	HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, myThreadProc1, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	HANDLE hThread2 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, myThreadProc2, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(hThread1, <span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(hThread2, <span class="number">-2</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, g_count);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread1);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread2);</span><br><span class="line">	<span class="comment">// 销毁临界区</span></span><br><span class="line">	<span class="built_in">DeleteCriticalSection</span>(&amp;criticalSection);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="解决方案C：互斥体"><a href="#解决方案C：互斥体" class="headerlink" title="解决方案C：互斥体"></a>解决方案C：互斥体</h5><p>上面使用临界区的方法的问题就在于，如果某个线程死在临界区里面了，那别的线程都寄了</p>
+<p>互斥体:<br>内核对象同步-等待函数原型</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD <span class="title">WaitForSingle0bject</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	HANDLE hHandle,内核对象句柄</span></span></span><br><span class="line"><span class="params"><span class="function">	DWORD dwMilliseconds等待时间</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">DWORD <span class="title">WaitForMultiple0bjects</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	DWORD nCount,<span class="comment">//等待句柄数量，最大MAXIMUM_WAIT_OBJECTS=64</span></span></span></span><br><span class="line"><span class="params"><span class="function">	<span class="type">const</span> HANDLE *lpHandles,<span class="comment">//句柄数组</span></span></span></span><br><span class="line"><span class="params"><span class="function">	BOOL bWaitAll,<span class="comment">//是否全部等待</span></span></span></span><br><span class="line"><span class="params"><span class="function">	DWORD dwMilliseconds<span class="comment">//等待多久</span></span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br></pre></td></tr></table></figure>
+
+<p>互斥体有两个状态：激发态、非激发态。<br>它有一个概念，叫做线程拥有权，与临界区类似。<br>当一个互斥体没有被任何一个线程拥有时，它处于激发态，也可以说锁是打开的。<br>当一个线程调用了<code>WaitForSingleObject</code>，函数会立刻返回，并将互斥体设置为非激发态，互斥体被锁住，该线程获得拥有权。<br>其它线程调用<code>WaitForSingleObject</code>函数的线程无法获得拥有权，只能一直等待互斥体，他们全部被阻塞。<br>当线程A调用<code>ReleaseMutex</code>函数，将互斥体释放，即为解锁，此时互斥体不被任何对象拥有，被设置为激发态，会在等待它的线程中随机选择一个重复前面的步骤。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">LONG g_count;</span><br><span class="line">HANDLE g_handle;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">myThreadProc1</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	_In_ LPVOID lpParameter</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">WaitForSingleObject</span>(g_handle, <span class="number">-1</span>);</span><br><span class="line">		g_count++;</span><br><span class="line">		<span class="built_in">ReleaseMutex</span>(g_handle);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">DWORD WINAPI <span class="title">myThreadProc2</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	_In_ LPVOID lpParameter</span></span></span><br><span class="line"><span class="params"><span class="function">)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">size_t</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">WaitForSingleObject</span>(g_handle, <span class="number">-1</span>);</span><br><span class="line">		g_count++;</span><br><span class="line">		<span class="built_in">ReleaseMutex</span>(g_handle);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// 第一个参数是权限，第二个参数是当前线程是否是互斥体的拥有者，第三个对象是互斥体名称</span></span><br><span class="line">	g_handle = <span class="built_in">CreateMutex</span>(<span class="literal">NULL</span>, FALSE, <span class="string">L&quot;myMutex&quot;</span>);</span><br><span class="line">	HANDLE hThread1 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, myThreadProc1, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	HANDLE hThread2 = <span class="built_in">CreateThread</span>(<span class="literal">NULL</span>, <span class="literal">NULL</span>, myThreadProc2, <span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(hThread1, <span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">WaitForSingleObject</span>(hThread2, <span class="number">-2</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, g_count);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread1);</span><br><span class="line">	<span class="built_in">CloseHandle</span>(hThread2);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E5%87%BD%E6%95%B0"><span class="toc-number">1.</span> <span class="toc-text">创建线程函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9B%B8%E5%85%B3API"><span class="toc-number">2.</span> <span class="toc-text">多线程相关API</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E8%AE%BF%E9%97%AE%E8%B5%84%E6%BA%90%E5%86%B2%E7%AA%81"><span class="toc-number">3.</span> <span class="toc-text">解决访问资源冲突</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E7%9B%B8%E5%90%8C%E8%B5%84%E6%BA%90%E4%BA%A7%E7%94%9F%E5%86%B2%E7%AA%81%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.</span> <span class="toc-text">多线程访问相同资源产生冲突的问题</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95A%EF%BC%9A%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0"><span class="toc-number">3.2.</span> <span class="toc-text">解决方法A：原子操作函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95B%EF%BC%9A%E4%B8%B4%E7%95%8C%E5%8C%BA"><span class="toc-number">3.3.</span> <span class="toc-text">解决方法B：临界区</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88C%EF%BC%9A%E4%BA%92%E6%96%A5%E4%BD%93"><span class="toc-number">3.4.</span> <span class="toc-text">解决方案C：互斥体</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/C++%20Multithreading/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/C++%20Multithreading/&text=C++多线程基础"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/C++%20Multithreading/&is_video=false&description=C++多线程基础"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=C++多线程基础&body=Check out this article: http://example.com/2023/10/04/C++%20Multithreading/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/C++%20Multithreading/&title=C++多线程基础"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/C++%20Multithreading/&name=C++多线程基础&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/C++%20Multithreading/&t=C++多线程基础"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

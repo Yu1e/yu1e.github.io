@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content=".h和.lib和.dll文件的联系与区别介绍.h头文件是编译时必须的，.lib是链接时需要的，.dll是运行时需要的。 附加依赖项的是.lib不是.dll，若生成了DLL,则肯定也生成 LIB文件。如果要完成源代码的编译和链接，有头文件和.lib就够了。如果也使动态连接的程序运行起来，有.dll就够了 动态链接库DLL 是一个包含可由多个程序同时使用的代码和数据的库。通过使用 DLL，程序可以实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dll文件的隐式加载和显式加载">
+<meta property="og:url" content="http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content=".h和.lib和.dll文件的联系与区别介绍.h头文件是编译时必须的，.lib是链接时需要的，.dll是运行时需要的。 附加依赖项的是.lib不是.dll，若生成了DLL,则肯定也生成 LIB文件。如果要完成源代码的编译和链接，有头文件和.lib就够了。如果也使动态连接的程序运行起来，有.dll就够了 动态链接库DLL 是一个包含可由多个程序同时使用的代码和数据的库。通过使用 DLL，程序可以实现">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:35:01.183Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>dll文件的隐式加载和显式加载</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/dll%E5%BC%80%E5%8F%91%E5%9F%BA%E7%A1%80/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/dll%E6%B3%A8%E5%85%A5/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&text=dll文件的隐式加载和显式加载"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&is_video=false&description=dll文件的隐式加载和显式加载"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=dll文件的隐式加载和显式加载&body=Check out this article: http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&name=dll文件的隐式加载和显式加载&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&t=dll文件的隐式加载和显式加载"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#h%E5%92%8C-lib%E5%92%8C-dll%E6%96%87%E4%BB%B6%E7%9A%84%E8%81%94%E7%B3%BB%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="toc-number">1.</span> <span class="toc-text">.h和.lib和.dll文件的联系与区别</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">使用</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DLL%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">DLL文件的两种加载方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD"><span class="toc-number">2.1.</span> <span class="toc-text">隐式加载和显式加载</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BDDemo"><span class="toc-number">2.2.</span> <span class="toc-text">隐式加载Demo</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BDDemo"><span class="toc-number">2.3.</span> <span class="toc-text">显式加载Demo</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        dll文件的隐式加载和显式加载
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="h和-lib和-dll文件的联系与区别"><a href="#h和-lib和-dll文件的联系与区别" class="headerlink" title=".h和.lib和.dll文件的联系与区别"></a>.h和.lib和.dll文件的联系与区别</h4><h5 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h5><p><code>.h</code>头文件是编译时必须的，<code>.lib</code>是链接时需要的，<code>.dll</code>是运行时需要的。</p>
+<p>附加依赖项的是<code>.lib</code>不是<code>.dll</code>，若生成了DLL,则肯定也生成 LIB文件。如果要完成源代码的编译和链接，有头文件和<code>.lib</code>就够了。如果也使动态连接的程序运行起来，有<code>.dll</code>就够了</p>
+<p>动态链接库DLL 是一个包含可由多个程序同时使用的代码和数据的库。通过使用 DLL，程序可以实现模块化。</p>
+<p><code>.lib</code> 文件包含DLL导出的函数和变量的符号名，只是用来为链接程序提供必要的信息，以便在链接时找到函数或变量的入口地址；<code>.dll</code> 文件才包含实际的函数和数据。</p>
+<h5 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h5><p>当使用动态库dll的时候，有两种情况</p>
+<ul>
+<li>只有<code>.dll</code>而没有<code>.h</code>和<code>.lib</code>而有api文档的情况下，可以通过<code>LoadLibrary</code>动态加载dll，并通过<code>GetProcAddress</code>来获取函数地址并使用。</li>
+<li>有<code>.dll</code>,有<code>.h</code>,有<code>.lib</code>的话，在编译选项里正确链接lib，并在代码头文件中<code>includ .h</code>文件即可使用。</li>
+</ul>
+<p>其中<code>.dll</code>存储了函数具体的执行代码和资源，<code>.h</code>文件给出了函数的原型，<code>.lib</code>文件给出了函数在dll中的内存偏移地址。使用时dll与exe文件在同一目录即可</p>
+<p>注意的是：此时的<code>.lib</code>是导出文件或者叫中间文件，而不是静态库。</p>
+<p>当使用静态库lib的时候，这个<code>.lib</code>是包含了函数的执行代码的</p>
+<p>只需要<code>include h</code>文件并在编译选项里正确链接lib即可。</p>
+<h4 id="DLL文件的两种加载方式"><a href="#DLL文件的两种加载方式" class="headerlink" title="DLL文件的两种加载方式"></a>DLL文件的两种加载方式</h4><h5 id="隐式加载和显式加载"><a href="#隐式加载和显式加载" class="headerlink" title="隐式加载和显式加载"></a>隐式加载和显式加载</h5><ul>
+<li>隐式加载又叫载入时加载，指在主程序载入内存时搜索DLL，并将DLL载入内存。隐式加载也会有静态链接库的问题，如果程序稍大，加载时间就会过长，用户不能接受。</li>
+<li>显式加载又叫运行时加载，指主程序在运行过程中需要DLL中的函数时再加载。显式加载是将较大的程序分开加载的，程序运行时只需要将主程序载入内存，软件打开速度快，用户体验好。</li>
+</ul>
+<h5 id="隐式加载Demo"><a href="#隐式加载Demo" class="headerlink" title="隐式加载Demo"></a>隐式加载Demo</h5><p>在 main.c 中除了用 extern 关键字声明 add() 和 sub() 函数来自外部文件，还可以用 _declspec(dllimport) 标识符声明函数来自动态链接库。</p>
+<p>声明方式如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">int</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span>, <span class="type">int</span>)</span>;  <span class="comment">// 也可以是 _declspec(dllimport) int add(int, int);</span></span><br><span class="line"><span class="keyword">extern</span> <span class="type">int</span> <span class="title function_">sub</span><span class="params">(<span class="type">int</span>, <span class="type">int</span>)</span>;  <span class="comment">// 也可以是 _declspec(dllimport) int sub(int, int);</span></span><br></pre></td></tr></table></figure>
+
+<p>Demo</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">dllDemo.h</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> _DLLDEMO_H</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _DLLDEMO_H</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">pragma</span> comment(lib, <span class="string">&quot;dllDemo.lib&quot;</span>)</span></span><br><span class="line">_declspec(dllexport) <span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span>, <span class="type">int</span>)</span></span>;</span><br><span class="line">_declspec(dllexport) <span class="function"><span class="type">int</span> <span class="title">sub</span><span class="params">(<span class="type">int</span>, <span class="type">int</span>)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">main.c</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;dllDemo.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> a=<span class="number">10</span>, b=<span class="number">5</span>;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a+b=%d\n&quot;</span>, <span class="built_in">add</span>(a, b));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a-b=%d\n&quot;</span>, <span class="built_in">sub</span>(a, b));</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="显式加载Demo"><a href="#显式加载Demo" class="headerlink" title="显式加载Demo"></a>显式加载Demo</h5><p>显式加载动态链接库时，需要用到 <code>LoadLibrary()</code> 函数，该函数的作用是将指定的可执行模块映射到调用进程的地址空间，如果调用成功， <code>LoadLibrary()</code> 函数将返回所加载的那个模块的句柄。该函数的返回类型<code>HMODULE</code>。 <code>HMODULE</code>类型和<code>HINSTANCE</code>类型可以通用。</p>
+<p>当获取到动态链接库模块的句柄后，接下来就要想办法获取该动态链接库中导出函数的地址，这可以通过调用 <code>GetProcAddress()</code> 函数来实现。该函数用来获取DLL导出函数的 地址，其原型声明如下所示：<code>FARPROC GetProcAddress(HMODULE hModule, LPCSTR lpProcName);</code></p>
+<p>可以看到，GetProcAddress函数有两个参数，其含义分别如下所述：</p>
+<ul>
+<li>hModule：指定动态链接库模块的句柄，即 <code>LoadLibrary()</code> 函数的返回值。</li>
+<li>lpProcName：字符串指针，表示DLL中函数的名字。</li>
+</ul>
+<p>Demo</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;windows.h&gt;</span>  <span class="comment">// 必须包含 windows.h</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span> <span class="params">(*FUNADDR)</span><span class="params">()</span></span>;  <span class="comment">// 指向函数的指针</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="type">int</span> a=<span class="number">10</span>, b=<span class="number">5</span>;</span><br><span class="line">   </span><br><span class="line">    HINSTANCE dllDemo = <span class="built_in">LoadLibrary</span>(<span class="string">&quot;dllDemo.dll&quot;</span>);</span><br><span class="line">    FUNADDR add, sub;</span><br><span class="line">    <span class="keyword">if</span>(dllDemo)&#123;</span><br><span class="line">        add = (FUNADDR)<span class="built_in">GetProcAddress</span>(dllDemo, <span class="string">&quot;add&quot;</span>);</span><br><span class="line">        sub = (FUNADDR)<span class="built_in">GetProcAddress</span>(dllDemo, <span class="string">&quot;sub&quot;</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Fail to load DLL!\n&quot;</span>);</span><br><span class="line">        <span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a+b=%d\n&quot;</span>, <span class="built_in">add</span>(a, b));</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a-b=%d\n&quot;</span>, <span class="built_in">sub</span>(a, b));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>HMODULE</code> 类型、<code>HINSTANCE</code> 类型在 <code>windows.h</code> 中定义；<code>LoadLibrary()</code> 函数、<code>GetProcAddress()</code> 函数是Win32 API，也在 <code>windows.h</code> 中定义。</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>隐式加载和显式加载这两种加载DLL的方式各有 优点，如果采用动态加载方式，那么可以在需要时才加载DLL。</p>
+<p>隐式链接方式实现起来比较简单，在编写程序代码时就可以把链接工作做好，在程序中可以随时调用DLL导出的函数。但是，如果程序需要访问十多个DLL，如果都采用隐式链接方式加载它们的话， 那么在该程序启动时，这些DLL都需要被加载到内存中，并映射到调用进程的地址空间， 这样将加大程序的启动时间。</p>
+<p>而且，一般来说，在程序运行过程中只是在某个条件满足时才需要访问某个DLL中的某个函数，其他情况下都不需要访问这些DLL中的函数。但是这时所有的DLL都已经被加载到内存中，资源浪费是比较严重的。在这种情况下，就可以采用显式加载的方式访问DLL，在需要时才加载所需的DLL，也就是说，在需要时DLL才会被加载到内存中，并被映射到调用进程的地址空间中。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#h%E5%92%8C-lib%E5%92%8C-dll%E6%96%87%E4%BB%B6%E7%9A%84%E8%81%94%E7%B3%BB%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="toc-number">1.</span> <span class="toc-text">.h和.lib和.dll文件的联系与区别</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.</span> <span class="toc-text">使用</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DLL%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%A4%E7%A7%8D%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">DLL文件的两种加载方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD"><span class="toc-number">2.1.</span> <span class="toc-text">隐式加载和显式加载</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BDDemo"><span class="toc-number">2.2.</span> <span class="toc-text">隐式加载Demo</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BDDemo"><span class="toc-number">2.3.</span> <span class="toc-text">显式加载Demo</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&text=dll文件的隐式加载和显式加载"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&is_video=false&description=dll文件的隐式加载和显式加载"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=dll文件的隐式加载和显式加载&body=Check out this article: http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&title=dll文件的隐式加载和显式加载"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&name=dll文件的隐式加载和显式加载&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/dll%E6%96%87%E4%BB%B6%E7%9A%84%E9%9A%90%E5%BC%8F%E5%8A%A0%E8%BD%BD%E5%92%8C%E6%98%BE%E5%BC%8F%E5%8A%A0%E8%BD%BD/&t=dll文件的隐式加载和显式加载"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

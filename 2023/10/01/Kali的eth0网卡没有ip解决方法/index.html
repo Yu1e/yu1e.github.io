@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="电脑崩溃重启之后Kali的eth0网卡忽然没有IP了 开始试了网卡重启和网络服务重启，都没用 正确方法如下 123cd &#x2F;etc&#x2F;network&#x2F;sudo vim interfaces  interfaces配置文件修改为如下 12345678910111213# This file describes the network interfaces available on your system">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kali虚拟机的eth0网卡没有ip的解决方法">
+<meta property="og:url" content="http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="电脑崩溃重启之后Kali的eth0网卡忽然没有IP了 开始试了网卡重启和网络服务重启，都没用 正确方法如下 123cd &#x2F;etc&#x2F;network&#x2F;sudo vim interfaces  interfaces配置文件修改为如下 12345678910111213# This file describes the network interfaces available on your system">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-01T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T09:27:39.656Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Tips">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Kali虚拟机的eth0网卡没有ip的解决方法</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/01/HackTheBox-Sunday/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/01/Ubuntu%E7%B3%BB%E7%BB%9Fpython2%E5%AE%89%E8%A3%85pip2/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&text=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&is_video=false&description=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Kali虚拟机的eth0网卡没有ip的解决方法&body=Check out this article: http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&name=Kali虚拟机的eth0网卡没有ip的解决方法&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&t=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Kali虚拟机的eth0网卡没有ip的解决方法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-01T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Tips/" rel="tag">Tips</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>电脑崩溃重启之后Kali的eth0网卡忽然没有IP了</p>
+<p>开始试了网卡重启和网络服务重启，都没用</p>
+<p>正确方法如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /etc/network/</span><br><span class="line"></span><br><span class="line">sudo vim interfaces</span><br></pre></td></tr></table></figure>
+
+<p>interfaces配置文件修改为如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># This file describes the network interfaces available on your system</span><br><span class="line"></span><br><span class="line"># and how to activate them. For more information, see interfaces(5).</span><br><span class="line"></span><br><span class="line">source /etc/network/interfaces.d/*</span><br><span class="line"></span><br><span class="line"># The loopback network interface</span><br><span class="line"></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line">auto eth0</span><br><span class="line">iface eth0 inet dhcp</span><br></pre></td></tr></table></figure>
+
+<p>然后重启网卡和网络服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo ifconfig eth0 down</span><br><span class="line"></span><br><span class="line">sudo ifconfig eth0 up</span><br><span class="line"></span><br><span class="line">sudo /etc/init.d/networking restart</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&text=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&is_video=false&description=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Kali虚拟机的eth0网卡没有ip的解决方法&body=Check out this article: http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&title=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&name=Kali虚拟机的eth0网卡没有ip的解决方法&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/Kali%E7%9A%84eth0%E7%BD%91%E5%8D%A1%E6%B2%A1%E6%9C%89ip%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/&t=Kali虚拟机的eth0网卡没有ip的解决方法"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

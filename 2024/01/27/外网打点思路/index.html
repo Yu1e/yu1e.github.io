@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="登录框突破思路对于爆破，POST的数据如果有加密，要么逆向前端的加密算法，或者去爆破用户名字段（用户名字段如果是明文的话），用常见的密码如123456等作为固定值 有些网站的登录成功与否是通过返回数据包的某个字段值来判断的，直接改包即可 指纹识别使用 afrog、Wappalyzer 等指纹识别器有时候无法直接识别 shiro 框架 抓包使用 hae 插件被动扫描识别网站特征 1https:&#x2F;&#x2F;g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="外网打点思路Tips">
+<meta property="og:url" content="http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="登录框突破思路对于爆破，POST的数据如果有加密，要么逆向前端的加密算法，或者去爆破用户名字段（用户名字段如果是明文的话），用常见的密码如123456等作为固定值 有些网站的登录成功与否是通过返回数据包的某个字段值来判断的，直接改包即可 指纹识别使用 afrog、Wappalyzer 等指纹识别器有时候无法直接识别 shiro 框架 抓包使用 hae 插件被动扫描识别网站特征 1https:&#x2F;&#x2F;g">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-27T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-29T09:05:54.498Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>外网打点思路Tips</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/01/28/%E9%92%93%E9%B1%BC%E6%94%BB%E5%87%BB%E4%B9%8BLnk%E6%96%87%E4%BB%B6%E9%92%93%E9%B1%BC/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/01/15/JWT%E4%BB%A4%E7%89%8C/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&text=外网打点思路Tips"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&is_video=false&description=外网打点思路Tips"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=外网打点思路Tips&body=Check out this article: http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&name=外网打点思路Tips&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&t=外网打点思路Tips"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%99%BB%E5%BD%95%E6%A1%86%E7%AA%81%E7%A0%B4%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">登录框突破思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.</span> <span class="toc-text">指纹识别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8EJS%E4%BB%A3%E7%A0%81%E5%AF%BB%E6%89%BE%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.</span> <span class="toc-text">从JS代码寻找接口</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%9A%84Tips"><span class="toc-number">4.</span> <span class="toc-text">其他的Tips</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        外网打点思路Tips
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-01-27T15:29:53.000Z" class="dt-published" itemprop="datePublished">2024-01-27</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="登录框突破思路"><a href="#登录框突破思路" class="headerlink" title="登录框突破思路"></a>登录框突破思路</h1><p>对于爆破，POST的数据如果有加密，要么逆向前端的加密算法，或者去爆破用户名字段（用户名字段如果是明文的话），用常见的密码如123456等作为固定值</p>
+<p>有些网站的登录成功与否是通过返回数据包的某个字段值来判断的，直接改包即可</p>
+<h1 id="指纹识别"><a href="#指纹识别" class="headerlink" title="指纹识别"></a>指纹识别</h1><p>使用 <code>afrog</code>、<code>Wappalyzer</code> 等指纹识别器有时候无法直接识别 shiro 框架</p>
+<p>抓包使用 <code>hae</code> 插件被动扫描识别网站特征</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/gh0stkey/HaE</span><br></pre></td></tr></table></figure>
+
+<h1 id="从JS代码寻找接口"><a href="#从JS代码寻找接口" class="headerlink" title="从JS代码寻找接口"></a>从JS代码寻找接口</h1><p>Vue项目源码在泄漏的情况下，可以在浏览器控制台中的Sources—&gt; Page—&gt; webpack:&#x2F;&#x2F;中查看源代码</p>
+<p>使用webpack打包Vue应用会在网站js同目录下生成 js.map文件</p>
+<blockquote>
+<p> .map文件的作用：项目打包后，代码都是经过压缩加密的，如果运行时报错，输出的错误信息无法准确得知是哪里的代码报错。 有了map就可以像未加密的代码一样，准确的输出是哪一行哪一列有错。 </p>
+</blockquote>
+<p>直接查看网站的js文件，可以在末尾处有js.map文件名</p>
+<p>然后在当前访问的js后面拼接.map即可访问下载</p>
+<p>使用 <code>reverse-sourcemap</code> 进行还原</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install --global reverse-sourcemap</span><br><span class="line">reverse-sourcemap --output-dir 生成的目录 app.6804b239.js.map</span><br></pre></td></tr></table></figure>
+
+<p>对还原出来的js代码进行提取url</p>
+<h1 id="其他的Tips"><a href="#其他的Tips" class="headerlink" title="其他的Tips"></a>其他的Tips</h1><p>有时候如果bp被拦截了，可以使用插件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/sleeyax/burp-awesome-tls</span><br></pre></td></tr></table></figure>
+
+
+
+<p>Yso 自带的依赖版本和目标环境的依赖版本不一致有时候会导致无法成功，需要改一下依赖版本重新编译</p>
+<p>有时候查看前端源码也可以发现一些框架，比如Ueditor，全局搜关键字也可以</p>
+<p>如果shiro框架的目标无法直接使用工具突破，可以尝试从系统其他方面入手，从 js 里全局搜索 <code>download</code> <code>upload</code> 这些字段，可能存在任意文件上传或读取漏洞</p>
+<blockquote>
+<p>通常开发人员为了省事，可能会直接把前端功能代码注释掉，而不把相应后端接口删除，这时候就会给我们留下可乘之机</p>
+</blockquote>
+<p>比如通过检索 <code>download</code>，发现一个被注释的下载接口，可以拼接路径尝试进行任意文件读取</p>
+<p>如果知道目标使用的是什么系统，或者旁站的CMS，可以用凌风云搜索网盘上有没有泄露的源码</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%99%BB%E5%BD%95%E6%A1%86%E7%AA%81%E7%A0%B4%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">登录框突破思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.</span> <span class="toc-text">指纹识别</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8EJS%E4%BB%A3%E7%A0%81%E5%AF%BB%E6%89%BE%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.</span> <span class="toc-text">从JS代码寻找接口</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E7%9A%84Tips"><span class="toc-number">4.</span> <span class="toc-text">其他的Tips</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&text=外网打点思路Tips"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&is_video=false&description=外网打点思路Tips"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=外网打点思路Tips&body=Check out this article: http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&title=外网打点思路Tips"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&name=外网打点思路Tips&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/01/27/%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9%E6%80%9D%E8%B7%AF/&t=外网打点思路Tips"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

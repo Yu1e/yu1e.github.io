@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is Web cache deception&amp;poisoning漏洞前置1、web缓存机制 当下很多web系统使用web缓存功能来存储一些经常检索的文件，以减少Web服务器响应的延迟和减轻服务器上的负载。常见的缓存内容往往是静态或公共文件：样式表（css），脚本（js），文本文件（txt），图像（png，bmp，gif）等。 如图，当一个用户第一次访问了文件，就会被缓存，下一次当">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web缓存欺骗与中毒">
+<meta property="og:url" content="http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&Poisoning)/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="What is Web cache deception&amp;poisoning漏洞前置1、web缓存机制 当下很多web系统使用web缓存功能来存储一些经常检索的文件，以减少Web服务器响应的延迟和减轻服务器上的负载。常见的缓存内容往往是静态或公共文件：样式表（css），脚本（js），文本文件（txt），图像（png，bmp，gif）等。 如图，当一个用户第一次访问了文件，就会被缓存，下一次当">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/W3YzASsBXJFwxZD.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/toYH2mgWFzZX9Ay.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/ABtWgLjMOmbpYsE.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/ZXNLBc2rJoSClRM.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/LhwSzPoHjRdVOsn.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/TipvNuKyBxrVDtJ.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/tPGubIoa8UnrCNj.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/Exv8BQmA9gtYsDV.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T11:02:04.426Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/W3YzASsBXJFwxZD.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Web缓存欺骗与中毒</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/Windows%E4%B8%8B%E7%AE%80%E5%8D%95%E5%8A%A0%E5%A3%B3%E9%A1%B9%E7%9B%AE/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&text=Web缓存欺骗与中毒"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&is_video=false&description=Web缓存欺骗与中毒"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Web缓存欺骗与中毒&body=Check out this article: http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&name=Web缓存欺骗与中毒&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&t=Web缓存欺骗与中毒"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-Web-cache-deception-poisoning"><span class="toc-number">1.</span> <span class="toc-text">What is Web cache deception&amp;poisoning</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%89%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">漏洞前置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">漏洞原理</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Vulnerability-example"><span class="toc-number">2.</span> <span class="toc-text">Vulnerability example</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98"><span class="toc-number">3.</span> <span class="toc-text">漏洞挖掘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%98%B2%E5%BE%A1"><span class="toc-number">4.</span> <span class="toc-text">漏洞防御</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Web缓存欺骗与中毒
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="What-is-Web-cache-deception-poisoning"><a href="#What-is-Web-cache-deception-poisoning" class="headerlink" title="What is Web cache deception&amp;poisoning"></a>What is Web cache deception&amp;poisoning</h4><h5 id="漏洞前置"><a href="#漏洞前置" class="headerlink" title="漏洞前置"></a>漏洞前置</h5><p><strong>1、web缓存机制</strong></p>
+<p>当下很多web系统使用web缓存功能来存储一些经常检索的文件，以减少Web服务器响应的延迟和减轻服务器上的负载。常见的缓存内容往往是静态或公共文件：样式表（css），脚本（js），文本文件（txt），图像（png，bmp，gif）等。</p>
+<p>如图，当一个用户第一次访问了文件，就会被缓存，下一次当有任何一个其他客户端请求该文件时，缓存机制由于已经存储了这个文件，会把缓存的文件内容发送给客户端而不需要去请求Web服务器，这样就减轻了服务器负载。</p>
+<p><a href="https://smms.app/image/W3YzASsBXJFwxZD" target="_blank"><img src="https://s2.loli.net/2024/01/14/W3YzASsBXJFwxZD.png" ></a></p>
+<p>缓存通常通过CDN、负载均衡器或简单的反向代理来实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">A）CDN（内容分发网络）：代理的分布式网络，目的是快速地提供内容。客户端将由一组离它最近的代理服务器提供服务。</span><br><span class="line"></span><br><span class="line">B）负载均衡：除了平衡多个服务器之间的通信量外，负载均衡还可以缓存内容，以减少服务器的延迟。</span><br><span class="line"></span><br><span class="line">C）反向代理：代理服务器代表客户端从web服务器检索资源，同时可以缓存web应用程序的一些内容</span><br></pre></td></tr></table></figure>
+
+<p><strong>2、Web缓存欺骗</strong></p>
+<p>Web缓存欺骗的漏洞原理和RPO （Relative Path Overwrite）相对路径覆盖漏洞较为类似，根因都在于浏览器和网络服务器对相同URL请求的解析不一致（宽字节、00截断也是）。通过“欺骗”用户访问一个不存在的静态页面，从而使敏感页面保存在缓存中，从而窃取用户敏感信息，通常是用户个人信息、业务敏感数据等，如果响应的主体中包含了用户的会话标识符、CSRF令牌可进一步可导致ATO。</p>
+<p><strong>3、Web缓存中毒</strong></p>
+<p>Web缓存中毒（Web Cache Poisonning）和缓存欺骗通常被混淆，它的攻击方式是通过X-Forwarded-Host头，发送导致有害响应的请求，该响应将保存在缓存中并提供给其他用户，其他用户访问到此页面时将不是正常页面，而是被攻击者“中毒”之后的的页面，产生的危害通常是XSS，也可能导致信息泄露。</p>
+<p><a href="https://smms.app/image/toYH2mgWFzZX9Ay" target="_blank"><img src="https://s2.loli.net/2024/01/14/toYH2mgWFzZX9Ay.png" ></a></p>
+<p>除了使用这个HTTP头来破坏缓存，还可以使用HTTP响应拆分（CRLF）和请求走私（RequestSmuggling）来完成攻击。</p>
+<h5 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h5><p><strong>1、缓存欺骗</strong></p>
+<p>如果代理服务器设置为缓存静态文件，忽略这类文件的caching header时，对于url地址<a target="_blank" rel="noopener" href="http://www.example.com/myaccount/%E5%8C%85%E5%90%AB%E7%94%A8%E6%88%B7%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF%E3%80%82%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%E5%A6%82%E4%B8%8B%EF%BC%9A">http://www.example.com/myaccount/包含用户账户信息。攻击流程如下：</a></p>
+<p>1）诱使用户通过浏览器请求不存在的css文件：<a target="_blank" rel="noopener" href="http://www.example.com/myaccount/no-existent.css">http://www.example.com/myaccount/no-existent.css</a> ;</p>
+<p>2）由于服务器无法解析css文件，只能解析到myaccount&#x2F;，所以返回myaccount&#x2F;的内容。</p>
+<p>3）此时响应经过反向代理服务器Nginx;</p>
+<p>4）代理识别该文件有css后缀，在缓存目录下，代理服务器创建目录myaccount，将返回的内容作为 non-existent.css 保存；</p>
+<p>5）攻击者请求相同链接，将得到缓存中的内容，即myaccount的敏感内容。</p>
+<p><a href="https://smms.app/image/ABtWgLjMOmbpYsE" target="_blank"><img src="https://s2.loli.net/2024/01/14/ABtWgLjMOmbpYsE.png" ></a></p>
+<p><strong>2）缓存中毒</strong></p>
+<p>缓存中毒的攻击流程很简单，最相像的漏洞利用是CORS，即在正常请求中添加X-Forwarded-Host头，对于这个XFH头的解释：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">X-Forwarded-Host（XFH）报头是用于识别由客户机在所要求的原始主机一个事实上的标准报头Host的HTTP请求报头。</span><br><span class="line"></span><br><span class="line">反向代理（负载均衡器，CDN）的主机名称和端口可能与处理请求的源服务器不同，在这种情况下，X-Forwarded-Host头部可用于确定最初使用哪个主机。</span><br></pre></td></tr></table></figure>
+
+<p>发送请求，可以看到系统使用X-Forwarded-Host头在元标记内生成OpenGraph URL</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">请求</span><br><span class="line">GET /en?cb=1 HTTP/1.1</span><br><span class="line">Host: www.redhat.com</span><br><span class="line">X-Forwarded-Host: canary</span><br><span class="line"></span><br><span class="line">响应</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Cache-Control: public, no-cache</span><br><span class="line">...</span><br><span class="line">&lt;meta property=&quot;og:image&quot; content=&quot;https://canary/cms/social.png&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<p>很容易想到攻击思路，构造xss</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">请求</span><br><span class="line">GET /en?dontpoisoneveryone=1 HTTP/1.1</span><br><span class="line">Host: www.redhat.com</span><br><span class="line">X-Forwarded-Host: a.&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;</span><br><span class="line"></span><br><span class="line">响应</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Cache-Control : public, no-cache</span><br><span class="line">...</span><br><span class="line">&lt;meta property=&quot;og:image&quot; content=&quot;https://a.&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<p>此时，这个响应已经被保存到缓存中，此时受害者正常请求此地址则是被中毒之后的页面，遭受到xss攻击</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">请求</span><br><span class="line">GET /en?dontpoisoneveryone=1 HTTP/1.1</span><br><span class="line">Host: www.redhat.com</span><br><span class="line"></span><br><span class="line">响应</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">...</span><br><span class="line">&lt;meta property=&quot;og:image&quot; content=&quot;https://a.&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Vulnerability-example"><a href="#Vulnerability-example" class="headerlink" title="Vulnerability example"></a>Vulnerability example</h4><p>测试的是缓存中毒漏洞</p>
+<p>这里是拿<a target="_blank" rel="noopener" href="https://poison.digi.ninja/%E7%9A%84%E7%8E%AF%E5%A2%83%E6%9D%A5%E6%B5%8B%E8%AF%95%E7%9A%84">https://poison.digi.ninja/的环境来测试的</a></p>
+<p>访问页面，请求包如下</p>
+<p><a href="https://smms.app/image/ZXNLBc2rJoSClRM" target="_blank"><img src="https://s2.loli.net/2024/01/14/ZXNLBc2rJoSClRM.png" ></a></p>
+<p>返回包如下</p>
+<p><a href="https://smms.app/image/LhwSzPoHjRdVOsn" target="_blank"><img src="https://s2.loli.net/2024/01/14/LhwSzPoHjRdVOsn.png" ></a></p>
+<p>这里有一个BP的插件推荐Param Miner</p>
+<p>请求中添加XFH字段</p>
+<p><a href="https://smms.app/image/TipvNuKyBxrVDtJ" target="_blank"><img src="https://s2.loli.net/2024/01/14/TipvNuKyBxrVDtJ.png" ></a></p>
+<p>响应如下</p>
+<p><a href="https://smms.app/image/tPGubIoa8UnrCNj" target="_blank"><img src="https://s2.loli.net/2024/01/14/tPGubIoa8UnrCNj.png" ></a></p>
+<p>构造XFH如下</p>
+<p><a href="https://smms.app/image/Exv8BQmA9gtYsDV" target="_blank"><img src="https://s2.loli.net/2024/01/14/Exv8BQmA9gtYsDV.png" ></a></p>
+<p>响应如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;meta property=&quot;og:image&quot; content=&quot;http://www.iu.com&quot;&gt;&lt;script&gt;alert(&quot;you are hacked!&quot;)&lt;/script&gt;&quot;&lt;/cms/social.png&quot; /&gt;</span><br></pre></td></tr></table></figure>
+
+<p>访问页面，攻击成功</p>
+<p>注意这里的缓存投毒是有时限的，过一段时间会失效，需要添加参数，比如，这里的?a&#x3D;12可以是任意的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /basic.php?a=12 HTTP/1.1</span><br></pre></td></tr></table></figure>
+
+<h4 id="漏洞挖掘"><a href="#漏洞挖掘" class="headerlink" title="漏洞挖掘"></a>漏洞挖掘</h4><p>在挖掘web cache漏洞的时候首先要确定web系统架设了CDN，负载均衡器或反向代理等缓存设备，其次观察返回头是否设置缓存控制头Cache Control：no-cache，max-age&#x3D;0，private，no-store，若未设置则很大可能存在此漏洞。</p>
+<p>当然即使存在缓存标头也要尝试下，即使缺少缓存头，也不代表一定会获得缓存信息攻击。除此之外：</p>
+<p><strong>1）缓存欺骗</strong></p>
+<p>此漏洞存在需要满足两个条件：</p>
+<p>1）Web缓存功能设置为通过URL的扩展名来判断是否进行缓存文件，且忽略任何缓存头。</p>
+<p>2）当访问类似</p>
+<p><a target="_blank" rel="noopener" href="http://www.example.com/home.php/non-existent.css%E4%B8%8D%E5%AD%98%E5%9C%A8%E7%9A%84%E9%A1%B5%E9%9D%A2%EF%BC%8C%E8%BF%94%E5%9B%9Ehome.php">http://www.example.com/home.php/non-existent.css不存在的页面，返回home.php</a> 的内容而不是“页面不存在”。</p>
+<p>3）诱使访问URL时，受害者必须已经经过<a target="_blank" rel="noopener" href="https://cloud.tencent.com/product/mfas?from=10680">身份验证</a>。</p>
+<p>附带一个自动挖掘工具：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/arbazkiraak/web-cache-deception-checker">https://github.com/arbazkiraak/web-cache-deception-checker</a></p>
+<p><strong>2）缓存中毒</strong></p>
+<p>探测过程较简单，添加X-Forwarded-Host头观察是否在返回包中回显（通常是生成的链接link）。</p>
+<h4 id="漏洞防御"><a href="#漏洞防御" class="headerlink" title="漏洞防御"></a>漏洞防御</h4><p>防御措施主要包括3点：</p>
+<p>1）设置缓存机制，仅仅缓存httpcaching header允许的文件，推荐的防御手段;</p>
+<p>2）如果缓存组件提供选项，设置为根据content-type进行缓存;</p>
+<p>3）访问类似home.php&#x2F;non-existent.css不存在的静态页面时候，不返回 home.php 的内容，而返回404或者302，即对任何不存在的路径都不应等效为对有效父路径的的请求。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-Web-cache-deception-poisoning"><span class="toc-number">1.</span> <span class="toc-text">What is Web cache deception&amp;poisoning</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%89%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">漏洞前置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">漏洞原理</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Vulnerability-example"><span class="toc-number">2.</span> <span class="toc-text">Vulnerability example</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8C%96%E6%8E%98"><span class="toc-number">3.</span> <span class="toc-text">漏洞挖掘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%98%B2%E5%BE%A1"><span class="toc-number">4.</span> <span class="toc-text">漏洞防御</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&text=Web缓存欺骗与中毒"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&is_video=false&description=Web缓存欺骗与中毒"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Web缓存欺骗与中毒&body=Check out this article: http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&title=Web缓存欺骗与中毒"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&name=Web缓存欺骗与中毒&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&amp;Poisoning)/&t=Web缓存欺骗与中毒"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

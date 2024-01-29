@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="What is PE file？.exe，.dll，.sys（驱动程序) 整体上来说，PE文件是由DOS头、PE头、区块组成 DOS头12345678910111213141516171819202122&#x2F;&#x2F;注释掉的不需要重点分析struct _IMAGE_DOS_HEADER&#123;    0X00 WORD e_magic;      &#x2F;&#x2F;Magic DOS signature MZ(4D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PE文件格式解析">
+<meta property="og:url" content="http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="What is PE file？.exe，.dll，.sys（驱动程序) 整体上来说，PE文件是由DOS头、PE头、区块组成 DOS头12345678910111213141516171819202122&#x2F;&#x2F;注释掉的不需要重点分析struct _IMAGE_DOS_HEADER&#123;    0X00 WORD e_magic;      &#x2F;&#x2F;Magic DOS signature MZ(4D">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/J1DPyKgTAEGZ6mr.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/KU3h8oRjDSA5yg4.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/XB9EampU2KtMbRS.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T12:37:15.476Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WindowsRe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/J1DPyKgTAEGZ6mr.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>PE文件格式解析</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/OpenID%20connect%E7%BB%84%E4%BB%B6%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%AD%E7%9A%84%E5%B8%B8%E8%A7%81%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&text=PE文件格式解析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&is_video=false&description=PE文件格式解析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PE文件格式解析&body=Check out this article: http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&name=PE文件格式解析&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&t=PE文件格式解析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-PE-file%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">What is PE file？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DOS%E5%A4%B4"><span class="toc-number">2.</span> <span class="toc-text">DOS头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PE%E5%A4%B4"><span class="toc-number">3.</span> <span class="toc-text">PE头</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#PE%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">PE头结构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">3.2.</span> <span class="toc-text">文件头</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%AF%E9%80%89PE%E5%A4%B4"><span class="toc-number">3.3.</span> <span class="toc-text">可选PE头</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%BA%E6%AE%B5%E5%A4%B4%EF%BC%88%E8%8A%82%E8%A1%A8%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">区段头（节表）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8C%BA%E6%AE%B5%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="toc-number">4.1.</span> <span class="toc-text">区段头结构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%A7%A3%E6%96%87%E4%BB%B6%E5%81%8F%E7%A7%BB%E5%92%8C%E5%86%85%E5%AD%98%E5%81%8F%E7%A7%BB"><span class="toc-number">4.2.</span> <span class="toc-text">理解文件偏移和内存偏移</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        PE文件格式解析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WindowsRe/" rel="tag">WindowsRe</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="What-is-PE-file？"><a href="#What-is-PE-file？" class="headerlink" title="What is PE file？"></a>What is PE file？</h4><p><code>.exe</code>，<code>.dll</code>，<code>.sys</code>（驱动程序)</p>
+<p>整体上来说，PE文件是由DOS头、PE头、区块组成</p>
+<h4 id="DOS头"><a href="#DOS头" class="headerlink" title="DOS头"></a>DOS头</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//注释掉的不需要重点分析</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_IMAGE_DOS_HEADER</span>&#123;</span><br><span class="line">    <span class="number">0X00</span> WORD e_magic;      <span class="comment">//Magic DOS signature MZ(4Dh 5Ah):MZ标记:用于标记是否是可执行文件</span></span><br><span class="line">    <span class="comment">//0X02 WORD e_cblp;     //Bytes on last page of file</span></span><br><span class="line">    <span class="comment">//0X04 WORD e_cp;       //Pages in file</span></span><br><span class="line">    <span class="comment">//0X06 WORD e_crlc;     //Relocations</span></span><br><span class="line">    <span class="comment">//0X08 WORD e_cparhdr;  //Size of header in paragraphs</span></span><br><span class="line">    <span class="comment">//0X0A WORD e_minalloc; //Minimun extra paragraphs needs</span></span><br><span class="line">    <span class="comment">//0X0C WORD e_maxalloc; //Maximun extra paragraphs needs</span></span><br><span class="line">    <span class="comment">//0X0E WORD e_ss;       //intial(relative)SS value</span></span><br><span class="line">    <span class="comment">//0X10 WORD e_sp;       //intial SP value</span></span><br><span class="line">    <span class="comment">//0X12 WORD e_csum;     //Checksum</span></span><br><span class="line">    <span class="comment">//0X14 WORD e_ip;       //intial IP value</span></span><br><span class="line">    <span class="comment">//0X16 WORD e_cs;       //intial(relative)CS value</span></span><br><span class="line">    <span class="comment">//0X18 WORD e_lfarlc;   //File Address of relocation table</span></span><br><span class="line">    <span class="comment">//0X1A WORD e_ovno;     //Overlay number</span></span><br><span class="line">    <span class="comment">//0x1C WORD e_res[4];   //Reserved words</span></span><br><span class="line">    <span class="comment">//0x24 WORD e_oemid;    //OEM identifier(for e_oeminfo)</span></span><br><span class="line">    <span class="comment">//0x26 WORD e_oeminfo;  //OEM information;e_oemid specific</span></span><br><span class="line">    <span class="comment">//0x28 WORD e_res2[10]; //Reserved words</span></span><br><span class="line">    <span class="number">0x3C</span> DWORD e_lfanew;    <span class="comment">//Offset to start of PE header:定位PE文件，PE头相对于文件的偏移量</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>DOS头一共是64个字节</p>
+<p>PE文件在硬盘上的对齐值（0x200）和在内存中的对齐值（0x1000）是不一样的</p>
+<p>C++解析DOS头</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    HANDLE hFile = <span class="built_in">CreateFileA</span>(<span class="string">&quot;a.exe&quot;</span>,</span><br><span class="line">                               GENERIC_READ,</span><br><span class="line">                               FILE_SHARE_READ,</span><br><span class="line">                               <span class="literal">NULL</span>,OPEN_EXISTING,</span><br><span class="line">                               FILE_ATTRIBUTE_NORMAL,</span><br><span class="line">                               <span class="number">0</span>);</span><br><span class="line">    DWORD fileSize = <span class="built_in">GetFileSize</span>(hFile,<span class="literal">NULL</span>);</span><br><span class="line">    <span class="type">char</span>* fileBuff = <span class="keyword">new</span> <span class="type">char</span>[fileSize];</span><br><span class="line">    DWORD realRead = <span class="number">0</span>;</span><br><span class="line">    BOOL bSuccess = <span class="built_in">ReadFile</span>(hFile,fileBuff,fileSize,&amp;realRead,<span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (bSuccess)</span><br><span class="line">    &#123;</span><br><span class="line">        PIMAGE_DOS_HEADER pDosHeaders = (PIMAGE_DOS_HEADER)fileBuff;</span><br><span class="line">        <span class="keyword">if</span> (pDosHeaders-&gt;e_magic!=<span class="number">0x5A4D</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">&quot;not a valiable PE file!\n&quot;</span>);</span><br><span class="line">            <span class="keyword">delete</span>[] fileBuff;</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;e_lfanew=%d\n&quot;</span>,pDosHeaders-&gt;e_lfanew);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="PE头"><a href="#PE头" class="headerlink" title="PE头"></a>PE头</h4><p>又叫NT头，是PE文件真正的头部，DOS头是为了兼容以前的DOS系统</p>
+<p>PE头位于DOS stub后面，以PE00（0x50450000）为起始标记</p>
+<p><a href="https://smms.app/image/J1DPyKgTAEGZ6mr" target="_blank"><img src="https://s2.loli.net/2024/01/14/J1DPyKgTAEGZ6mr.png" ></a></p>
+<h5 id="PE头结构"><a href="#PE头结构" class="headerlink" title="PE头结构"></a>PE头结构</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//NT头</span></span><br><span class="line"><span class="comment">//pNTHeader = dosHeader + dosHeader-&gt;e_lfanew;</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_IMAGE_NT_HEADERS</span>&#123;</span><br><span class="line">    <span class="number">0x00</span> DWORD Signature;   <span class="comment">//PE文件标识:ASCII的&quot;PE\0\0&quot;，也就是0x50450000</span></span><br><span class="line">    <span class="number">0x04</span> _IMAGE_FILE_HEADER FileHeader;</span><br><span class="line">    <span class="number">0x18</span> _IMAGE_OPTIONAL_HEADER OptionalHeader;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="文件头"><a href="#文件头" class="headerlink" title="文件头"></a>文件头</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//标准PE头:最基础的文件信息，共20字节</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_IMAGE_FILE_HEADER</span>&#123;</span><br><span class="line">	<span class="comment">//程序执行的CPU平台:0X0:任何平台，0X14C:intel i386及后续处理器</span></span><br><span class="line">    <span class="number">0x00</span> WORD Machine;     </span><br><span class="line">    <span class="comment">//PE文件中区块数量</span></span><br><span class="line">    <span class="number">0x02</span> WORD NumberOfSections;   </span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//IMAGE_OPTIONAL_HEADER（可选头）结构的大小(字节数):32位默认E0H,64位默认F0H(可修改)</span></span><br><span class="line">    <span class="number">0x10</span> WORD SizeOfOptionalHeader;   </span><br><span class="line">    <span class="comment">//描述文件属性</span></span><br><span class="line">    <span class="number">0x12</span> WORD Characteristics;          </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="可选PE头"><a href="#可选PE头" class="headerlink" title="可选PE头"></a>可选PE头</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//可选PE头</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">_IMAGE_OPTIONAL_HEADER</span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    <span class="number">0x10</span> DWORD AddressOfEntryPoint;<span class="comment">//程序入口地址OEP，这是一个RVA(Relative Virtual Address),通常会落在.textsection,此字段对于DLLs/EXEs都适用。     </span></span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x1c</span> DWORD ImageBase;               <span class="comment">//内存镜像基址(默认装入起始地址),默认为4000H</span></span><br><span class="line">    <span class="number">0x20</span> DWORD SectionAlignment;        <span class="comment">//内存对齐:一旦映像到内存中，每一个section保证从一个「此值之倍数」的虚拟地址开始</span></span><br><span class="line">    <span class="number">0x24</span> DWORD FileAlignment;           <span class="comment">//文件对齐：最初是200H，现在是1000H</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x38</span> DWORD SizeOfImage;         <span class="comment">//PE文件在内存中映像总大小,是按照SectionAlignment对其的，是SectionAlignment的倍数</span></span><br><span class="line">    <span class="number">0x3c</span> DWORD SizeOfHeaders;       <span class="comment">//DOS头(64B)+PE标记(4B)+标准PE头(20B)+可选PE头+区段头的总大小，按照文件对齐(FileAlignment的倍数)</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="number">0x5c</span> DWORD NumberOfRvaAndSizes; <span class="comment">//目录项数目：总为0X00000010H(16)</span></span><br><span class="line">    <span class="number">0x60</span> _IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];<span class="comment">//#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">对齐值：一个pe文件无论在磁盘和内存中存放都会进行对齐，但他们的对齐值会不相同。</span><br><span class="line"></span><br><span class="line">PE 文件头里边的FileAligment 定义了磁盘区块的对齐值。每一个区块从对齐值的倍数的偏移位置开始存放。而区块的实际代码或数据的大小不一定刚好是这么多，所以在多余的地方一般以00h 来填充，这就是区块间的间隙。</span><br><span class="line"></span><br><span class="line">PE 文件头里边的SectionAligment 定义了内存中区块的对齐值。PE 文件被映射到内存中时，区块总是至少从一个页边界开始。</span><br></pre></td></tr></table></figure>
+
+<p>如果编译的时候没有开启随机基址，那么<code>程序的入口地址=ImageBase+OEP</code></p>
+<p>如果编译出来的exe已经是开启了随机基址了，可以通过修改<code>DllCharacteristics</code>字段的<code>IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE</code>位来操作，这个<code>DllCharacteristics</code>字段也是按位进行文件的属性设置的</p>
+<p><a href="https://smms.app/image/KU3h8oRjDSA5yg4" target="_blank"><img src="https://s2.loli.net/2024/01/14/KU3h8oRjDSA5yg4.png" ></a></p>
+<p>可选PE头的<code>NumberOfRvaAndSizes</code>字段和<code>DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES]</code>字段</p>
+<h4 id="区段头（节表）"><a href="#区段头（节表）" class="headerlink" title="区段头（节表）"></a>区段头（节表）</h4><p>区段头不一定只有一个，和区段的数量有关系，也就是PE文件头里面的NumberOfSections</p>
+<h5 id="区段头结构"><a href="#区段头结构" class="headerlink" title="区段头结构"></a>区段头结构</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">_IMAGE_SECTION_HEADER</span> &#123;</span><br><span class="line">    BYTE    Name[IMAGE_SIZEOF_SHORT_NAME];		<span class="comment">// 区段的名字，最长8字节</span></span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">            DWORD   PhysicalAddress;			</span><br><span class="line">            DWORD   VirtualSize;</span><br><span class="line">    &#125; Misc;						<span class="comment">// 该区段在内存中的总大小，未对齐的值，也就是真实大小</span></span><br><span class="line">    DWORD   VirtualAddress;				<span class="comment">// 区段起始的相对虚拟基址RVA，VA=程序基址+VirtualAddress，也就是该偏移值+Image_Base为真正的地址</span></span><br><span class="line">    DWORD   SizeOfRawData;				<span class="comment">// 区段在文件中的大小，进行了文件对齐</span></span><br><span class="line">    DWORD   PointerToRawData;				<span class="comment">// 区段在文件中的偏移位置</span></span><br><span class="line">	...</span><br><span class="line">    DWORD   Characteristics;</span><br><span class="line">&#125; IMAGE_SECTION_HEADER, *PIMAGE_SECTION_HEADER;</span><br></pre></td></tr></table></figure>
+
+<p>注意<code>BYTE Name[IMAGE_SIZEOF_SHORT_NAME]</code>这个字段的长度是8，要想获取这个字段的值，不能用<code>char *</code>来获取，因为8个bit的长度可能结尾不是0</p>
+<h5 id="理解文件偏移和内存偏移"><a href="#理解文件偏移和内存偏移" class="headerlink" title="理解文件偏移和内存偏移"></a>理解文件偏移和内存偏移</h5><p><a href="https://smms.app/image/XB9EampU2KtMbRS" target="_blank"><img src="https://s2.loli.net/2024/01/14/XB9EampU2KtMbRS.png" ></a></p>
+<p><code>DOS头+DOS stub+PE头+区段头</code>这部分，在文件中和在内存中的偏移是一样的，因为填充的0只会在区段头后面填充，前面可选PE头的<code>SizeOfHeaders</code>字段就是<code>DOS头+DOS stub+PE头+区段头</code>按照文件对齐后在文件中的总大小</p>
+<p>由于文件对齐值和内存对齐值是不一样的，所以区段的文件偏移和内存偏移大概率是不一样的</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#What-is-PE-file%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">What is PE file？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DOS%E5%A4%B4"><span class="toc-number">2.</span> <span class="toc-text">DOS头</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PE%E5%A4%B4"><span class="toc-number">3.</span> <span class="toc-text">PE头</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#PE%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">PE头结构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%A4%B4"><span class="toc-number">3.2.</span> <span class="toc-text">文件头</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%AF%E9%80%89PE%E5%A4%B4"><span class="toc-number">3.3.</span> <span class="toc-text">可选PE头</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%BA%E6%AE%B5%E5%A4%B4%EF%BC%88%E8%8A%82%E8%A1%A8%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">区段头（节表）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8C%BA%E6%AE%B5%E5%A4%B4%E7%BB%93%E6%9E%84"><span class="toc-number">4.1.</span> <span class="toc-text">区段头结构</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%90%86%E8%A7%A3%E6%96%87%E4%BB%B6%E5%81%8F%E7%A7%BB%E5%92%8C%E5%86%85%E5%AD%98%E5%81%8F%E7%A7%BB"><span class="toc-number">4.2.</span> <span class="toc-text">理解文件偏移和内存偏移</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&text=PE文件格式解析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&is_video=false&description=PE文件格式解析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PE文件格式解析&body=Check out this article: http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&title=PE文件格式解析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&name=PE文件格式解析&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/PE%E6%96%87%E4%BB%B6%E8%A7%A3%E6%9E%90/&t=PE文件格式解析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

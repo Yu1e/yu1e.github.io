@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="下载对应版本的xdebug下载地址 https:&#x2F;&#x2F;xdebug.org&#x2F;download.php 确定下什么版本的xdebug https:&#x2F;&#x2F;xdebug.org&#x2F;wizard.php 把phpinfo的信息全部复制进去，跟着页面返回的提示做 重新运行phpinfo，页面搜索xdebug，有对应的version就没有错 修改php.ini里的xdebug配置加上这些，路径需要修改为自己的路径">
+<meta property="og:type" content="article">
+<meta property="og:title" content="phpStorm动态调试环境搭建方法">
+<meta property="og:url" content="http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="踟蹰者的歌">
+<meta property="og:description" content="下载对应版本的xdebug下载地址 https:&#x2F;&#x2F;xdebug.org&#x2F;download.php 确定下什么版本的xdebug https:&#x2F;&#x2F;xdebug.org&#x2F;wizard.php 把phpinfo的信息全部复制进去，跟着页面返回的提示做 重新运行phpinfo，页面搜索xdebug，有对应的version就没有错 修改php.ini里的xdebug配置加上这些，路径需要修改为自己的路径">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/p2moUxVKtWOTGHJ.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/W73QgKnElGCUyvX.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/cH5JtK6Wl2nxowa.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/Uftrj82leTdk4HS.png">
+<meta property="og:image" content="https://s2.loli.net/2024/01/14/xf7YjIyrpGuLJ68.png">
+<meta property="article:published_time" content="2023-10-01T15:29:53.000Z">
+<meta property="article:modified_time" content="2024-01-14T09:28:08.482Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Tips">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/01/14/p2moUxVKtWOTGHJ.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>phpStorm动态调试环境搭建方法</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/01/git%E5%91%BD%E4%BB%A4%E6%80%BB%E6%98%AF%E8%BF%9E%E6%8E%A5%E4%B8%8D%E4%B8%8Agithub%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/01/%E4%B8%8D%E5%90%8C%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E5%8F%8D%E5%BC%B9shell%E6%80%BB%E7%BB%93/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&text=phpStorm动态调试环境搭建方法"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&is_video=false&description=phpStorm动态调试环境搭建方法"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=phpStorm动态调试环境搭建方法&body=Check out this article: http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&name=phpStorm动态调试环境搭建方法&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&t=phpStorm动态调试环境搭建方法"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E5%AF%B9%E5%BA%94%E7%89%88%E6%9C%AC%E7%9A%84xdebug"><span class="toc-number">1.</span> <span class="toc-text">下载对应版本的xdebug</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9php-ini%E9%87%8C%E7%9A%84xdebug%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">修改php.ini里的xdebug配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEPHPstorm"><span class="toc-number">3.</span> <span class="toc-text">配置PHPstorm</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%B0%83%E8%AF%95%E9%A1%B5%E9%9D%A2"><span class="toc-number">4.</span> <span class="toc-text">配置调试页面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%9A%84%E6%97%B6%E5%80%99%E6%B2%A1%E4%B8%80%E4%BC%9A%E5%B0%B1down%E6%8E%89%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">动态调试的时候没一会就down掉的解决方法</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        phpStorm动态调试环境搭建方法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-01T15:29:53.000Z" class="dt-published" itemprop="datePublished">2023-10-01</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Tips/" rel="tag">Tips</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h4 id="下载对应版本的xdebug"><a href="#下载对应版本的xdebug" class="headerlink" title="下载对应版本的xdebug"></a>下载对应版本的xdebug</h4><p>下载地址</p>
+<p><a target="_blank" rel="noopener" href="https://xdebug.org/download.php">https://xdebug.org/download.php</a></p>
+<p>确定下什么版本的xdebug</p>
+<p><a target="_blank" rel="noopener" href="https://xdebug.org/wizard.php">https://xdebug.org/wizard.php</a></p>
+<p>把phpinfo的信息全部复制进去，跟着页面返回的提示做</p>
+<p>重新运行phpinfo，页面搜索xdebug，有对应的version就没有错</p>
+<h4 id="修改php-ini里的xdebug配置"><a href="#修改php-ini里的xdebug配置" class="headerlink" title="修改php.ini里的xdebug配置"></a>修改php.ini里的xdebug配置</h4><p>加上这些，路径需要修改为自己的路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">[XDebug]</span><br><span class="line">xdebug.profiler_output_dir=&quot;C:\phpstudy2018\PHPTutorial\tmp\xdebug&quot;</span><br><span class="line">xdebug.trace_output_dir=&quot;C:\phpstudy2018\PHPTutorial\tmp\xdebug&quot;</span><br><span class="line">zend_extension = &quot;C:\phpstudy2018\PHPTutorial\php\php-7.2.1-nts\ext\php_xdebug.dll&quot;</span><br><span class="line"></span><br><span class="line">xdebug.profiler_append = 0</span><br><span class="line">xdebug.profiler_enable = 1</span><br><span class="line">xdebug.profiler_enable_trigger = 0</span><br><span class="line">;开启远程调试</span><br><span class="line">xdebug.remote_enable = 1</span><br><span class="line">;客户机xdebug调试协议</span><br><span class="line">xdebug.remote_handler = &quot;dbgp&quot;</span><br><span class="line">xdebug.remote_mode = &quot;req&quot;</span><br><span class="line">xdebug.remote_host=127.0.0.1</span><br><span class="line">;xdebug.remote_port默认值为9000，这里需要跟phpstorm配置一致，下面有说明</span><br><span class="line">xdebug.remote_port=9000</span><br><span class="line">;idekey 区分大小写</span><br><span class="line">xdebug.idekey=&quot;PHPSTORM&quot;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[xdebug]</span><br><span class="line">zend_extension = &quot;C:\phpstudy2018\PHPTutorial\php\php-7.2.1-nts\ext\php_xdebug.dll&quot;</span><br><span class="line">xdebug.mode= &quot;debug&quot;			</span><br><span class="line">#性能分析文件存放位置 </span><br><span class="line">xdebug.output_dir = &quot;C:\phpstudy2018\PHPTutorial\tmp\xdebug&quot; 	</span><br><span class="line">#步骤调试器，应该是步入步进步出的吧</span><br><span class="line">xdebug.remote_handler = &quot;dbgp&quot; 	</span><br><span class="line">xdebug.idekey=&quot;PHPSTORM&quot;</span><br><span class="line">xdebug.start_with_request = yes </span><br><span class="line">#由remote_host替换过来了，就写本机的就行</span><br><span class="line">xdebug.client_host=127.0.0.1 		</span><br><span class="line">#由remote_port替换过来了，调试端口</span><br><span class="line">xdebug.client_port=9000  	</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置PHPstorm"><a href="#配置PHPstorm" class="headerlink" title="配置PHPstorm"></a>配置PHPstorm</h4><p>进入setting，搜php，找到debug，不用改，可以把接受外部连接勾上</p>
+<p><a href="https://smms.app/image/p2moUxVKtWOTGHJ" target="_blank"><img src="https://s2.loli.net/2024/01/14/p2moUxVKtWOTGHJ.png" ></a></p>
+<p>在DBGp Proxy中配置idekey，idekey是php.ini配置文件中xdebug.idekey的值，host是服务器ip或域名</p>
+<p><a href="https://smms.app/image/W73QgKnElGCUyvX" target="_blank"><img src="https://s2.loli.net/2024/01/14/W73QgKnElGCUyvX.png" ></a></p>
+<p>在servers中配置xdebug服务</p>
+<p><a href="https://smms.app/image/cH5JtK6Wl2nxowa" target="_blank"><img src="https://s2.loli.net/2024/01/14/cH5JtK6Wl2nxowa.png" ></a></p>
+<p>在PHP–&gt;Debug中验证是否成功</p>
+<p><a href="https://smms.app/image/Uftrj82leTdk4HS" target="_blank"><img src="https://s2.loli.net/2024/01/14/Uftrj82leTdk4HS.png" ></a></p>
+<h4 id="配置调试页面"><a href="#配置调试页面" class="headerlink" title="配置调试页面"></a>配置调试页面</h4><p>右上角，edit configurations，新建php web page</p>
+<p><a href="https://smms.app/image/xf7YjIyrpGuLJ68" target="_blank"><img src="https://s2.loli.net/2024/01/14/xf7YjIyrpGuLJ68.png" ></a></p>
+<h4 id="动态调试的时候没一会就down掉的解决方法"><a href="#动态调试的时候没一会就down掉的解决方法" class="headerlink" title="动态调试的时候没一会就down掉的解决方法"></a>动态调试的时候没一会就down掉的解决方法</h4><p>在apache的vhosts中找到项目的conf文件，我这里是0localhost_80.conf</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">E:\phpstudy_pro\Extensions\Apache2.4.39\conf\vhosts</span><br></pre></td></tr></table></figure>
+
+<p>加上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">IPCConnectTimeout 3000    </span><br><span class="line">IPCCommTimeout 3000</span><br></pre></td></tr></table></figure>
+
+<p>我的配置文件长这样</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">&lt;VirtualHost _default_:80&gt;</span><br><span class="line">    DocumentRoot &quot;E:/phpstudy_pro/WWW&quot;</span><br><span class="line">    FcgidInitialEnv PHPRC &quot;E:/phpstudy_pro/Extensions/php/php7.3.4nts&quot;</span><br><span class="line">    AddHandler fcgid-script .php</span><br><span class="line">	IPCConnectTimeout 3000</span><br><span class="line">    IPCCommTimeout 3000</span><br><span class="line">    FcgidWrapper &quot;E:/phpstudy_pro/Extensions/php/php7.3.4nts/php-cgi.exe&quot; .php</span><br><span class="line">  &lt;Directory &quot;E:/phpstudy_pro/WWW&quot;&gt;</span><br><span class="line">      Options FollowSymLinks ExecCGI</span><br><span class="line">      AllowOverride All</span><br><span class="line">      Order allow,deny</span><br><span class="line">      Allow from all</span><br><span class="line">      Require all granted</span><br><span class="line">	  DirectoryIndex index.php index.html</span><br><span class="line">  &lt;/Directory&gt;</span><br><span class="line">  ErrorDocument 400 /error/400.html</span><br><span class="line">  ErrorDocument 403 /error/403.html</span><br><span class="line">  ErrorDocument 404 /error/404.html</span><br><span class="line">  ErrorDocument 500 /error/500.html</span><br><span class="line">  ErrorDocument 501 /error/501.html</span><br><span class="line">  ErrorDocument 502 /error/502.html</span><br><span class="line">  ErrorDocument 503 /error/503.html</span><br><span class="line">  ErrorDocument 504 /error/504.html</span><br><span class="line">  ErrorDocument 505 /error/505.html</span><br><span class="line">  ErrorDocument 506 /error/506.html</span><br><span class="line">  ErrorDocument 507 /error/507.html</span><br><span class="line">  ErrorDocument 510 /error/510.html</span><br><span class="line">&lt;/VirtualHost&gt;</span><br></pre></td></tr></table></figure>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E5%AF%B9%E5%BA%94%E7%89%88%E6%9C%AC%E7%9A%84xdebug"><span class="toc-number">1.</span> <span class="toc-text">下载对应版本的xdebug</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9php-ini%E9%87%8C%E7%9A%84xdebug%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">修改php.ini里的xdebug配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEPHPstorm"><span class="toc-number">3.</span> <span class="toc-text">配置PHPstorm</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E8%B0%83%E8%AF%95%E9%A1%B5%E9%9D%A2"><span class="toc-number">4.</span> <span class="toc-text">配置调试页面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%9A%84%E6%97%B6%E5%80%99%E6%B2%A1%E4%B8%80%E4%BC%9A%E5%B0%B1down%E6%8E%89%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">动态调试的时候没一会就down掉的解决方法</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&text=phpStorm动态调试环境搭建方法"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&is_video=false&description=phpStorm动态调试环境搭建方法"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=phpStorm动态调试环境搭建方法&body=Check out this article: http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&title=phpStorm动态调试环境搭建方法"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&name=phpStorm动态调试环境搭建方法&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/01/phpstorm%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%96%B9%E6%B3%95/&t=phpStorm动态调试环境搭建方法"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
