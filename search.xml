@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>OSCPStudy-HTB-Lame</title>
+      <link href="/2024/03/31/HTB-Lame/"/>
+      <url>/2024/03/31/HTB-Lame/</url>
+      
+        <content type="html"><![CDATA[<p>目标IP地址10.10.10.3</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">PORT     STATE SERVICE     VERSION</span><br><span class="line">21/tcp   open  ftp         vsftpd 2.3.4</span><br><span class="line">22/tcp   open  ssh         OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)</span><br><span class="line">139/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)</span><br><span class="line">445/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)</span><br><span class="line">3632/tcp open  distccd     distccd v1 ((GNU) 4.2.4 (Ubuntu 4.2.4-1ubuntu4))</span><br></pre></td></tr></table></figure><p>先试一下ftp能不能匿名登录，能匿名登录但是服务器下面没有文件</p><p>samba此版本下存在一个CVE-2007-2447漏洞，找到利用脚本，然后拿到一个shell</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/amriunix/CVE-2007-2447</span><br></pre></td></tr></table></figure><p>竟然直接就是root</p><p><a href="https://smms.app/image/V5trOUGCdlBQj9s" target="_blank"><img src="https://s2.loli.net/2024/03/31/V5trOUGCdlBQj9s.png" ></a></p><p>拿到root flag</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0dxxx</span><br></pre></td></tr></table></figure><p>在home目录下找到普通用户的flag</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">75xxx</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> OSCPStudy </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>我的2023总结</title>
       <link href="/2024/03/31/%E6%88%91%E7%9A%842023%E6%80%BB%E7%BB%93/"/>
       <url>/2024/03/31/%E6%88%91%E7%9A%842023%E6%80%BB%E7%BB%93/</url>
