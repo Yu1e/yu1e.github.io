@@ -16,7 +16,7 @@
 <meta property="og:image" content="https://s2.loli.net/2024/05/26/iHdG7UNCjYJtTqP.png">
 <meta property="og:image" content="https://s2.loli.net/2024/06/05/e3fn2U6WlSXYgF7.png">
 <meta property="article:published_time" content="2024-06-05T06:36:06.000Z">
-<meta property="article:modified_time" content="2024-06-05T06:44:52.789Z">
+<meta property="article:modified_time" content="2024-07-03T12:41:04.780Z">
 <meta property="article:author" content="yu1e">
 <meta property="article:tag" content="Pentest">
 <meta name="twitter:card" content="summary">
@@ -176,7 +176,7 @@
 <h3 id="SSH动态端口转发"><a href="#SSH动态端口转发" class="headerlink" title="SSH动态端口转发"></a>SSH动态端口转发</h3><p>被控机器执行</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -N -D 0.0.0.0:9999 database_admin@10.4.50.215</span><br></pre></td></tr></table></figure>
 
-<p>相当于被控机器就是sock代理，<a href="mailto:&#x64;&#x61;&#x74;&#x61;&#x62;&#x61;&#x73;&#101;&#95;&#97;&#x64;&#109;&#105;&#x6e;&#64;&#49;&#x30;&#x2e;&#52;&#x2e;&#53;&#48;&#46;&#x32;&#49;&#53;">&#x64;&#x61;&#x74;&#x61;&#x62;&#x61;&#x73;&#101;&#95;&#97;&#x64;&#109;&#105;&#x6e;&#64;&#49;&#x30;&#x2e;&#52;&#x2e;&#53;&#48;&#46;&#x32;&#49;&#53;</a>是内网主机的SSH</p>
+<p>相当于被控机器就是sock代理，<a href="mailto:&#100;&#97;&#x74;&#x61;&#x62;&#97;&#x73;&#101;&#95;&#x61;&#100;&#x6d;&#105;&#x6e;&#64;&#49;&#48;&#x2e;&#52;&#46;&#x35;&#x30;&#46;&#x32;&#x31;&#53;">&#100;&#97;&#x74;&#x61;&#x62;&#97;&#x73;&#101;&#95;&#x61;&#100;&#x6d;&#105;&#x6e;&#64;&#49;&#48;&#x2e;&#52;&#46;&#x35;&#x30;&#46;&#x32;&#x31;&#53;</a>是内网主机的SSH</p>
 <p>这种方法的前提是知道PGDATABASE01的ssh口令</p>
 <p>然后修改&#x2F;etc&#x2F;proxychains4.conf为被控机器的9999端口，使用proxychains连接</p>
 <p><a href="https://smms.app/image/e3fn2U6WlSXYgF7" target="_blank"><img src="https://s2.loli.net/2024/06/05/e3fn2U6WlSXYgF7.png" ></a></p>
@@ -210,6 +210,11 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chisel.exe client 目标IP:4040 R:socks</span><br></pre></td></tr></table></figure>
 
 <p>然后使用proxychain配置socks5代理，然后扫内网</p>
+<p>方法三（实测）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./chisel server -p 8080 --reverse</span><br><span class="line">.\chisel.exe client 192.168.45.192:8080 R:80:172.16.176.241:80</span><br><span class="line">kali访问本地80端口就是访问172.16.176.241:80</span><br></pre></td></tr></table></figure>
+
+
+
 <h2 id="使用netsh进行端口转发"><a href="#使用netsh进行端口转发" class="headerlink" title="使用netsh进行端口转发"></a>使用netsh进行端口转发</h2><p>windows上（需要管理员权限）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netsh interface portproxy add v4tov4 listenport=8080 listenaddress=本地IP地址 connectport=80 connectaddress=目标IP地址</span><br></pre></td></tr></table></figure>
 
